@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Comandas Comanda Directa",
+  "version": "0.1.0",
+  "description": "Imprime la comanda de cocina (y el ticket de delivery) de un pedido de la carta digital directo desde WhatsApp.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://comanda-directa-eta.vercel.app/*",
+    "http://localhost:3000/*"
+  ],
+  "options_page": "opciones.html",
+  "background": {
+    "service_worker": "dist/worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["dist/content-script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Write(.claude/)",
+      "Edit(.claude/)",
+      "Write(CLAUDE.md)",
+      "Edit(CLAUDE.md)",
+      "Write(skills/)",
+      "Edit(skills/)",
+      "Write(landing/)",
+      "Edit(landing/)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/canonical-guard.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/pre-push-guard.py",
+            "timeout": 330
+          },
+          {
+            "type": "command",
+            "command": "python -c \"import json,sys,subprocess,os; d=json.load(sys.stdin); cmd=d.get('tool_input',{}).get('command','') or ''; root=os.environ.get('CLAUDE_PROJECT_DIR','.'); (sys.exit(subprocess.call(['bash', os.path.join(root,'.claude','core','hooks','scripts','secret-scan.sh')], cwd=root))) if cmd.lstrip().startswith('git commit') else None\""
+          },
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/filter-verbose-guard.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/close-guard.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

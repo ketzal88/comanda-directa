@@ -1,0 +1,100 @@
+@import 'tailwindcss';
+
+/* ── Sistema visual de la carta ──────────────────────────────────────────
+   A diferencia de presencia-carta/sagrado-sushi-carta (colores fijos por
+   `@theme`, compile-time), acá el motor sirve muchos clientes con el MISMO
+   build: los cuatro colores de marca son variables CSS que pinta
+   `[cliente]/layout.tsx` en tiempo de request, desde `cliente.tema`
+   (logica/tipos.ts). Estas clases son el mapeo 1:1 de los nombres que ya
+   usan los componentes portados (`bg-papel`, `text-tinta`, etc.) a esas
+   variables — así el JSX no cambia entre clientes ni entre plantillas.
+
+   Sin modo oscuro a propósito, igual que en los dos proyectos de origen: la
+   carta se ve igual en todos los teléfonos, el sistema operativo del
+   comensal no decide los colores del restaurante. */
+:root {
+  --color-fondo: #171717;
+  --color-texto: #ffffff;
+  --color-texto-suave: #a3a3a3;
+  --color-acento: #e2703a;
+}
+
+.bg-papel { background-color: var(--color-fondo); }
+.text-papel { color: var(--color-fondo); }
+.text-tinta { color: var(--color-texto); }
+.bg-tinta { background-color: var(--color-texto); }
+.border-tinta { border-color: var(--color-texto); }
+.text-tinta-suave { color: var(--color-texto-suave); }
+.border-regla { border-color: var(--color-texto-suave); }
+.text-acento { color: var(--color-acento); }
+.border-acento { border-color: var(--color-acento); }
+/* backdrop de la hoja del pedido: `bg-tinta/20` no funciona porque `tinta`
+   no es un color-token de Tailwind (es runtime, no @theme) */
+.fondo-modal { background-color: color-mix(in srgb, var(--color-texto) 20%, transparent); }
+/* el desvanecido del índice de categorías (antes `from-papel`) */
+.desvanecido-papel { background: linear-gradient(to left, var(--color-fondo), transparent); }
+
+/* Los cuatro niveles tipográficos de la carta. */
+@utility titulo-categoria {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  color: var(--color-texto);
+}
+@utility titulo-subcategoria {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  color: var(--color-acento);
+}
+@utility nombre-item {
+  font-size: 17px;
+  line-height: 1.35;
+  color: var(--color-texto);
+}
+@utility numero-item {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-texto);
+}
+@utility metadata-item {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.375;
+  color: var(--color-texto-suave);
+}
+
+/* La carta es 100% mobile: en desktop NO se estira. */
+@utility columna-carta {
+  max-width: 430px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+@utility etiqueta-item {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-texto-suave);
+  padding: 1px 6px;
+  color: var(--color-texto-suave);
+  white-space: nowrap;
+}
+
+@utility etiqueta-nueva {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-acento);
+  padding: 1px 6px;
+  color: var(--color-texto);
+  white-space: nowrap;
+}
+
+body {
+  background: var(--color-fondo);
+}

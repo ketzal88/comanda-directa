@@ -1,0 +1,33 @@
+# dependencias y build
+node_modules/
+.next/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# entorno
+.env
+.env.local
+.env.*.local
+
+# editor / SO
+.DS_Store
+
+# repos de clientes: son repos git PROPIOS y anidados (tienen su .git),
+# no carpetas de este repo. Sin esto, un `git add -A` acá intentaría meter
+# sus node_modules y .next enteros en el historial de comanda-directa.
+presencia-carta/
+sagrado-sushi-carta/
+
+# artboards de Claude Design del brief original de la landing: quedan en el
+# repo como referencia de diseño, no se trackean sus assets pesados generados
+landing/.thumbnail
+landing/_ds/
+landing/*.html
+!landing/*.dc.html
+
+.vercel
+
+# cache local de la CLI de Supabase (project ref, versiones, connection
+# string del pooler sin credenciales igual): estado de esta máquina, no del repo
+supabase/.temp/

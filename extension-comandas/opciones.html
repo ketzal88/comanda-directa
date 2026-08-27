@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Comandas Sagrado Sushi — opciones</title>
+    <style>
+      /* Todo inline en la página y nada de librerías: la CSP de las
+         extensiones no deja cargar nada de afuera, y esta pantalla se abre una
+         vez cada tanto. */
+      body {
+        margin: 0;
+        padding: 28px 24px;
+        max-width: 520px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #111;
+        background: #fff;
+      }
+      h1 {
+        font-size: 17px;
+        margin: 0 0 6px;
+      }
+      p.intro {
+        margin: 0 0 20px;
+        color: #555;
+      }
+      label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #555;
+        margin: 0 0 4px;
+      }
+      .campo {
+        margin: 0 0 16px;
+      }
+      input {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 7px 9px;
+        font-size: 14px;
+        font-family: inherit;
+        color: #111;
+        background: #fff;
+        border: 1px solid #bbb;
+        border-radius: 6px;
+      }
+      .ayuda {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: #777;
+      }
+      .botones {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+      }
+      button {
+        padding: 8px 14px;
+        font-size: 13px;
+        font-family: inherit;
+        cursor: pointer;
+        border-radius: 6px;
+        border: 1px solid #bbb;
+        background: #f2f2f2;
+        color: #111;
+      }
+      button.primario {
+        border-color: #0a7d3f;
+        background: #0a7d3f;
+        color: #fff;
+        font-weight: 600;
+      }
+      #estado {
+        margin: 16px 0 0;
+        min-height: 20px;
+        font-size: 13px;
+      }
+      #estado.bien {
+        color: #0a7d3f;
+      }
+      #estado.mal {
+        color: #b3261e;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Comandas Sagrado Sushi</h1>
+    <p class="intro">
+      Con estos dos datos, cada comanda que se imprime queda además registrada en el panel. Si
+      quedan vacíos la extensión imprime igual, pero no guarda nada.
+    </p>
+
+    <div class="campo">
+      <label for="direccion">Dirección del sitio</label>
+      <input id="direccion" type="url" spellcheck="false" placeholder="https://carta.sagradosushi.com" />
+      <p class="ayuda">
+        La misma que se usa para ver la carta. Para probar en esta computadora: http://localhost:3000
+      </p>
+    </div>
+
+    <div class="campo">
+      <label for="clave">Clave del panel</label>
+      <input id="clave" type="password" spellcheck="false" autocomplete="off" />
+      <p class="ayuda">La misma con la que se entra a /panel.</p>
+    </div>
+
+    <div class="botones">
+      <button id="guardar" class="primario" type="button">Guardar</button>
+      <button id="probar" type="button">Probar conexión</button>
+    </div>
+
+    <p id="estado" role="status"></p>
+
+    <script src="dist/opciones.js"></script>
+  </body>
+</html>

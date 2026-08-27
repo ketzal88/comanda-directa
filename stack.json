@@ -1,0 +1,23 @@
+{
+  "commands": {
+    "typecheck": "npx tsc --noEmit",
+    "test": "npm test",
+    "lint": "npx eslint ."
+  },
+  "security": {
+    "secretScan": ".claude/core/hooks/scripts/secret-scan.sh"
+  },
+  "gates": {
+    "preCommit": { "secretScan": "blocking" },
+    "push": "operator-only",
+    "closeProtocol": "blocking"
+  },
+  "environment": {
+    "forbiddenCommands": [
+      {
+        "pattern": "\\b(Select-Object|ForEach-Object|Get-ChildItem|Get-Content|Write-Host|Select-String|Test-Path)\\b|\\$env:",
+        "fix": "Eso es sintaxis PowerShell dentro del tool Bash. Usa el tool PowerShell, o sintaxis POSIX en Bash."
+      }
+    ]
+  }
+}

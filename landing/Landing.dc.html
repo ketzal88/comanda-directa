@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/organic-532fa38f-e355-43ad-b338-ec60d57a23f5/styles.css">
+<script src="_ds/organic-532fa38f-e355-43ad-b338-ec60d57a23f5/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  body { margin: 0; background: var(--color-bg); }
+  a { color: var(--color-accent-700); }
+  a:hover { color: var(--color-accent-800); }
+  html { scroll-behavior: smooth; }
+</style>
+</helmet>
+
+<div style="background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow-x:hidden;">
+
+  <nav style="position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--color-bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-divider);">
+    <div style="max-width:1180px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:28px;">
+      <div style="display:flex;align-items:center;gap:10px;font-family:var(--font-heading);font-size:20px;">
+        <span style="width:26px;height:26px;border-radius:999px;background:var(--color-accent);display:inline-block;"></span>
+        {{ productName }}
+      </div>
+      <div style="display:flex;gap:24px;font-size:14px;font-weight:500;margin-left:16px;">
+        <a href="#como-funciona" style="text-decoration:none;color:var(--color-text);">Cómo funciona</a>
+        <a href="#control" style="text-decoration:none;color:var(--color-text);">El control</a>
+        <a href="#precio" style="text-decoration:none;color:var(--color-text);">Precio</a>
+        <a href="#limites" style="text-decoration:none;color:var(--color-text);">Qué no hace</a>
+      </div>
+      <a href="{{ whatsappUrl }}" class="btn btn-primary" style="margin-left:auto;border-radius:999px;padding:11px 22px;font-size:14px;">Consultar por WhatsApp</a>
+    </div>
+  </nav>
+
+  <header style="max-width:1180px;margin:0 auto;padding:72px 32px 40px;display:grid;grid-template-columns:1.05fr 0.95fr;gap:56px;align-items:center;">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:8px;background:var(--color-accent-2-200);color:var(--color-accent-2-800);border-radius:999px;padding:7px 16px;font-size:13px;font-weight:600;margin-bottom:24px;">
+        Para locales que ya reciben pedidos por WhatsApp
+      </div>
+      <h1 style="font-size:60px;line-height:1.04;margin:0 0 22px;max-width:20ch;">Del WhatsApp a la cocina, sin copiar y pegar.</h1>
+      <p style="font-size:19px;line-height:1.5;max-width:48ch;margin:0 0 32px;">Carta digital con QR, pedidos que llegan escritos al WhatsApp del local, y un botón que imprime la comanda de cocina y el ticket del cadete.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;">
+        <a href="{{ whatsappUrl }}" class="btn btn-primary" style="border-radius:999px;padding:16px 30px;font-size:17px;box-shadow:var(--shadow-md);">Consultar por WhatsApp</a>
+        <a href="#como-funciona" class="btn btn-secondary" style="border-radius:999px;padding:16px 26px;font-size:16px;">Ver cómo funciona</a>
+      </div>
+      <p style="margin:20px 0 0;font-size:14px;color:color-mix(in srgb, var(--color-text) 60%, transparent);">Sin formularios ni registro. Se responde por chat, como cualquier pedido.</p>
+    </div>
+    <div style="position:relative;">
+      <div style="position:absolute;inset:-28px -40px -20px -10px;background:var(--color-accent-200);border-radius:50% 46% 52% 48%;"></div>
+      <div style="position:relative;display:grid;grid-template-columns:1fr 210px;gap:18px;align-items:start;">
+        <div style="border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);height:400px;">
+          <image-slot id="hero-comanda" shape="rect" placeholder="Foto: la comanda saliendo de la impresora, en el mostrador"></image-slot>
+        </div>
+        <div style="background:#fff;border-radius:var(--radius-md);padding:20px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#111;box-shadow:var(--shadow-md);margin-top:44px;">
+          <div style="text-align:center;font-weight:500;letter-spacing:0.2em;">COCINA</div>
+          <div style="border-top:1px dashed #aaa;margin:12px 0;"></div>
+          <div style="display:flex;justify-content:space-between;"><span>Delivery</span><span>Milena</span></div>
+          <div style="border-top:1px dashed #aaa;margin:12px 0;"></div>
+          <div style="display:grid;gap:5px;">
+            <div>2 × Roll California</div>
+            <div>1 × Sashimi de salmón</div>
+          </div>
+          <div style="border-top:1px dashed #aaa;margin:12px 0;"></div>
+          <div style="display:grid;gap:5px;">
+            <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>$33.700</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Descuento</span><span>−$3.370</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Envío Z2</span><span>$3.000</span></div>
+          </div>
+          <div style="border-top:1px dashed #aaa;margin:12px 0;"></div>
+          <div style="display:flex;justify-content:space-between;font-weight:500;font-size:13px;"><span>TOTAL</span><span>$33.330</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section style="max-width:1180px;margin:0 auto;padding:32px;">
+    <div style="background:var(--color-surface);border-radius:var(--radius-lg);padding:34px 40px;display:grid;grid-template-columns:repeat(3,1fr);gap:36px;">
+      <div>
+        <h4 style="font-size:19px;margin:0 0 6px;">El pedido llega escrito</h4>
+        <p style="margin:0;font-size:15px;">Con el detalle, la modalidad y el total. Nadie transcribe nada.</p>
+      </div>
+      <div>
+        <h4 style="font-size:19px;margin:0 0 6px;">Se imprime desde WhatsApp</h4>
+        <p style="margin:0;font-size:15px;">Un botón en el mismo mensaje manda la comanda a la impresora térmica.</p>
+      </div>
+      <div>
+        <h4 style="font-size:19px;margin:0 0 6px;">Las decisiones son suyas</h4>
+        <p style="margin:0;font-size:15px;">Descuento, envío y medio de pago los define el local en cada pedido.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="como-funciona" style="max-width:1180px;margin:0 auto;padding:64px 32px;">
+    <h2 style="font-size:44px;margin:0 0 12px;">Cómo funciona</h2>
+    <p style="font-size:18px;max-width:50ch;margin:0 0 44px;">Tres pasos, en el orden en que pasan durante el servicio.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:28px;">
+      <div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:32px;">
+        <div style="width:52px;height:52px;border-radius:999px;background:var(--color-accent);color:var(--color-bg);font-family:var(--font-heading);font-size:24px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;">1</div>
+        <h3 style="font-size:23px;margin:0 0 8px;">Escanea y arma el pedido</h3>
+        <p style="margin:0;font-size:16px;">El comensal abre la carta con el QR de la mesa o del local, sin instalar nada. Elige salón, retiro o delivery, su zona de envío y cómo va a pagar.</p>
+      </div>
+      <div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:32px;">
+        <div style="width:52px;height:52px;border-radius:999px;background:var(--color-accent);color:var(--color-bg);font-family:var(--font-heading);font-size:24px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;">2</div>
+        <h3 style="font-size:23px;margin:0 0 8px;">Llega al WhatsApp del local</h3>
+        <p style="margin:0;font-size:16px;">El mensaje entra ya escrito, con el detalle y el total. El local sigue atendiendo por donde siempre atendió.</p>
+      </div>
+      <div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:32px;">
+        <div style="width:52px;height:52px;border-radius:999px;background:var(--color-accent);color:var(--color-bg);font-family:var(--font-heading);font-size:24px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;">3</div>
+        <h3 style="font-size:23px;margin:0 0 8px;">Un botón imprime</h3>
+        <p style="margin:0;font-size:16px;">Desde ese mismo mensaje sale la comanda de cocina y, si es delivery, el ticket del cadete con dirección y total a cobrar.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="control" style="padding:8px 32px 64px;">
+    <div style="max-width:1180px;margin:0 auto;background:var(--color-accent-2-700);color:var(--color-bg);border-radius:var(--radius-lg);padding:64px 56px;">
+      <div style="font-size:14px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-accent-2-200);margin-bottom:20px;">El control queda en el local</div>
+      <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:56px;align-items:start;">
+        <div>
+          <h2 style="font-size:48px;line-height:1.05;margin:0 0 24px;max-width:22ch;">Nada se calcula solo.</h2>
+          <p style="font-size:18px;margin:0 0 16px;max-width:52ch;">Antes de imprimir, el local ajusta el medio de pago, el descuento y la zona de envío. Un porcentaje, un monto fijo o regalar un renglón del pedido: la decisión se toma pedido por pedido.</p>
+          <p style="font-size:18px;margin:0;max-width:52ch;">Ese margen es una herramienta: compensar a un cliente que tuvo un problema la vez anterior, sumar piezas en un pedido grande, cobrar el envío según cómo venga la noche. Un sistema que lo automatiza le saca esa decisión de las manos.</p>
+        </div>
+        <div style="background:color-mix(in srgb, #fff 12%, transparent);border-radius:var(--radius-md);padding:28px;">
+          <div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-accent-2-200);margin-bottom:18px;">Lo que se decide en cada pedido</div>
+          <div style="display:grid;gap:14px;font-size:16px;">
+            <div style="display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid color-mix(in srgb, #fff 22%, transparent);padding-bottom:12px;"><span>Descuento</span><span style="opacity:0.75;">% · monto · un renglón</span></div>
+            <div style="display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid color-mix(in srgb, #fff 22%, transparent);padding-bottom:12px;"><span>Envío</span><span style="opacity:0.75;">por zona, o sin cargo</span></div>
+            <div style="display:flex;justify-content:space-between;gap:16px;"><span>Medio de pago</span><span style="opacity:0.75;">el que se acuerde</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width:1180px;margin:0 auto;padding:24px 32px 64px;display:grid;grid-template-columns:0.95fr 1.05fr;gap:56px;align-items:center;">
+    <div style="border-radius:var(--radius-lg);overflow:hidden;height:380px;box-shadow:var(--shadow-md);">
+      <image-slot id="carta-telefono" shape="rect" placeholder="Foto: la carta abierta en un teléfono, sobre la mesa"></image-slot>
+    </div>
+    <div>
+      <h2 style="font-size:40px;margin:0 0 18px;max-width:22ch;">La carta la maneja el local, no el proveedor.</h2>
+      <p style="font-size:18px;margin:0 0 24px;max-width:50ch;">Cambiar un precio o marcar un plato sin stock son dos toques desde el panel, y el comensal lo ve al instante, sin recargar la página. Lo opera cualquiera del mostrador: no hace falta llamar a nadie ni esperar a mañana.</p>
+      <div style="display:grid;gap:12px;max-width:46ch;">
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="width:8px;height:8px;border-radius:999px;background:var(--color-accent);flex:none;transform:translateY(-2px);"></span><span style="font-size:16px;">Precios, fotos y descripciones, editables en el momento.</span></div>
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="width:8px;height:8px;border-radius:999px;background:var(--color-accent);flex:none;transform:translateY(-2px);"></span><span style="font-size:16px;">Se agota un plato: se marca y desaparece de la carta.</span></div>
+        <div style="display:flex;gap:12px;align-items:baseline;"><span style="width:8px;height:8px;border-radius:999px;background:var(--color-accent);flex:none;transform:translateY(-2px);"></span><span style="font-size:16px;">Cada pedido queda registrado con lo que se terminó cobrando.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="limites" style="max-width:1180px;margin:0 auto;padding:24px 32px 64px;">
+    <div style="border:2px dashed var(--color-neutral-400);border-radius:var(--radius-lg);padding:48px 44px;">
+      <h2 style="font-size:38px;margin:0 0 10px;">Qué no hace</h2>
+      <p style="font-size:17px;max-width:52ch;margin:0 0 34px;">Mejor saberlo antes de escribir que después de instalarlo.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;">
+        <div>
+          <h4 style="font-size:19px;margin:0 0 6px;">No procesa pagos</h4>
+          <p style="margin:0;font-size:15px;">El cobro se acuerda y se hace como siempre. El sistema registra lo cobrado, no lo cobra.</p>
+        </div>
+        <div>
+          <h4 style="font-size:19px;margin:0 0 6px;">No reemplaza la facturación</h4>
+          <p style="margin:0;font-size:15px;">No emite comprobantes fiscales ni se integra con el sistema contable.</p>
+        </div>
+        <div>
+          <h4 style="font-size:19px;margin:0 0 6px;">Necesita PC e impresora</h4>
+          <p style="margin:0;font-size:15px;">Para imprimir comandas hace falta una computadora con WhatsApp Web y una impresora térmica.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="precio" style="max-width:1180px;margin:0 auto;padding:24px 32px 64px;">
+    <div style="background:var(--color-surface);border-radius:var(--radius-lg);padding:56px 48px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;">
+      <div>
+        <h2 style="font-size:42px;margin:0 0 16px;">Precio</h2>
+        <p style="font-size:18px;margin:0 0 12px;max-width:44ch;">Una instalación al inicio y una mensualidad. Sin comisión por pedido: lo que se vende es del local.</p>
+        <p style="font-size:15px;margin:0;color:color-mix(in srgb, var(--color-text) 62%, transparent);max-width:44ch;">La instalación incluye la carga de la carta, la configuración de la impresora y el acompañamiento del primer servicio.</p>
+      </div>
+      <div style="background:var(--color-bg);border-radius:var(--radius-md);padding:32px;">
+        <div style="display:grid;gap:16px;font-size:16px;">
+          <div style="display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--color-divider);padding-bottom:14px;"><span style="font-weight:600;">Instalación</span><span style="color:var(--color-accent-700);">{{ precioInstalacion }}</span></div>
+          <div style="display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--color-divider);padding-bottom:14px;"><span style="font-weight:600;">Mensualidad</span><span style="color:var(--color-accent-700);">{{ precioMensual }}</span></div>
+          <div style="display:flex;justify-content:space-between;gap:16px;"><span style="font-weight:600;">Comisión por pedido</span><span>Ninguna</span></div>
+        </div>
+        <a href="{{ whatsappUrl }}" class="btn btn-primary" style="border-radius:999px;padding:14px 26px;font-size:16px;margin-top:28px;">Pedir el precio por WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width:1180px;margin:0 auto;padding:24px 32px 72px;">
+    <h2 style="font-size:38px;margin:0 0 32px;">Preguntas que suelen aparecer</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px 56px;">
+      <div>
+        <h4 style="font-size:18px;margin:0 0 6px;">¿Hay que cambiar el número de WhatsApp?</h4>
+        <p style="margin:0;font-size:16px;">No. Los pedidos llegan al mismo número que ya usa el local.</p>
+      </div>
+      <div>
+        <h4 style="font-size:18px;margin:0 0 6px;">¿Sirve para salón y para delivery?</h4>
+        <p style="margin:0;font-size:16px;">Sí. El comensal elige salón, retiro o delivery, y en delivery se imprime además el ticket del cadete.</p>
+      </div>
+      <div>
+        <h4 style="font-size:18px;margin:0 0 6px;">¿Quién carga la carta?</h4>
+        <p style="margin:0;font-size:16px;">La primera carga va con la instalación. Después la edita el local cuando quiera.</p>
+      </div>
+      <div>
+        <h4 style="font-size:18px;margin:0 0 6px;">¿Funciona en cualquier impresora?</h4>
+        <p style="margin:0;font-size:16px;">En impresoras térmicas de 80 mm. Antes de instalar se revisa la que ya está en el mostrador.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:8px 32px 80px;">
+    <div style="max-width:1180px;margin:0 auto;background:var(--color-accent);color:var(--color-bg);border-radius:var(--radius-lg);padding:72px 56px;position:relative;overflow:hidden;">
+      <div style="position:absolute;right:-90px;bottom:-140px;width:420px;height:420px;border-radius:999px;background:color-mix(in srgb, #fff 12%, transparent);"></div>
+      <div style="position:relative;max-width:34ch;">
+        <h2 style="font-size:52px;line-height:1.05;margin:0 0 20px;">Contános cómo trabaja tu local.</h2>
+        <p style="font-size:19px;margin:0 0 32px;max-width:44ch;">Se mira la carta, la impresora y cómo se toman los pedidos hoy. Si no encaja, se dice.</p>
+        <a href="{{ whatsappUrl }}" class="btn" style="background:var(--color-bg);color:var(--color-accent-800);border-radius:999px;padding:17px 32px;font-size:17px;">Escribir por WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <footer style="border-top:1px solid var(--color-divider);">
+    <div style="max-width:1180px;margin:0 auto;padding:32px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;font-size:14px;color:color-mix(in srgb, var(--color-text) 62%, transparent);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="width:18px;height:18px;border-radius:999px;background:var(--color-accent);display:inline-block;"></span>
+        {{ productName }}
+      </div>
+      <div>Funcionando hoy en un local de Buenos Aires.</div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;productName&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Comanda directa&quot;, &quot;tsType&quot;: &quot;string&quot;},
+  &quot;whatsappUrl&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;#&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Contacto&quot;},
+  &quot;precioInstalacion&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;a definir&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Precio&quot;},
+  &quot;precioMensual&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;a definir&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Precio&quot;}
+}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      productName: this.props.productName ?? "Comanda directa",
+      whatsappUrl: this.props.whatsappUrl ?? "#",
+      precioInstalacion: this.props.precioInstalacion ?? "a definir",
+      precioMensual: this.props.precioMensual ?? "a definir",
+    };
+  }
+}
+</script>
+</body>
+</html>
