@@ -130,14 +130,28 @@ function renglonDelPago(cobro: Cobro): string[] {
   return cobro.medioDePago ? [parrafo(`Pago: ${ETIQUETA_MEDIO[cobro.medioDePago]}`)] : [];
 }
 
+/** "HH:MM" a mano, sin `Intl`: la comanda es de la cocina, no de una pantalla
+ *  que tenga que respetar el idioma de quien la mira. */
+function formatearHora(fecha: Date): string {
+  const horas = String(fecha.getHours()).padStart(2, '0');
+  const minutos = String(fecha.getMinutes()).padStart(2, '0');
+  return `${horas}:${minutos}`;
+}
+
 /** El HTML (con su propio `<style>`, listo para imprimirse solo o junto a
  *  otro ticket) de la comanda de cocina. Siempre incluye la línea de
- *  modalidad/mesa tal cual vino en el mensaje — nunca la dirección. */
-export function armarTicketCocina(pedido: PedidoParseado, cobro: Cobro): string {
+ *  modalidad/mesa tal cual vino en el mensaje — nunca la dirección.
+ *
+ *  `ahora` es la hora de IMPRESIÓN, no la del mensaje de WhatsApp: es la que
+ *  la cocina necesita para saber hace cuánto salió el pedido, y se recibe
+ *  como parámetro (en vez de leer `new Date()` acá adentro) para que los
+ *  tests puedan fijarla. */
+export function armarTicketCocina(pedido: PedidoParseado, cobro: Cobro, ahora = new Date()): string {
   const desglose = renglonesDelDesglose(cobro);
   const filas = [
     parrafo(pedido.lineaContacto),
     parrafo(pedido.nombre),
+    parrafo(`Hora: ${formatearHora(ahora)}`),
     '<hr>',
     ...cobro.lineas.map((linea) => parrafo(renglonDeLinea(linea))),
     ...(desglose.length ? ['<hr>', ...desglose.map((fila) => parrafo(fila))] : []),
@@ -152,8 +166,10 @@ export function armarTicketCocina(pedido: PedidoParseado, cobro: Cobro): string 
 }
 
 /** El HTML del ticket para el cadete: nombre, dirección, modalidad, zona, cómo
- *  paga y total a cobrar. Sin el detalle de items. Se llama solo cuando
- *  `pedido.modalidad === 'delivery'`. */
+ *  paga, el resumen de lo pedido y el total a cobrar. Lleva el mismo detalle
+ *  de items que la comanda de cocina: el cadete también tiene que poder
+ *  decirle al comensal qué le está entregando, sin necesidad del otro papel.
+ *  Se llama solo cuando `pedido.modalidad === 'delivery'`. */
 export function armarTicketDelivery(pedido: PedidoParseado, cobro: Cobro): string {
   const filas = [
     parrafo(pedido.nombre),
@@ -163,6 +179,8 @@ export function armarTicketDelivery(pedido: PedidoParseado, cobro: Cobro): strin
     // la zona va aunque no tenga cargo: es lo que le dice al cadete a dónde va
     ...(cobro.envio ? [parrafo(`Zona: ${cobro.envio.zona}`)] : []),
     ...renglonDelPago(cobro),
+    '<hr>',
+    ...cobro.lineas.map((linea) => parrafo(renglonDeLinea(linea))),
     parrafo(renglonDelTotal(cobro.cuenta, 'Total a cobrar'), 'total'),
   ];
 

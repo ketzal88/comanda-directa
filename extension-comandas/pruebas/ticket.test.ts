@@ -204,6 +204,11 @@ describe('armarTicketCocina', () => {
     const html = armarTicketCocina(pedidoSalon, cobroDe(pedidoSalon));
     expect(html).not.toContain('Pago:');
   });
+
+  it('muestra la hora de impresión', () => {
+    const html = armarTicketCocina(pedidoSalon, cobroDe(pedidoSalon), new Date(2026, 7, 27, 9, 5));
+    expect(html).toContain('Hora: 09:05');
+  });
 });
 
 describe('armarTicketDelivery', () => {
@@ -216,9 +221,9 @@ describe('armarTicketDelivery', () => {
     expect(html).toContain('$18.600');
   });
 
-  it('no incluye el detalle de items', () => {
+  it('incluye el resumen de lo pedido, igual que la comanda de cocina', () => {
     const html = armarTicketDelivery(pedidoDelivery, cobroDe(pedidoDelivery));
-    expect(html).not.toContain('Roll California');
+    expect(html).toContain('3 × Roll California — $18.600');
   });
 
   it('el ticket del cadete muestra el total a cobrar con el envío incluido', () => {

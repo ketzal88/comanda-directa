@@ -63,7 +63,15 @@ function ubicacionDelBoton(candidato: HTMLElement): HTMLElement {
   return texto?.parentElement ?? candidato;
 }
 
-/** Abre una pestaña con el/los tickets y dispara el diálogo de impresión.
+/** El nombre de la pestaña de impresión. Con un nombre fijo (en vez de
+ *  `_blank`, que SIEMPRE abre una pestaña nueva), `window.open` reutiliza la
+ *  misma pestaña en la próxima comanda si sigue abierta: un local que imprime
+ *  veinte pedidos por turno no termina con veinte pestañas apiladas en la
+ *  barra. Si la cerraron, `window.open` con este mismo nombre abre una nueva
+ *  sin que haga falta acordarse de nada acá. */
+const NOMBRE_VENTANA_IMPRESION = 'comanda-directa-impresion';
+
+/** Abre la pestaña con el/los tickets y dispara el diálogo de impresión.
  *
  *  Abre la pestaña VACÍA y le mete el documento ya armado, en vez de navegar
  *  a la comanda y esperar que cargue. Antes hacía `window.open(urlDelBlob)` y
@@ -75,7 +83,7 @@ function ubicacionDelBoton(candidato: HTMLElement): HTMLElement {
  *  letra por renglón). Poblar el documento a mano es sincrónico, así que no
  *  hay carrera posible. */
 function imprimir(html: string): void {
-  const ventana = window.open('', '_blank');
+  const ventana = window.open('', NOMBRE_VENTANA_IMPRESION);
   if (!ventana) {
     // Sin esto el botón no hacía nada y no había forma de saber por qué.
     alert(
