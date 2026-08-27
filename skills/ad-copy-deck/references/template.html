@@ -1,0 +1,414 @@
+<title>Copies — CLIENTE</title>
+
+<script>
+/* ============================================================
+   LO UNICO QUE SE EDITA AL GENERAR UN DECK.
+   El resto de la pagina renderiza sola desde acá.
+
+   AGRUPADO POR CAMPO, NUNCA POR VARIACION. Meta Ads Manager pide
+   los textos en pilas: primero los 5 textos principales, despues
+   los 5 titulos, despues las descripciones. La pagina sigue ese
+   orden para que se cargue de arriba a abajo sin saltar.
+
+   Estructura:
+     seccion = un TIPO DE CAMPO (Texto principal / Titulo / Descripcion)
+     campo   = { label, limite, recomendado?, texto }
+               label = el angulo ("vecinos", "la objecion"), para saber
+               que es cada opcion sin que estorbe el copy-paste.
+               limite = null -> muestra el largo sin juzgarlo (nombres de ad, URLs).
+
+   Meta   -> 3 secciones: Texto principal (5), Titulo (5), Descripcion (5)
+   Google -> 2 secciones: Titulos (15), Descripciones (4)
+
+   Meta rota cada pool de forma INDEPENDIENTE: puede servir el texto
+   principal 5 con el titulo 2. No hay pairing. Cada texto tiene que
+   funcionar con cualquier otro.
+
+   El contador y el rojo salen solos de `limite`. No hardcodear conteos:
+   se calculan del texto real, asi no pueden mentir.
+
+   `anuncio` y `utm` son opcionales: si estan, la pagina genera dos
+   secciones extra al final (nombres de anuncio y parametros de URL).
+   Ver el comentario de armarNombre() para por que el formato es asi.
+   ============================================================ */
+const DECK = {
+  cliente: "Aires Publicidad",
+  canal: "Meta · Feed / Reels / Stories",
+  fecha: "2026-07-15",
+  nota: "Registro: voseo liviano. CTA fija: Enviar mensaje → WhatsApp.",
+
+  // Nombres de anuncio. Ver armarNombre() para el formato.
+  anuncio: {
+    separador: " - ",
+    fijo: ["Script3", "Antes/Después"],   // el guion y su estructura: iguales para todo el deck
+    variantes: ["Question Hook"],          // lo que cambia entre copies: uno por angulo, en orden
+  },
+
+  // Parametros de tracking. `params` va tal cual en Ads Manager.
+  utm: {
+    destino: "https://ejemplo.com/",
+    params: "utm_source=facebook&utm_medium=paid_social&utm_campaign={{campaign.name}}&utm_id={{campaign.id}}&utm_content={{ad.name}}&utm_term={{adset.name}}",
+  },
+
+  secciones: [
+    {
+      titulo: "Antes / Después",
+      subtitulo: "transformación · Schwartz 2→3",
+      campos: [
+        { label: "Texto principal", limite: 125, recomendado: null,
+          texto: "Tu local puede ser el mejor del rubro, pero si no se ve, no entra nadie." },
+        { label: "Título", limite: 40, recomendado: 27,
+          texto: "De pasar desapercibido a imposible" },
+        { label: "Descripción", limite: 25, recomendado: null,
+          texto: "Diseño, fabricación y colocación" },
+      ],
+    },
+  ],
+};
+</script>
+
+<style>
+  :root {
+    --c-ground: #FFFFFF; --c-ink: #000000; --c-ink-soft: #333333;
+    --c-muted: #666666; --c-rule: #E5E5E5; --c-surface: #F5F5F5;
+    --c-accent: #F5C518; --c-on-accent: #000000;
+    --c-bad: #C0281C; --c-ok: #1F7A3D; --c-ok-soft: #E8F5EC;
+
+    --f-display: 'Anton', 'Helvetica LT Std', 'Helvetica Neue', Arial, sans-serif;
+    --f-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --f-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+    --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
+    --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+    --r-sm: 3px; --r-md: 6px; --r-lg: 12px; --r-pill: 999px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --c-ground: #000000; --c-ink: #FFFFFF; --c-ink-soft: #E5E5E5;
+      --c-muted: #999999; --c-rule: #333333; --c-surface: #111111;
+      --c-bad: #FF6B5E; --c-ok: #4ADE80; --c-ok-soft: #10241A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --c-ground: #000000; --c-ink: #FFFFFF; --c-ink-soft: #E5E5E5;
+    --c-muted: #999999; --c-rule: #333333; --c-surface: #111111;
+    --c-bad: #FF6B5E; --c-ok: #4ADE80; --c-ok-soft: #10241A;
+  }
+  :root[data-theme="light"] {
+    --c-ground: #FFFFFF; --c-ink: #000000; --c-ink-soft: #333333;
+    --c-muted: #666666; --c-rule: #E5E5E5; --c-surface: #F5F5F5;
+    --c-bad: #C0281C; --c-ok: #1F7A3D; --c-ok-soft: #E8F5EC;
+  }
+
+  body {
+    background: var(--c-ground); color: var(--c-ink);
+    font-family: var(--f-body); font-size: 16px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: var(--s-7) var(--s-4) var(--s-8); }
+
+  header { border-bottom: 2px solid var(--c-ink); padding-bottom: var(--s-4); margin-bottom: var(--s-6); }
+  .brand { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase;
+           letter-spacing: 0.14em; color: var(--c-muted); }
+  .brand .dot { color: var(--c-accent); }
+  h1 { font-family: var(--f-display); font-weight: 400; text-transform: uppercase;
+       font-size: 36px; line-height: 1.05; letter-spacing: -0.01em; margin: var(--s-2) 0; }
+  .meta-linea { display: flex; flex-wrap: wrap; gap: var(--s-4); font-family: var(--f-mono);
+                font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--c-muted); }
+  .nota { color: var(--c-ink-soft); font-size: 15px; margin-top: var(--s-3); }
+
+  /* Progreso de carga. Cargar un ad de Meta son 15 pegadas; lo que importa
+     no es cuantas hiciste sino cual te falta. */
+  .progreso { display: flex; align-items: center; gap: var(--s-3); margin-top: var(--s-4); }
+  .barra { flex: 1; height: 6px; background: var(--c-rule); border-radius: var(--r-pill); overflow: hidden; }
+  .barra > i { display: block; height: 100%; width: 0; background: var(--c-ok); transition: width 0.2s ease; }
+  .progreso-txt { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase;
+                  letter-spacing: 0.08em; color: var(--c-muted); white-space: nowrap; }
+  .reset { background: transparent; color: var(--c-muted); border: 1px solid var(--c-rule); }
+  .reset:hover { color: var(--c-ink); }
+
+  .seccion { border: 1px solid var(--c-rule); border-radius: var(--r-lg);
+             padding: var(--s-5); margin-bottom: var(--s-5); }
+  .seccion h2 { font-family: var(--f-display); font-weight: 400; text-transform: uppercase;
+                font-size: 20px; letter-spacing: -0.01em; }
+  .seccion .sub { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase;
+                  letter-spacing: 0.08em; color: var(--c-muted); margin-bottom: var(--s-4); }
+  .seccion .aviso { font-size: 14px; color: var(--c-ink-soft); background: var(--c-surface);
+                    border-left: 3px solid var(--c-accent); padding: var(--s-3);
+                    border-radius: var(--r-sm); margin-bottom: var(--s-4); }
+
+  .campo { border-top: 1px solid var(--c-rule); padding-top: var(--s-3); margin-top: var(--s-3); }
+  .campo:first-of-type { border-top: 0; margin-top: 0; }
+  .campo-head { display: flex; align-items: baseline; justify-content: space-between;
+                gap: var(--s-3); margin-bottom: var(--s-2); }
+  .campo-label { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase;
+                 letter-spacing: 0.08em; color: var(--c-muted); }
+  .conteo { font-family: var(--f-mono); font-size: 12px; font-variant-numeric: tabular-nums;
+            color: var(--c-ok); white-space: nowrap; }
+  .conteo.pasado { color: var(--c-bad); font-weight: 700; }
+  .conteo.aviso, .conteo.neutro { color: var(--c-muted); }
+
+  .texto { background: var(--c-surface); border: 1px solid var(--c-rule);
+           border-radius: var(--r-md); padding: var(--s-3); font-size: 15px;
+           white-space: pre-wrap; word-break: break-word;
+           transition: border-color 0.15s ease, background 0.15s ease; }
+  .texto.tecnico { font-family: var(--f-mono); font-size: 13px; }
+  .campo.pasado .texto { border-color: var(--c-bad); }
+
+  /* Estado copiado: queda pintado hasta que lo destildes o resetees.
+     Es un checklist, no un toast: la señal tiene que sobrevivir al scroll. */
+  .campo.copiado .texto { border-color: var(--c-ok); background: var(--c-ok-soft); }
+  .campo.copiado .campo-label { color: var(--c-ok); }
+  .campo.copiado .campo-label::before { content: "✓ "; font-weight: 700; }
+
+  .acciones { display: flex; justify-content: flex-end; gap: var(--s-2); margin-top: var(--s-2); }
+  button {
+    font-family: var(--f-mono); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.08em; cursor: pointer;
+    background: var(--c-accent); color: var(--c-on-accent);
+    border: 0; border-radius: var(--r-pill); padding: var(--s-2) var(--s-4);
+    transition: transform 0.1s ease, opacity 0.1s ease;
+  }
+  button:hover { transform: translateY(-1px); }
+  button:focus-visible { outline: 2px solid var(--c-ink); outline-offset: 2px; }
+  button.listo { background: var(--c-ok); color: #FFFFFF; }
+  button.manual { background: var(--c-bad); color: #FFFFFF; }
+
+  footer { margin-top: var(--s-7); padding-top: var(--s-4); border-top: 1px solid var(--c-rule);
+           font-family: var(--f-mono); font-size: 11px; text-transform: uppercase;
+           letter-spacing: 0.08em; color: var(--c-muted); }
+
+  @media (max-width: 600px) { h1 { font-size: 28px; } .wrap { padding: var(--s-5) var(--s-3); } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">Worker<span class="dot">.</span> — copies para ads</div>
+    <h1 id="h-cliente"></h1>
+    <div class="meta-linea">
+      <span id="h-canal"></span>
+      <span id="h-fecha"></span>
+      <span id="h-resumen"></span>
+    </div>
+    <p class="nota" id="h-nota"></p>
+    <div class="progreso">
+      <div class="barra"><i id="h-barra"></i></div>
+      <span class="progreso-txt" id="h-progreso"></span>
+      <button class="reset" id="h-reset">Destildar todo</button>
+    </div>
+  </header>
+  <main id="deck"></main>
+  <footer>Worker<span style="color:var(--c-accent)">.</span> — uso interno · el conteo se calcula del texto real</footer>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  document.title = "Copies — " + DECK.cliente;
+  $("h-cliente").textContent = DECK.cliente;
+  $("h-canal").textContent = DECK.canal;
+  $("h-fecha").textContent = DECK.fecha;
+  $("h-nota").textContent = DECK.nota || "";
+
+  /* ---------- Nombre de anuncio ----------
+     Formato: Guion - Estructura - Hook   ->  Script1 - Problema/Solución - Negative Hook
+
+     Las tres dimensiones que se comparan despues entre videos: que guion, con que
+     estructura narrativa, y como abre. `fijo` es el guion y su estructura (no cambian
+     dentro de un deck: es el mismo video); `variantes` es el hook, que es lo unico
+     que distingue a un copy del otro.
+
+     Se escribe legible a proposito, aunque viaje al utm_content via {{ad.name}}:
+     "AD5" en un reporte de GA4 no dice nada, y "Negative Hook" si. */
+  function armarNombre(a, variante) {
+    return a.fijo.concat([variante]).filter(Boolean).join(a.separador || " - ");
+  }
+
+  /* La pagina arma las secciones extra para no obligar a escribirlas a mano
+     en cada deck: salen de `anuncio` y `utm`. */
+  const secciones = DECK.secciones.slice();
+
+  if (DECK.anuncio && DECK.anuncio.variantes && DECK.anuncio.variantes.length) {
+    secciones.push({
+      titulo: "Nombre del anuncio",
+      subtitulo: "uno por ángulo · " + DECK.anuncio.variantes.length,
+      aviso: "Guion - Estructura - Hook. Los dos primeros no cambian dentro del deck (es el mismo " +
+             "video, la misma estructura); lo que distingue a cada anuncio es el hook, que es " +
+             "justamente lo que cambia entre los copies. Este nombre viaja al utm_content vía {{ad.name}}.",
+      tecnico: true,
+      campos: DECK.anuncio.variantes.map((v, i) => ({
+        label: (i + 1) + " · " + v,
+        limite: null,
+        texto: armarNombre(DECK.anuncio, v),
+      })),
+    });
+  }
+
+  if (DECK.utm && DECK.utm.params) {
+    const campos = [{
+      label: "Parámetros de URL (campo “Parámetros de URL” del ad)",
+      limite: null,
+      texto: DECK.utm.params,
+    }];
+    if (DECK.utm.destino) {
+      campos.push({
+        label: "URL completa (si preferís pegarla en el destino)",
+        limite: null,
+        texto: DECK.utm.destino + (DECK.utm.destino.indexOf("?") === -1 ? "?" : "&") + DECK.utm.params,
+      });
+    }
+    secciones.push({
+      titulo: "Tracking",
+      subtitulo: "macros dinámicos de Meta · se resuelven en el click",
+      aviso: "Va en Ads Manager → nivel anuncio → Seguimiento → Parámetros de URL. " +
+             "Los {{macros}} los completa Meta al servir, así que el nombre de campaña, " +
+             "de conjunto y de anuncio viajan tal cual estén escritos: si tienen espacios, viajan con espacios.",
+      tecnico: true,
+      campos: campos,
+    });
+  }
+
+  let totalCampos = 0, pasados = 0, copiados = 0;
+  const main = $("deck");
+
+  secciones.forEach((sec) => {
+    const box = document.createElement("section");
+    box.className = "seccion";
+
+    const h2 = document.createElement("h2");
+    h2.textContent = sec.titulo;
+    box.appendChild(h2);
+
+    if (sec.subtitulo) {
+      const sub = document.createElement("div");
+      sub.className = "sub";
+      sub.textContent = sec.subtitulo;
+      box.appendChild(sub);
+    }
+    if (sec.aviso) {
+      const av = document.createElement("p");
+      av.className = "aviso";
+      av.textContent = sec.aviso;
+      box.appendChild(av);
+    }
+
+    sec.campos.forEach((campo) => {
+      totalCampos++;
+      // El largo sale del texto real. Un conteo escrito a mano miente en cuanto
+      // alguien edita el texto y se olvida de actualizarlo.
+      const largo = campo.texto.length;
+      const tieneLimite = typeof campo.limite === "number";
+      const sePasa = tieneLimite && largo > campo.limite;
+      if (sePasa) pasados++;
+
+      const div = document.createElement("div");
+      div.className = "campo" + (sePasa ? " pasado" : "");
+
+      const head = document.createElement("div");
+      head.className = "campo-head";
+
+      const label = document.createElement("span");
+      label.className = "campo-label";
+      label.textContent = campo.label;
+
+      const conteo = document.createElement("span");
+      conteo.className = "conteo" + (sePasa ? " pasado" : "");
+      let txt;
+      if (!tieneLimite) {
+        // Nombres de ad y URLs no tienen un limite que valga la pena vigilar:
+        // mostrar el largo sin verde ni rojo evita un semaforo que no significa nada.
+        txt = largo + " car.";
+        conteo.className = "conteo neutro";
+      } else if (sePasa) {
+        txt = largo + "/" + campo.limite + "  ✗ se pasa por " + (largo - campo.limite);
+      } else if (campo.recomendado && largo > campo.recomendado) {
+        txt = largo + "/" + campo.limite + "  ⚠ se corta después de " + campo.recomendado;
+        conteo.className = "conteo aviso";
+      } else {
+        txt = largo + "/" + campo.limite + "  ✓";
+      }
+      conteo.textContent = txt;
+
+      head.appendChild(label);
+      head.appendChild(conteo);
+      div.appendChild(head);
+
+      const texto = document.createElement("div");
+      texto.className = "texto" + (sec.tecnico ? " tecnico" : "");
+      texto.textContent = campo.texto;
+      div.appendChild(texto);
+
+      const acciones = document.createElement("div");
+      acciones.className = "acciones";
+      const btn = document.createElement("button");
+      btn.textContent = "Copiar";
+      btn.addEventListener("click", () => copiar(campo.texto, btn, texto, div));
+      acciones.appendChild(btn);
+      div.appendChild(acciones);
+
+      box.appendChild(div);
+    });
+
+    main.appendChild(box);
+  });
+
+  $("h-resumen").textContent =
+    totalCampos + " campos" + (pasados ? " · " + pasados + " se pasan" : " · todos en spec");
+
+  function pintarProgreso() {
+    $("h-progreso").textContent = copiados + "/" + totalCampos + " copiados";
+    $("h-barra").style.width = (totalCampos ? (copiados / totalCampos) * 100 : 0) + "%";
+  }
+  pintarProgreso();
+
+  $("h-reset").addEventListener("click", () => {
+    document.querySelectorAll(".campo.copiado").forEach((c) => c.classList.remove("copiado"));
+    copiados = 0;
+    pintarProgreso();
+  });
+
+  async function copiar(texto, btn, nodo, campo) {
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(texto);
+      ok = true;
+    } catch (e) {
+      // La clipboard API pide contexto seguro y permiso. Si la niegan, execCommand
+      // sobre un textarea fuera de pantalla todavia funciona en la mayoria de los browsers.
+      const ta = document.createElement("textarea");
+      ta.value = texto;
+      ta.style.position = "fixed";
+      ta.style.top = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try { ok = document.execCommand("copy"); } catch (e2) { ok = false; }
+      document.body.removeChild(ta);
+    }
+    if (!ok) {
+      // Ultimo recurso: dejar el bloque real seleccionado para que Ctrl+C alcance.
+      // Sin esto, "copia a mano" manda a seleccionar algo que no esta seleccionado.
+      const sel = window.getSelection();
+      const rango = document.createRange();
+      rango.selectNodeContents(nodo);
+      sel.removeAllRanges();
+      sel.addRange(rango);
+    }
+    // Solo cuenta como copiado si de verdad entro al portapapeles. Pintar en verde
+    // algo que fallo es peor que no pintar nada: te hace saltear un campo.
+    if (ok && !campo.classList.contains("copiado")) {
+      campo.classList.add("copiado");
+      copiados++;
+      pintarProgreso();
+    }
+    btn.textContent = ok ? "Copiado" : "Ctrl+C — ya está seleccionado";
+    btn.classList.toggle("listo", ok);
+    btn.classList.toggle("manual", !ok);
+    setTimeout(() => {
+      btn.textContent = campo.classList.contains("copiado") ? "Copiar de nuevo" : "Copiar";
+      btn.classList.remove("listo", "manual");
+    }, 2000);
+  }
+})();
+</script>

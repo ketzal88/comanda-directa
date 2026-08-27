@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{CLIENTE}} · {{TITULO}} · Worker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== PEGAR ACA EL CONTENIDO DE assets/worker-design-system.css ===== */
+/* (inline obligatorio: el MCP no permite assets externos relativos) */
+
+/* ---- Componentes especificos de la propuesta ---- */
+.nav{
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-block: var(--s-4);
+  padding-inline: max(var(--s-7), calc((100% - var(--max-w)) / 2 + var(--s-7)));
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--c-gray-10);
+}
+.nav__logo{ font-family: var(--f-display); text-transform: uppercase; font-size: var(--t-h3); letter-spacing: 0; }
+.nav__links{ display: flex; gap: var(--s-5); }
+.nav__links a{ font-family: var(--f-mono); font-size: var(--t-label); text-transform: uppercase; letter-spacing: 0.06em; color: var(--c-gray-60); text-decoration: none; transition: color .2s var(--ease); }
+.nav__links a:hover{ color: var(--c-black); }
+@media (max-width: 720px){ .nav__links{ display: none; } }
+
+.hero{ min-height: 92vh; display: flex; flex-direction: column; justify-content: center; padding-block: var(--s-9); padding-inline: max(var(--s-7), calc((100% - var(--max-w)) / 2 + var(--s-7))); }
+.hero h1{ font-size: var(--t-display); max-width: 16ch; margin: var(--s-5) 0; }
+.hero__stats{ display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--s-6); margin-top: var(--s-7); }
+.stat__num{ font-family: var(--f-display); font-size: var(--t-h1); line-height: 1; }
+.stat__num .accent{ color: var(--c-accent); }
+
+.cards{ display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s-5); margin-top: var(--s-6); }
+.card{ border: 1px solid var(--c-gray-10); border-radius: var(--r-lg); padding: var(--s-6); transition: transform .3s var(--ease), border-color .3s var(--ease); }
+.card:hover{ transform: translateY(-4px); border-color: var(--c-black); }
+.card--accent{ background: var(--c-accent); border-color: var(--c-accent); }
+
+table{ width: 100%; border-collapse: collapse; margin-top: var(--s-5); font-variant-numeric: tabular-nums; }
+th, td{ text-align: right; padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--c-gray-10); }
+th:first-child, td:first-child{ text-align: left; }
+thead th{ font-family: var(--f-mono); font-size: var(--t-label); text-transform: uppercase; letter-spacing: 0.06em; color: var(--c-gray-60); }
+tbody tr:hover{ background: var(--c-offwhite); }
+
+.tabs{ display: flex; gap: var(--s-2); margin-top: var(--s-5); flex-wrap: wrap; }
+.tab{ font-family: var(--f-mono); font-size: var(--t-label); text-transform: uppercase; letter-spacing: 0.06em; padding: var(--s-3) var(--s-5); border: 1px solid var(--c-gray-10); border-radius: var(--r-pill); background: none; cursor: pointer; transition: all .2s var(--ease); }
+.tab.active{ background: var(--c-black); color: var(--c-white); border-color: var(--c-black); }
+.tab-content{ display: none; }
+.tab-content.active{ display: block; }
+
+footer{ background: var(--c-black); color: var(--c-white); padding-block: var(--s-8); padding-inline: max(var(--s-7), calc((100% - var(--max-w)) / 2 + var(--s-7))); }
+footer .logo{ font-family: var(--f-display); text-transform: uppercase; font-size: var(--t-h2); }
+footer .meta{ font-family: var(--f-mono); font-size: var(--t-label); color: var(--c-gray-40); margin-top: var(--s-3); }
+
+.reveal{ opacity: 0; transform: translateY(20px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.reveal.in{ opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav__logo">Worker<span class="accent">.</span></div>
+  <div class="nav__links">
+    <a href="#diagnostico">Diagnostico</a>
+    <a href="#propuesta">Propuesta</a>
+    <a href="#proyeccion">Proyeccion</a>
+  </div>
+</nav>
+
+<!-- HERO invertido: unico bloque oscuro arriba -->
+<header class="hero invert">
+  <span class="label">Propuesta · {{CLIENTE}} · {{MES_ANIO}}</span>
+  <h1>{{TITULAR_GRANDE}}</h1>
+  <div class="hero__stats">
+    <div><div class="stat__num">{{DATO_1}}<span class="accent">.</span></div><span class="caption">{{LABEL_1}}</span></div>
+    <div><div class="stat__num">{{DATO_2}}</div><span class="caption">{{LABEL_2}}</span></div>
+    <div><div class="stat__num">{{DATO_3}}</div><span class="caption">{{LABEL_3}}</span></div>
+  </div>
+</header>
+
+<section class="section reveal" id="diagnostico">
+  <span class="label">01 · Diagnostico</span>
+  <h2>{{TITULO_SECCION}}</h2>
+  <p style="max-width:60ch;margin-top:var(--s-4);color:var(--c-gray-80)">{{PARRAFO}}</p>
+  <div class="cards">
+    <div class="card"><h3>{{CARD_TITULO}}</h3><p style="margin-top:var(--s-3);color:var(--c-gray-60)">{{CARD_TEXTO}}</p></div>
+  </div>
+</section>
+
+<section class="section reveal" id="propuesta">
+  <span class="label">02 · Propuesta</span>
+  <h2>{{TITULO_SECCION}}</h2>
+  <table>
+    <thead><tr><th>Concepto</th><th>Valor</th></tr></thead>
+    <tbody><tr><td>{{FILA}}</td><td>{{VALOR}}</td></tr></tbody>
+  </table>
+</section>
+
+<section class="section reveal" id="proyeccion">
+  <span class="label">03 · Proyeccion</span>
+  <h2>{{TITULO_SECCION}}</h2>
+  <!-- Cada set de tabs va envuelto en .tabgroup (tabs + sus .tab-content adentro).
+       Si la pagina tiene mas de un set, el wrapper es OBLIGATORIO: sin el, clickear
+       una tab apaga las de los otros grupos y esas secciones quedan en blanco. -->
+  <div class="tabgroup">
+    <div class="tabs">
+      <button class="tab active" data-tab="esc-1">{{ESCENARIO_1}}</button>
+      <button class="tab" data-tab="esc-2">{{ESCENARIO_2}}</button>
+    </div>
+    <div class="tab-content active" id="esc-1"><p style="margin-top:var(--s-4)">{{CONTENIDO_1}}</p></div>
+    <div class="tab-content" id="esc-2"><p style="margin-top:var(--s-4)">{{CONTENIDO_2}}</p></div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">Worker<span class="accent">.</span></div>
+  <div class="meta">De comerciante a empresario · worker.ar</div>
+  <div class="meta">Propuesta · {{CLIENTE}} · {{MES_ANIO}}</div>
+</footer>
+
+<script>
+// Tabs. Cada .tabgroup es independiente; las tabs sueltas (sin wrapper) forman
+// un grupo implicito entre ellas. Sin este scope, dos sets de tabs en la misma
+// pagina se pisan y clickear uno deja al otro sin panel visible.
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.closest('.tabgroup');
+    // Ojo: para las tabs sueltas NO alcanza con scopear a document, porque
+    // barreria tambien con los grupos envueltos. Solo tocan a sus pares sueltas.
+    const pares = sel => group
+      ? [...group.querySelectorAll(sel)]
+      : [...document.querySelectorAll(sel)].filter(el => !el.closest('.tabgroup'));
+    pares('.tab').forEach(t => t.classList.remove('active'));
+    pares('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    const panel = (group || document).querySelector('#' + btn.dataset.tab);
+    if (panel) panel.classList.add('active');
+  });
+});
+// Fade-in on scroll.
+// threshold DEBE ser 0. Una seccion mas alta que el viewport nunca alcanza un ratio
+// de interseccion alto (el maximo posible es viewport/altura), asi que con 0.12 una
+// seccion de 8x el alto de pantalla queda invisible PARA SIEMPRE. Cazado el 2026-07-29
+// en la jornada de Nakiki: la seccion de piezas medía 17.800px y no se veia en mobile.
+const revealEls = document.querySelectorAll('.reveal');
+if (!('IntersectionObserver' in window)) {
+  revealEls.forEach(el => el.classList.add('in'));
+} else {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0 });
+  revealEls.forEach(el => io.observe(el));
+}
+// Smooth scroll con offset por la nav sticky
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    const t = document.querySelector(this.getAttribute('href'));
+    if (t){ const top = t.getBoundingClientRect().top + window.pageYOffset - 80; window.scrollTo({ top, behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>

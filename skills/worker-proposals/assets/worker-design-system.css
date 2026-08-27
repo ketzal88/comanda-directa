@@ -1,0 +1,109 @@
+/* ============================================================
+   WORKER DESIGN SYSTEM v2 (mayo 2026)
+   Fondo blanco primario. Oscuro solo como modo invertido.
+   Accent #F5C518 con techo de 18% de area, texto negro encima.
+   Fuente de verdad de tokens. Embeber inline en el <head> de
+   cada propuesta (el MCP no permite assets externos relativos).
+   ============================================================ */
+:root{
+  /* Layout */
+  --max-w: 1440px;
+
+  /* Neutrales */
+  --c-black:    #000000;
+  --c-black-90: #111111;
+  --c-black-80: #1A1A1A;
+  --c-gray-80:  #333333;
+  --c-gray-60:  #666666;
+  --c-gray-40:  #999999;
+  --c-gray-10:  #E5E5E5;
+  --c-offwhite: #F5F5F5;
+  --c-white:    #FFFFFF;
+
+  /* Accent (usar con moderacion, techo 18% del area visible) */
+  --c-accent:   #F5C518;
+
+  /* Tipografia */
+  --f-display: 'Anton', 'Helvetica LT Std', 'Helvetica Neue', sans-serif;
+  --f-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --f-mono:    'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  /* Escala tipografica (px) */
+  --t-super:   96px;
+  --t-display: 72px;
+  --t-h1:      40px;
+  --t-h2:      28px;
+  --t-h3:      20px;
+  --t-body:    16px;
+  --t-label:   13px;
+  --t-caption: 11px;
+
+  /* Spacing base 4 */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px;
+
+  /* Radios */
+  --r-sm: 3px; --r-md: 6px; --r-lg: 12px; --r-pill: 999px;
+
+  /* Curva de easing comun */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*{ box-sizing: border-box; margin: 0; padding: 0; }
+html{ scroll-behavior: smooth; }
+
+body{
+  font-family: var(--f-body);
+  background: var(--c-white);
+  color: var(--c-black);
+  font-size: var(--t-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tipografia display: Anton va en MAYUSCULAS, tracking ajustado */
+h1, h2, h3, .display{
+  font-family: var(--f-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+h1{ font-size: var(--t-h1); }
+h2{ font-size: var(--t-h2); }
+h3{ font-size: var(--t-h3); }
+
+.caption, .label{
+  font-family: var(--f-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-gray-60);
+}
+.label{ font-size: var(--t-label); }
+.caption{ font-size: var(--t-caption); }
+
+/* Acento puntual: el punto amarillo del logo, subrayados, etc. */
+.accent{ color: var(--c-accent); }
+.accent-bg{ background: var(--c-accent); color: var(--c-black); }
+
+/* Layout
+   Content max-width: 1440px aplicado a .section, hero, nav y footer.
+   El padding lateral dinamico (max(s-7, (100% - max-w)/2)) hace que el background
+   de hero/nav/footer siga full-width mientras el contenido respeta el max-w.
+
+   El 100% es del CONTENEDOR, no del viewport: NO usar 50vw aca. `vw` siempre mide el
+   viewport y ningun ancestro puede reescalarlo, asi que si algo llega a cappear el <body>
+   (el frame que el Brain inyecta al servir /p/[slug], por ejemplo) el padding sigue
+   creciendo con la pantalla y con box-sizing:border-box se come la caja de contenido:
+   en 2560px de ancho el hero queda con 224px de texto, una palabra por renglon.
+   Con % la cuenta cierra en los dos casos. Paso en agosto 2026 con 8 propuestas. */
+.section{ padding: var(--s-9) var(--s-7); max-width: var(--max-w); margin: 0 auto; }
+@media (max-width: 720px){
+  .section{ padding: var(--s-8) var(--s-5); }
+  :root{ --t-super: 56px; --t-display: 44px; --t-h1: 30px; --t-h2: 23px; }
+}
+
+/* Bloque invertido (hero / cierre). Unico lugar oscuro. */
+.invert{ background: var(--c-black); color: var(--c-white); }
+.invert .label, .invert .caption{ color: var(--c-gray-40); }
