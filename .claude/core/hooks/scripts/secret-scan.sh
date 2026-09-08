@@ -33,6 +33,10 @@ FOUND=0
 
 if [ -f "$PATTERNS_FILE" ]; then
     while IFS= read -r pattern || [ -n "$pattern" ]; do
+        # Sin esto, un patterns.txt con CRLF (lo normal si se edito en Windows)
+        # deja un \r pegado al final de cada regex y NINGUN patron matchea:
+        # el scanner pasa en vacio y no bloquea nada.
+        pattern="${pattern%$'\r'}"
         [[ "$pattern" =~ ^[[:space:]]*# ]] && continue
         [[ -z "${pattern// }" ]] && continue
         if echo "$DIFF" | grep -qiE "$pattern" 2>/dev/null; then

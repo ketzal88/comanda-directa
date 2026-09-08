@@ -34,3 +34,4 @@ supabase/.temp/
 
 # artefactos del MCP de Playwright (logs de consola, snapshots de página)
 .playwright-mcp/
+__pycache__/

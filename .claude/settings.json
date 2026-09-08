@@ -9,7 +9,11 @@
       "Write(skills/)",
       "Edit(skills/)",
       "Write(landing/)",
-      "Edit(landing/)"
+      "Edit(landing/)",
+      "Write(presencia-carta/)",
+      "Edit(presencia-carta/)",
+      "Write(sagrado-sushi-carta/)",
+      "Edit(sagrado-sushi-carta/)"
     ]
   },
   "hooks": {
@@ -29,7 +33,8 @@
           },
           {
             "type": "command",
-            "command": "python -c \"import json,sys,subprocess,os; d=json.load(sys.stdin); cmd=d.get('tool_input',{}).get('command','') or ''; root=os.environ.get('CLAUDE_PROJECT_DIR','.'); (sys.exit(subprocess.call(['bash', os.path.join(root,'.claude','core','hooks','scripts','secret-scan.sh')], cwd=root))) if cmd.lstrip().startswith('git commit') else None\""
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/secret-scan-guard.py",
+            "timeout": 20
           },
           {
             "type": "command",

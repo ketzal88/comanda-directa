@@ -31,6 +31,9 @@ CI_PATHS_IGNORE = [
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 READ_CONFIG = os.path.join(SCRIPT_DIR, "read-config.py")
 
+sys.path.insert(0, SCRIPT_DIR)
+from git_target_dir import subcomando  # noqa: E402
+
 
 def cfg(key):
     """Read a dotted key from stack.json via read-config.py."""
@@ -76,7 +79,10 @@ def main():
         return 0
 
     push_cmd = (payload.get("tool_input", {}) or {}).get("command", "") or ""
-    if not re.match(r"^\s*git\s+push(\s|$)", push_cmd):
+    # subcomando() en vez de un regex sobre "git push": tambien matchea
+    # `git -C presencia-carta push` y `cd sagrado-sushi-carta && git push`,
+    # que con el regex viejo se salteaban el gate entero.
+    if subcomando(push_cmd) != "push":
         return 0
     if "--dry-run" in push_cmd:
         return 0
