@@ -31,3 +31,6 @@ landing/*.html
 # cache local de la CLI de Supabase (project ref, versiones, connection
 # string del pooler sin credenciales igual): estado de esta máquina, no del repo
 supabase/.temp/
+
+# artefactos del MCP de Playwright (logs de consola, snapshots de página)
+.playwright-mcp/
