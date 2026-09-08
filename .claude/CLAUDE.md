@@ -38,8 +38,8 @@ Conviven en el working tree, con su propio código y su propio git:
 `stack.json` declara `commands.typecheck` / `.test` / `.lint` — corren sobre
 el motor (`src/`, `pruebas/`), no tocan `extension-comandas/` (tests propios,
 `npm test` en esa carpeta) ni los otros dos productos, que se corren con `-C`
-(ver "Los tres repos"). `sagrado-sushi-carta` tiene su propio `stack.json`;
-`presencia-carta` no tiene ninguno.
+(ver "Los tres repos"). Los tres tienen su propio `stack.json` y los guards
+leen el del repo al que apunta el comando.
 
 ## Los tres repos
 
@@ -51,7 +51,7 @@ remoto y su deploy:
 | --- | --- | --- | --- |
 | motor Comanda Directa | `.` | `comanda-directa` | `.claude/` + `stack.json` |
 | Sagrado Sushi | `sagrado-sushi-carta/` | `sagrado-sushi-carta` | `.claude/` + `stack.json` propios |
-| Presencia | `presencia-carta/` | `presencia-carta` | ninguna |
+| Presencia | `presencia-carta/` | `presencia-carta` | `stack.json` (sin `.claude/`) |
 
 Reglas para operarlos desde acá:
 
@@ -68,11 +68,17 @@ Reglas para operarlos desde acá:
   Cerrá con "committed: `<sha>` — N commit(s) listos para pushear".
 - **El scan de secretos corre en el repo del commit**, resuelto desde el
   comando (`secret-scan-guard.py` + `git_target_dir.py`).
-- **Los hooks leen el `stack.json` de la raíz**, aunque el commit sea de un
-  anidado. O sea: los `gates.prePush.steps` que declara
-  `sagrado-sushi-carta/stack.json` (typecheck + lint + test) **no** se
-  ejecutan desde una sesión de la raíz. Si cerrás trabajo en sagrado, corré
-  typecheck, lint y test a mano con `-C` antes de dar por terminado.
+- **Cada gate corre contra el `stack.json` del repo destino.** Un
+  `git -C presencia-carta push` resuelve los `gates.prePush.steps` de
+  `presencia-carta/stack.json` (typecheck + lint + test) y los ejecuta con
+  cwd en presencia, no en la raíz. Si el repo destino no tiene manifest, la
+  búsqueda sube y cae en el de la raíz.
+- **El close-guard mira los tres.** Al cerrar el turno recorre la raíz y todo
+  subdirectorio con `.git` propio, así que trabajo sin commitear en las
+  cartas no pasa desapercibido; los archivos aparecen prefijados con el repo
+  (`presencia-carta/src/...`).
+- **Los `forbiddenCommands` sí salen del `stack.json` de la raíz**: son del
+  entorno (PowerShell vs Bash), no del repo.
 
 ## Notes for Claude
 

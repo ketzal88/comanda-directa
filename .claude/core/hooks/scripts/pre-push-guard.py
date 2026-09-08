@@ -32,28 +32,35 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 READ_CONFIG = os.path.join(SCRIPT_DIR, "read-config.py")
 
 sys.path.insert(0, SCRIPT_DIR)
-from git_target_dir import subcomando  # noqa: E402
+from git_target_dir import subcomando, target_dir  # noqa: E402
 
 
-def cfg(key):
-    """Read a dotted key from stack.json via read-config.py."""
+def cfg(key, repo=None):
+    """Read a dotted key from the stack.json of `repo` (via read-config.py).
+
+    read-config.py searches upward from its cwd, so pointing it at a nested
+    repo picks that repo's manifest and falls back to the root's when the
+    nested one has none.
+    """
     try:
         r = subprocess.run(
             [sys.executable, READ_CONFIG, key],
             capture_output=True, text=True, timeout=5,
+            cwd=repo or None,
         )
         return r.stdout.strip() if r.returncode == 0 else None
     except Exception:
         return None
 
 
-def changed_files():
+def changed_files(repo=None):
     for args in [
         ["git", "diff", "--name-only", "origin/main...HEAD"],
         ["git", "diff", "--name-only", "HEAD~1"],
     ]:
         try:
-            r = subprocess.run(args, capture_output=True, text=True, timeout=10)
+            r = subprocess.run(args, capture_output=True, text=True, timeout=10,
+                               cwd=repo or None)
             if r.returncode == 0 and r.stdout.strip():
                 return r.stdout.strip().splitlines()
         except Exception:
@@ -84,6 +91,15 @@ def main():
     # que con el regex viejo se salteaban el gate entero.
     if subcomando(push_cmd) != "push":
         return 0
+
+    # A que repo apunta este push: la raiz, presencia-carta o sagrado-sushi-carta.
+    # Todo lo que sigue (manifest, pasos, git) se resuelve contra ese repo.
+    repo = target_dir(payload)
+    if not os.path.isdir(repo):
+        # Nunca caer en un path que no existe: cfg() fallaria en silencio y el
+        # gate se abriria solo (fail-open). El cwd del proceso siempre sirve:
+        # el hook corre con `cd "$CLAUDE_PROJECT_DIR"`.
+        repo = os.getcwd()
     if "--dry-run" in push_cmd:
         return 0
 
@@ -94,7 +110,7 @@ def main():
     # BEFORE burning minutes of checks on a push the operator will do by
     # hand anyway. Explicit exception: ALLOW_CLAUDE_PUSH=1 (operator asked
     # in chat) -> the full check suite below runs before allowing it.
-    if cfg("gates.push") == "operator-only":
+    if cfg("gates.push", repo) == "operator-only":
         allow = os.environ.get("ALLOW_CLAUDE_PUSH") == "1" or "ALLOW_CLAUDE_PUSH=1" in push_cmd
         if not allow:
             sys.stderr.write(
@@ -110,7 +126,7 @@ def main():
         return 0
 
     if os.environ.get("SKIP_PREPUSH") == "1":
-        files = changed_files()
+        files = changed_files(repo)
         if all_docs_only(files):
             return 0
         sys.stderr.write(
@@ -120,7 +136,7 @@ def main():
         return 2
 
     # Resolve steps from manifest
-    steps_raw = cfg("gates.prePush.steps")
+    steps_raw = cfg("gates.prePush.steps", repo)
     if not steps_raw:
         return 0  # no manifest or no steps configured
 
@@ -133,7 +149,7 @@ def main():
 
     checks = []
     for step in steps:
-        cmd_val = cfg(f"commands.{step}") or cfg(f"ratchets.{step}")
+        cmd_val = cfg(f"commands.{step}", repo) or cfg(f"ratchets.{step}", repo)
         if cmd_val:
             checks.append((step, cmd_val))
 
@@ -154,7 +170,7 @@ def main():
                 ["bash", "-c", check_cmd],
                 capture_output=True, text=True,
                 encoding="utf-8", errors="replace",
-                timeout=remaining, env=env,
+                timeout=remaining, env=env, cwd=repo,
             )
         except subprocess.TimeoutExpired:
             failures.append((name, "timed out", ""))
@@ -172,7 +188,7 @@ def main():
     if not failures:
         return 0
 
-    sys.stderr.write(f"[pre-push] {len(failures)} check(s) failed — blocking push:\n\n")
+    sys.stderr.write(f"[pre-push] {len(failures)} check(s) failed in {os.path.basename(repo)} — blocking push:\n\n")
     for name, status, output in failures:
         sys.stderr.write(f"--- {name} ({status}) ---\n")
         for ln in tail(output, TAIL_LINES):

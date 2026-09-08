@@ -20,10 +20,28 @@ import shlex
 OPTS_CON_VALOR = {"-C", "-c", "--exec-path", "--namespace", "--git-dir", "--work-tree"}
 
 
+def normalizar(ruta):
+    """msys path (/c/Users/...) -> Windows path (C:/Users/...); otherwise as-is.
+
+    Git bash hands out /c/... paths that os.path.isdir() rejects on Windows.
+    Without this a `git -C /c/.../presencia-carta push` resolved to nothing and
+    the guard fell through as if there were no gate at all.
+    """
+    if not ruta:
+        return ruta
+    m = re.match(r"^/([A-Za-z])/(.*)$", ruta)
+    if m and os.name == "nt":
+        return m.group(1).upper() + ":/" + m.group(2)
+    return ruta
+
+
 def _base_dir(payload):
     """Where the command runs from, before any `cd` inside it."""
-    cwd = (payload or {}).get("cwd") or ""
-    return cwd or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
+    for cand in ((payload or {}).get("cwd"), os.environ.get("CLAUDE_PROJECT_DIR")):
+        cand = normalizar(cand or "")
+        if cand and os.path.isdir(cand):
+            return cand
+    return os.getcwd()
 
 
 def _cd_prefix(cmd):
@@ -63,6 +81,7 @@ def target_dir(payload):
 
     destino_cd, resto = _cd_prefix(cmd)
     if destino_cd:
+        destino_cd = normalizar(destino_cd)
         base = destino_cd if os.path.isabs(destino_cd) else os.path.join(base, destino_cd)
 
     try:
@@ -75,7 +94,7 @@ def target_dir(payload):
         if not t.startswith("-"):
             break
         if t == "-C" and i + 1 < len(tokens):
-            destino = tokens[i + 1]
+            destino = normalizar(tokens[i + 1])
             base = destino if os.path.isabs(destino) else os.path.join(base, destino)
             i += 2
             continue

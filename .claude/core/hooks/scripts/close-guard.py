@@ -19,6 +19,11 @@ Skip conditions (exit 0):
   - SKIP_COMMITCHECK=1 (explicit bypass).
   - gates.closeProtocol not configured.
   - clean working tree, or only docs/config changes (.md, docs/, .claude/, .github/).
+
+Checks the root repo AND every nested repo one level down (any subdir with
+its own .git: presencia-carta/, sagrado-sushi-carta/). They are gitignored
+here, so the root `git status` never sees them and work left dirty inside
+them used to close silently.
 """
 import json
 import os
@@ -43,6 +48,42 @@ def cfg(key):
         return None
 
 
+def repos(root):
+    """The root repo plus every nested repo one level down."""
+    encontrados = [root]
+    try:
+        for nombre in sorted(os.listdir(root)):
+            d = os.path.join(root, nombre)
+            if os.path.isdir(os.path.join(d, ".git")):
+                encontrados.append(d)
+    except Exception:
+        pass
+    return encontrados
+
+
+def sucio(repo):
+    """Uncommitted code files in `repo` (docs/config filtered out)."""
+    try:
+        r = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=10, cwd=repo,
+        )
+        lines = [ln for ln in (r.stdout or "").splitlines() if len(ln) > 3]
+    except Exception:
+        return []
+
+    archivos = []
+    for line in lines:
+        path = line[3:].strip().strip('"').replace("\\", "/")
+        if path.endswith(DOC_SUFFIXES):
+            continue
+        if any(path.startswith(p) for p in DOC_DIR_PREFIXES):
+            continue
+        archivos.append(path)
+    return archivos
+
+
 def main():
     try:
         payload = json.loads(sys.stdin.read().lstrip("\ufeff"))
@@ -56,24 +97,11 @@ def main():
     if cfg("gates.closeProtocol") != "blocking":
         return 0
 
-    try:
-        r = subprocess.run(
-            ["git", "status", "--porcelain"],
-            capture_output=True, text=True,
-            encoding="utf-8", errors="replace", timeout=10,
-        )
-        lines = [ln for ln in (r.stdout or "").splitlines() if len(ln) > 3]
-    except Exception:
-        return 0
-
+    root = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
     code_files = []
-    for line in lines:
-        path = line[3:].strip().strip('"').replace("\\", "/")
-        if path.endswith(DOC_SUFFIXES):
-            continue
-        if any(path.startswith(p) for p in DOC_DIR_PREFIXES):
-            continue
-        code_files.append(path)
+    for repo in repos(root):
+        etiqueta = "" if repo == root else os.path.basename(repo) + "/"
+        code_files.extend(etiqueta + f for f in sucio(repo))
 
     if not code_files:
         return 0
