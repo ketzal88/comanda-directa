@@ -62,6 +62,7 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
   const [nombre, setNombre] = useState('');
   const [mesa, setMesa] = useState('');
   const [direccion, setDireccion] = useState('');
+  const [telefono, setTelefono] = useState('');
   const [notas, setNotas] = useState('');
   const [medioDePago, setMedioDePago] = useState<MedioDePago | null>(
     configPedido.mediosDePago.length === 1 ? configPedido.mediosDePago[0] : null,
@@ -121,6 +122,7 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
     modalidad: modalidad ?? 'retiro',
     mesa,
     direccion,
+    telefono,
     notas,
     medioDePago,
     zona,
@@ -439,6 +441,23 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
                 )}
               </label>
             )}
+
+            <label className="block mt-5">
+              <span className="metadata-item tracking-[0.1em] uppercase">Teléfono (opcional)</span>
+              <input
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                maxLength={MAX_TEXTO}
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="Por si hay que llamarte"
+                className={CLASE_CAMPO}
+              />
+              {mostrarErrores && errorDe('telefono') && (
+                <span className="metadata-item text-tinta block mt-1">{errorDe('telefono')}</span>
+              )}
+            </label>
 
             <label className="block mt-5">
               <span className="metadata-item tracking-[0.1em] uppercase">Aclaraciones (opcional)</span>

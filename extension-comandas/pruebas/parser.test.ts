@@ -81,6 +81,7 @@ describe('parsearMensaje', () => {
       mesa: '5',
       nombre: 'Ana',
       direccion: null,
+      telefono: null,
       items: [
         { texto: '2 × Roll California — $12.400', importe: 12_400 },
         { texto: '1 × Sashimi de salmón — $8.900', importe: 8_900 },
@@ -118,6 +119,7 @@ describe('parsearMensaje', () => {
       mesa: null,
       nombre: 'Pedro',
       direccion: 'Av. Siempre Viva 742',
+      telefono: null,
       items: [{ texto: '3 × Roll California — $18.600', importe: 18_600 }],
       total: '$18.600',
       aclaraciones: 'Sin wasabi, por favor',
@@ -230,6 +232,27 @@ describe('los campos de plata', () => {
     expect(r?.items).toHaveLength(1);
   });
 
+  it('lee el teléfono y NO lo mete en los ítems', () => {
+    const texto = [
+      'Pedido — Sagrado Sushi',
+      '',
+      'Delivery',
+      'Pedro',
+      '',
+      'Dirección: Av. Siempre Viva 742',
+      '',
+      'Teléfono: +54 9 11 0000-0000',
+      '',
+      '1 × Roll California — $6.200',
+      '',
+      'Total: $6.200',
+    ].join('\n');
+
+    const r = parsearMensaje(texto);
+    expect(r?.telefono).toBe('+54 9 11 0000-0000');
+    expect(r?.items).toEqual([{ texto: '1 × Roll California — $6.200', importe: 6_200 }]);
+  });
+
   it('una zona sin cargo da precio 0, no null: el nombre de la zona igual hace falta', () => {
     // el panel permite cargar una zona en $0 y el mensaje manda el bloque
     // igual, para que el ticket del cadete pueda decir a dónde va
@@ -324,6 +347,7 @@ describe('los campos de plata', () => {
     expect(r?.envio).toBeNull();
     expect(r?.descuentoRetiro).toBeNull();
     expect(r?.codigo).toBeNull();
+    expect(r?.telefono).toBeNull();
     expect(r?.items.length).toBeGreaterThan(0);
   });
 });

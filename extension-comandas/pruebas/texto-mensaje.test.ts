@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { describe, expect, it } from 'vitest';
 import { parsearMensaje } from '../src/parser';
-import { textoDelMensaje } from '../src/texto-mensaje';
+import { telefonoDelChat, textoDelMensaje } from '../src/texto-mensaje';
 
 /** La fila de mensaje tal cual la arma WhatsApp Web, capturada del navegador
  *  real el 26/8/2026 sobre el pedido de prueba. Lo que importa del fixture y
@@ -181,5 +181,45 @@ describe('textoDelMensaje + parsearMensaje de punta a punta', () => {
     // null. Con eso el botón de imprimir no aparecía en ningún pedido.
     expect(INNER_TEXT_DEL_NAVEGADOR).toContain('Delivery\n\nPedido de prueba borrar');
     expect(parsearMensaje(INNER_TEXT_DEL_NAVEGADOR)).toBeNull();
+  });
+});
+
+describe('telefonoDelChat', () => {
+  /** Una fila mínima con los dos atributos de los que se puede sacar el
+   *  número, para no repetir el fixture gigante en cada caso. */
+  function fila(dataId: string, prePlainText: string): HTMLElement {
+    const documento = new DOMParser().parseFromString(
+      `<div data-id="${dataId}"><div class="copyable-text" data-pre-plain-text="${prePlainText}">x</div></div>`,
+      'text/html',
+    );
+    return documento.querySelector<HTMLElement>('[data-pre-plain-text]')!;
+  }
+
+  it('saca el número del JID de la fila cuando el build lo trae', () => {
+    const nodo = fila('false_5491100000000@c.us_3EB0AA', '[12:33, 9/9/2026] Alguien: ');
+    expect(telefonoDelChat(nodo)).toBe('+5491100000000');
+  });
+
+  it('en un grupo toma el JID de quien escribió, que va al final', () => {
+    const nodo = fila('false_120363000000000000@g.us_3EB0AA_5491100000000@c.us', '[12:33, 9/9/2026] Alguien: ');
+    expect(telefonoDelChat(nodo)).toBe('+5491100000000');
+  });
+
+  it('sin JID cae al encabezado, que trae el número si el contacto no está agendado', () => {
+    const nodo = fila('3EB07DC7F8222875F0598F', '[12:33 a. m., 9/9/2026] +54 9 11 0000-0000: ');
+    expect(telefonoDelChat(nodo)).toBe('+54 9 11 0000-0000');
+  });
+
+  it('un contacto agendado no deja número: devuelve null en vez del nombre', () => {
+    const nodo = fila('3EB07DC7F8222875F0598F', '[12:33 a. m., 9/9/2026] Gabriel Uccello: ');
+    expect(telefonoDelChat(nodo)).toBeNull();
+  });
+
+  /** El DOM real capturado del navegador: el `data-id` de la fila es solo el id
+   *  del mensaje y el contacto está agendado, así que por ninguno de los dos
+   *  caminos hay número. Es el caso que justifica que el campo de la carta
+   *  exista: el respaldo del chat no siempre puede. */
+  it('sobre la captura real no inventa un número', () => {
+    expect(telefonoDelChat(filaDeMensaje(FILA_PEDIDO_HTML))).toBeNull();
   });
 });

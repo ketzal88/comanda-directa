@@ -10,6 +10,7 @@ const pedidoRetiro: PedidoParseado = {
   mesa: null,
   nombre: 'Milena',
   direccion: null,
+  telefono: null,
   items: [
     { texto: '2 × Roll California — $12.400', importe: 12_400 },
     { texto: '1 × Sake de la casa — a confirmar', importe: null },
@@ -28,6 +29,7 @@ const pedidoDelivery: PedidoParseado = {
   mesa: null,
   nombre: 'Pedro',
   direccion: 'Av. Siempre Viva 742',
+  telefono: null,
   items: [{ texto: '3 × Roll California — $18.600', importe: 18_600 }],
   total: '$21.600',
   aclaraciones: null,

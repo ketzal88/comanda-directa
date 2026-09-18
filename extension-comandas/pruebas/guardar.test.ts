@@ -20,6 +20,7 @@ const pedidoConCodigo: PedidoParseado = {
   mesa: null,
   nombre: 'Milena',
   direccion: null,
+  telefono: null,
   items: [
     { texto: '2 × Roll California — $24.800', importe: 24_800 },
     { texto: '1 × Sake de la casa — a confirmar', importe: null },

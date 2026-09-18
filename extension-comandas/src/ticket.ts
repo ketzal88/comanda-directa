@@ -35,20 +35,43 @@ export type Cobro = {
   bonificadas: number[];
 };
 
+/** La comanda sale por una térmica de 80mm, que no imprime grises: quema o no
+ *  quema el papel. Cada trazo fino que el navegador dibuja con antialiasing
+ *  cae de un lado o del otro de ese umbral, y el renglón sale lavado.
+ *
+ *  El local lo reportó comparando los dos papeles del mismo pedido: el que
+ *  sale de imprimir la selección del mensaje en WhatsApp (su sans regular)
+ *  "se ve bien", y el del botón quedaba "muy poco visible". Por eso esto NO es
+ *  cosmética:
+ *
+ *  - sans y no `Courier New`: el monoespaciado tiene el trazo más fino de los
+ *    que vienen instalados, y a 13px se le corta;
+ *  - `font-weight: 700` en todo y no solo en el total: es lo que engorda el
+ *    trazo hasta que la térmica lo quema entero;
+ *  - `print-color-adjust: exact`: sin esto el navegador se toma la libertad de
+ *    "ahorrar tinta" y manda el negro como un gris, que en térmica es un
+ *    renglón lavado;
+ *  - la línea de corte pasa de punteada a sólida: una hairline punteada es
+ *    justo el caso que la térmica se come. */
 const ESTILO_80MM = `
   @page { size: 80mm auto; margin: 0; }
   .ticket {
     width: 80mm;
     box-sizing: border-box;
     padding: 4mm;
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
     color: #000;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
-  .ticket h1 { font-size: 15px; margin: 0 0 4mm; text-align: center; }
+  .ticket h1 { font-size: 20px; margin: 0 0 4mm; text-align: center; }
   .ticket p { margin: 0 0 2mm; white-space: pre-wrap; }
-  .ticket .total { font-weight: bold; margin-top: 3mm; }
-  .ticket hr { border: none; border-top: 1px dashed #000; margin: 3mm 0; }
+  .ticket .item { font-size: 17px; }
+  .ticket .total { font-size: 19px; margin-top: 3mm; }
+  .ticket hr { border: none; border-top: 2px solid #000; margin: 3mm 0; }
 `;
 
 function escaparHtml(texto: string): string {
@@ -130,6 +153,15 @@ function renglonDelPago(cobro: Cobro): string[] {
   return cobro.medioDePago ? [parrafo(`Pago: ${ETIQUETA_MEDIO[cobro.medioDePago]}`)] : [];
 }
 
+/** El teléfono del comensal, o nada si el pedido no trajo ninguno.
+ *
+ *  `Tel:` y no `Teléfono:` para que el número entre en el mismo renglón: el
+ *  papel es de 80mm y un renglón partido al medio es justo el que el cadete no
+ *  va a poder tipear con una mano en el timbre. */
+function renglonDelTelefono(pedido: PedidoParseado): string[] {
+  return pedido.telefono ? [parrafo(`Tel: ${pedido.telefono}`)] : [];
+}
+
 /** "HH:MM" a mano, sin `Intl`: la comanda es de la cocina, no de una pantalla
  *  que tenga que respetar el idioma de quien la mira. */
 function formatearHora(fecha: Date): string {
@@ -151,9 +183,10 @@ export function armarTicketCocina(pedido: PedidoParseado, cobro: Cobro, ahora = 
   const filas = [
     parrafo(pedido.lineaContacto),
     parrafo(pedido.nombre),
+    ...renglonDelTelefono(pedido),
     parrafo(`Hora: ${formatearHora(ahora)}`),
     '<hr>',
-    ...cobro.lineas.map((linea) => parrafo(renglonDeLinea(linea))),
+    ...cobro.lineas.map((linea) => parrafo(renglonDeLinea(linea), 'item')),
     ...(desglose.length ? ['<hr>', ...desglose.map((fila) => parrafo(fila))] : []),
     parrafo(renglonDelTotal(cobro.cuenta, 'Total'), 'total'),
     ...renglonDelPago(cobro),
@@ -165,22 +198,27 @@ export function armarTicketCocina(pedido: PedidoParseado, cobro: Cobro, ahora = 
   return `<style>${ESTILO_80MM}</style><section class="ticket"><h1>COCINA</h1>${filas.join('')}</section>`;
 }
 
-/** El HTML del ticket para el cadete: nombre, dirección, modalidad, zona, cómo
- *  paga, el resumen de lo pedido y el total a cobrar. Lleva el mismo detalle
- *  de items que la comanda de cocina: el cadete también tiene que poder
- *  decirle al comensal qué le está entregando, sin necesidad del otro papel.
- *  Se llama solo cuando `pedido.modalidad === 'delivery'`. */
+/** El HTML del ticket para el cadete: nombre, dirección, teléfono, modalidad,
+ *  zona, cómo paga, el resumen de lo pedido y el total a cobrar.
+ *
+ *  El teléfono va arriba, pegado a la dirección: es el papel que el cadete
+ *  lleva en la mano, y es el que resuelve el timbre que nadie atiende.
+ *
+ *  Lleva el mismo detalle de items que la comanda de cocina: el cadete también
+ *  tiene que poder decirle al comensal qué le está entregando, sin necesidad
+ *  del otro papel. Se llama solo cuando `pedido.modalidad === 'delivery'`. */
 export function armarTicketDelivery(pedido: PedidoParseado, cobro: Cobro): string {
   const filas = [
     parrafo(pedido.nombre),
     parrafo(pedido.direccion ?? ''),
+    ...renglonDelTelefono(pedido),
     '<hr>',
     parrafo(pedido.lineaContacto),
     // la zona va aunque no tenga cargo: es lo que le dice al cadete a dónde va
     ...(cobro.envio ? [parrafo(`Zona: ${cobro.envio.zona}`)] : []),
     ...renglonDelPago(cobro),
     '<hr>',
-    ...cobro.lineas.map((linea) => parrafo(renglonDeLinea(linea))),
+    ...cobro.lineas.map((linea) => parrafo(renglonDeLinea(linea), 'item')),
     parrafo(renglonDelTotal(cobro.cuenta, 'Total a cobrar'), 'total'),
   ];
 

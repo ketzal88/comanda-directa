@@ -36,6 +36,11 @@ export type PedidoParseado = {
   nombre: string;
   /** Solo presente en delivery. */
   direccion: string | null;
+  /** El teléfono del comensal, tal como lo escribió. `null` cuando el mensaje
+   *  no lo trae: los mensajes viejos no lo traen, y el campo es opcional en la
+   *  carta. Cuando falta, el content script lo completa con el número del chat
+   *  de WhatsApp antes de imprimir (ver `telefonoDelChat()`). */
+  telefono: string | null;
   /** Un renglón por línea de pedido, con el importe ya separado. */
   items: ItemParseado[];
   /** El texto que sigue a "Total: ", tal cual (p. ej. "$21.300" o "a confirmar"). */
@@ -59,6 +64,7 @@ export type PedidoParseado = {
 
 const ANCLA = 'Pedido — Sagrado Sushi';
 const PREFIJO_DIRECCION = 'Dirección: ';
+const PREFIJO_TELEFONO = 'Teléfono: ';
 const PREFIJO_TOTAL = 'Total: ';
 const PREFIJO_ACLARACIONES = 'Aclaraciones: ';
 const PREFIJO_MESA = 'Mesa ';
@@ -179,6 +185,7 @@ export function parsearMensaje(texto: string): PedidoParseado | null {
   const { modalidad, mesa } = reconocerModalidad(lineaContacto);
 
   let direccion: string | null = null;
+  let telefono: string | null = null;
   let total = '';
   let aclaraciones: string | null = null;
   let medioDePago: MedioDePago | null = null;
@@ -190,6 +197,8 @@ export function parsearMensaje(texto: string): PedidoParseado | null {
   for (const bloque of resto.slice(1)) {
     if (bloque.startsWith(PREFIJO_DIRECCION)) {
       direccion = bloque.slice(PREFIJO_DIRECCION.length);
+    } else if (bloque.startsWith(PREFIJO_TELEFONO)) {
+      telefono = bloque.slice(PREFIJO_TELEFONO.length).trim() || null;
     } else if (bloque.startsWith(PREFIJO_TOTAL)) {
       total = bloque.slice(PREFIJO_TOTAL.length);
     } else if (bloque.startsWith(PREFIJO_ACLARACIONES)) {
@@ -221,6 +230,7 @@ export function parsearMensaje(texto: string): PedidoParseado | null {
     mesa,
     nombre,
     direccion,
+    telefono,
     items,
     total,
     aclaraciones,

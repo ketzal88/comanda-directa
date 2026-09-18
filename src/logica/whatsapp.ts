@@ -25,6 +25,12 @@ export type DatosComensal = {
   modalidad: Modalidad;
   mesa?: string;
   direccion?: string;
+  /** Con qué número llamarlo. OPCIONAL: se pide, no se exige. El delivery que
+   *  toca el timbre y nadie atiende es el caso que este campo resuelve, pero un
+   *  campo obligatorio más entre el pedido armado y el botón de enviar es
+   *  pedidos que no se mandan. Cuando el comensal no lo completa, la extensión
+   *  cae al número del chat de WhatsApp. */
+  telefono?: string;
   notas?: string;
   medioDePago?: MedioDePago | null;
   zona?: ZonaEnvio | null;
@@ -51,8 +57,18 @@ export function validarDatos(datos: DatosComensal, habilitadas: Modalidad[]): Er
   if (datos.modalidad === 'delivery' && !datos.direccion?.trim()) {
     errores.push({ campo: 'direccion', mensaje: 'Hace falta la dirección para el envío.' });
   }
+  // El teléfono es opcional, así que vacío no es un error. Cargado y a medias
+  // sí: un número que no se puede discar es peor que ninguno, porque el local
+  // lo ve en la comanda y cree que tiene por dónde llamar.
+  const telefono = datos.telefono?.trim() ?? '';
+  if (telefono && !numeroUsable(telefono)) {
+    errores.push({
+      campo: 'telefono',
+      mensaje: 'Revisá el teléfono: código de área y número, sin el 0 ni el 15.',
+    });
+  }
 
-  for (const campo of ['nombre', 'mesa', 'direccion', 'notas'] as const) {
+  for (const campo of ['nombre', 'mesa', 'direccion', 'telefono', 'notas'] as const) {
     if ((datos[campo] ?? '').length > MAX_TEXTO) {
       errores.push({ campo, mensaje: `Tiene que ser más corto (hasta ${MAX_TEXTO} caracteres).` });
     }
@@ -132,6 +148,13 @@ export function armarMensaje(
   if (datos.modalidad === 'delivery' && datos.direccion?.trim()) {
     bloques.push(`Dirección: ${datos.direccion.trim()}`);
   }
+
+  // Va en TODAS las modalidades, no solo en delivery: el pedido de retiro que
+  // se demora también se resuelve con un llamado. Bloque propio y con prefijo,
+  // como todos los campos con etiqueta: sin el prefijo el parser de la
+  // extensión lo tomaría por un plato y correría las posiciones de los
+  // renglones bonificados.
+  if (datos.telefono?.trim()) bloques.push(`Teléfono: ${datos.telefono.trim()}`);
 
   // Los tres campos de plata van cada uno en su propio bloque, DESPUÉS de la
   // dirección y ANTES de los ítems, en ese orden: el parser de la extensión

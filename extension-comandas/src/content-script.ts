@@ -1,7 +1,7 @@
 import { abrirFormularioDeCobro } from './formulario';
 import { MENSAJE_GUARDAR } from './guardar';
 import { parsearMensaje } from './parser';
-import { textoDelMensaje } from './texto-mensaje';
+import { telefonoDelChat, textoDelMensaje } from './texto-mensaje';
 import { armarTicketCocina, armarTicketDelivery } from './ticket';
 import type { ResultadoDeGuardado, SolicitudDeGuardado } from './guardar';
 import type { PedidoParseado } from './parser';
@@ -219,6 +219,12 @@ function agregarBotonSiCorresponde(mensaje: HTMLElement): void {
       console.warn('No se pudo parsear el pedido al imprimir la comanda', mensaje);
       return;
     }
+
+    // El campo de la carta manda: solo si el comensal no lo completó se cae al
+    // número del chat. El teléfono es lo que resuelve el timbre que nadie
+    // atiende, así que conviene que esté aunque sea por la vía frágil — pero
+    // nunca pisando el que la persona escribió a mano.
+    pedido.telefono = pedido.telefono ?? telefonoDelChat(mensaje);
 
     // El formulario de cobro se abre en el medio, pero la impresión sigue
     // colgando de un click: `alImprimir` corre SINCRÓNICO adentro del click del

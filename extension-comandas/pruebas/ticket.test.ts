@@ -15,6 +15,7 @@ const pedidoSalon: PedidoParseado = {
   mesa: '5',
   nombre: 'Ana',
   direccion: null,
+  telefono: null,
   items: [
     { texto: '2 × Roll California — $12.400', importe: 12_400 },
     { texto: '1 × Sashimi de salmón — $8.900', importe: 8_900 },
@@ -33,6 +34,7 @@ const pedidoDelivery: PedidoParseado = {
   mesa: null,
   nombre: 'Pedro',
   direccion: 'Av. Siempre Viva 742',
+  telefono: '+5491100000000',
   items: [{ texto: '3 × Roll California — $18.600', importe: 18_600 }],
   total: '$18.600',
   aclaraciones: 'Sin wasabi',
@@ -48,6 +50,7 @@ const pedidoRetiro: PedidoParseado = {
   mesa: null,
   nombre: 'Milena',
   direccion: null,
+  telefono: null,
   items: [{ texto: '2 × Roll California — $12.400', importe: 12_400 }],
   total: '$11.160',
   aclaraciones: null,
@@ -205,6 +208,16 @@ describe('armarTicketCocina', () => {
     expect(html).not.toContain('Pago:');
   });
 
+  it('el teléfono sale en la comanda cuando el pedido lo trae', () => {
+    const html = armarTicketCocina(pedidoDelivery, cobroDe(pedidoDelivery));
+    expect(html).toContain('Tel: +5491100000000');
+  });
+
+  it('sin teléfono no deja un "Tel:" colgado', () => {
+    const html = armarTicketCocina(pedidoSalon, cobroDe(pedidoSalon));
+    expect(html).not.toContain('Tel:');
+  });
+
   it('muestra la hora de impresión', () => {
     const html = armarTicketCocina(pedidoSalon, cobroDe(pedidoSalon), new Date(2026, 7, 27, 9, 5));
     expect(html).toContain('Hora: 09:05');
@@ -224,6 +237,15 @@ describe('armarTicketDelivery', () => {
   it('incluye el resumen de lo pedido, igual que la comanda de cocina', () => {
     const html = armarTicketDelivery(pedidoDelivery, cobroDe(pedidoDelivery));
     expect(html).toContain('3 × Roll California — $18.600');
+  });
+
+  // el motivo por el que el local lo pidió: el cadete toca el timbre y nadie
+  // atiende, y hasta ahora el número no estaba en ningún papel
+  it('lleva el teléfono, arriba y junto a la dirección', () => {
+    const html = armarTicketDelivery(pedidoDelivery, cobroDe(pedidoDelivery));
+
+    expect(html).toContain('Tel: +5491100000000');
+    expect(html.indexOf('Tel:')).toBeLessThan(html.indexOf('Total a cobrar'));
   });
 
   it('el ticket del cadete muestra el total a cobrar con el envío incluido', () => {

@@ -43,6 +43,29 @@ describe('validarDatos', () => {
     const errores = validarDatos({ nombre: 'Ana', modalidad: 'delivery' }, ['delivery']);
     expect(errores.map((e) => e.campo)).toContain('direccion');
   });
+
+  // El teléfono se pide, no se exige: un campo obligatorio más entre el pedido
+  // armado y el botón de enviar son pedidos que no se mandan.
+  it('el teléfono vacío no es un error', () => {
+    const errores = validarDatos({ nombre: 'Ana', modalidad: 'retiro' }, ['retiro']);
+    expect(errores).toEqual([]);
+  });
+
+  it('un teléfono a medias sí: en la comanda parecería que hay por dónde llamar', () => {
+    const errores = validarDatos(
+      { nombre: 'Ana', modalidad: 'retiro', telefono: '1234' },
+      ['retiro'],
+    );
+    expect(errores.map((e) => e.campo)).toEqual(['telefono']);
+  });
+
+  it('un número normal pasa', () => {
+    const errores = validarDatos(
+      { nombre: 'Ana', modalidad: 'retiro', telefono: '11 0000-0000' },
+      ['retiro'],
+    );
+    expect(errores).toEqual([]);
+  });
 });
 
 describe('armarMensaje', () => {
@@ -50,6 +73,28 @@ describe('armarMensaje', () => {
     const pedido = agregar(PEDIDO_VACIO, lineaDeItem(item)!);
     const mensaje = armarMensaje(pedido, { nombre: 'Ana', modalidad: 'retiro' }, 'La Esquina');
     expect(mensaje).toContain('*Pedido — La Esquina*');
+  });
+
+  it('el teléfono va como bloque propio y antes de los ítems, o el parser lo leería como un plato', () => {
+    const pedido = agregar(PEDIDO_VACIO, lineaDeItem(item)!);
+    const mensaje = armarMensaje(
+      pedido,
+      { nombre: 'Ana', modalidad: 'delivery', direccion: 'Falsa 123', telefono: '11 0000-0000' },
+      'La Esquina',
+    );
+    const bloques = mensaje.split('\n\n');
+    const iTelefono = bloques.findIndex((b) => b.startsWith('Teléfono: '));
+    const iItems = bloques.findIndex((b) => b.includes('Roll California'));
+
+    expect(bloques[iTelefono]).toBe('Teléfono: 11 0000-0000');
+    expect(iItems).toBeGreaterThan(-1);
+    expect(iTelefono).toBeLessThan(iItems);
+  });
+
+  it('sin teléfono cargado no queda un "Teléfono:" colgado', () => {
+    const pedido = agregar(PEDIDO_VACIO, lineaDeItem(item)!);
+    const mensaje = armarMensaje(pedido, { nombre: 'Ana', modalidad: 'retiro' }, 'La Esquina');
+    expect(mensaje).not.toContain('Teléfono');
   });
 
   it('nunca escribe "$0": sin precios, el total dice "a confirmar"', () => {
