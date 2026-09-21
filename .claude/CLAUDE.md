@@ -51,7 +51,7 @@ remoto y su deploy:
 | --- | --- | --- | --- |
 | motor Comanda Directa | `.` | `comanda-directa` | `.claude/` + `stack.json` |
 | Sagrado Sushi | `sagrado-sushi-carta/` | `sagrado-sushi-carta` | `.claude/` + `stack.json` propios |
-| Presencia | `presencia-carta/` | `presencia-carta` | `stack.json` (sin `.claude/`) |
+| Presencia | `presencia-carta/` | `presencia-carta` | `.claude/CLAUDE.md` + `stack.json` |
 
 Reglas para operarlos desde acá:
 
@@ -73,10 +73,19 @@ Reglas para operarlos desde acá:
   `presencia-carta/stack.json` (typecheck + lint + test) y los ejecuta con
   cwd en presencia, no en la raíz. Si el repo destino no tiene manifest, la
   búsqueda sube y cae en el de la raíz.
-- **El close-guard mira los tres.** Al cerrar el turno recorre la raíz y todo
-  subdirectorio con `.git` propio, así que trabajo sin commitear en las
-  cartas no pasa desapercibido; los archivos aparecen prefijados con el repo
-  (`presencia-carta/src/...`).
+- **El close-guard mira los tres, y las dos deudas.** Al cerrar el turno
+  recorre la raíz y todo subdirectorio con `.git` propio, y reporta dos cosas
+  distintas: archivos sin commitear (prefijados con el repo,
+  `presencia-carta/src/...`) y **commits sin pushear** (`N commit(s) ahead of
+  upstream`). Lo segundo no se arregla commiteando — el push es del operador —:
+  se nombra en la línea de cierre, con el repo y el número, y se aclara de
+  quién es el trabajo si no es tuyo. Sin eso, "commiteado" y "pusheado"
+  parecen la misma palabra y no lo son.
+- **Abrí `comanda-directa.code-workspace`, no la carpeta.** El workspace tiene
+  los tres repos como raíces, así que el panel de Source Control del editor
+  muestra los tres por separado, cada uno con sus cambios y su push. Abriendo
+  la carpeta pelada se ve solo el motor, porque los otros dos están en el
+  `.gitignore` de acá.
 - **Los `forbiddenCommands` sí salen del `stack.json` de la raíz**: son del
   entorno (PowerShell vs Bash), no del repo.
 

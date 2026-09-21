@@ -1,8 +1,29 @@
 {
   "folders": [
-	{
-		"path": "."
-	}
-],
-  "settings": {}
+    {
+      "name": "motor · comanda-directa",
+      "path": "."
+    },
+    {
+      "name": "sagrado-sushi-carta",
+      "path": "sagrado-sushi-carta"
+    },
+    {
+      "name": "presencia-carta",
+      "path": "presencia-carta"
+    }
+  ],
+  "settings": {
+    "git.detectNestedGitRepositories": true,
+    "git.repositoryScanMaxDepth": 2,
+    "git.openRepositoryInParentFolders": "always",
+    "git.confirmSync": true,
+    "git.postCommitCommand": "none",
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/.next": true,
+      "sagrado-sushi-carta": true,
+      "presencia-carta": true
+    }
+  }
 }
