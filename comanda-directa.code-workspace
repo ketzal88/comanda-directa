@@ -14,6 +14,7 @@
     }
   ],
   "settings": {
+    "git.autoRepositoryDetection": true,
     "git.detectNestedGitRepositories": true,
     "git.repositoryScanMaxDepth": 2,
     "git.openRepositoryInParentFolders": "always",
@@ -21,9 +22,7 @@
     "git.postCommitCommand": "none",
     "files.exclude": {
       "**/node_modules": true,
-      "**/.next": true,
-      "sagrado-sushi-carta": true,
-      "presencia-carta": true
+      "**/.next": true
     }
   }
 }
