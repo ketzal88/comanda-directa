@@ -1,9 +1,14 @@
 # Comanda Directa
 
 El motor del producto: pedidos por WhatsApp con carta QR e impresión de
-comandas, para restaurantes. Un solo Next.js sirve la landing (`/`) y la
-carta de **todos** los clientes (`/[cliente]`), contra un único proyecto de
-Supabase multi-tenant. Es la productización del sistema que se construyó
+comandas. Un solo Next.js sirve la landing (`/`) y la carta de **todos** los
+clientes (`/[cliente]`), contra un único proyecto de Supabase multi-tenant.
+
+**Ojo con los nombres:** de cara al público el producto se llama **"Hacé tu
+pedido"** (igual que el dominio, `hace-tu-pedido.site`). "Comanda Directa" es
+el nombre del repo, del proyecto de Vercel y del de Supabase. No hace falta
+renombrar nada: son capas distintas, y el nombre comercial vive en la landing
+(`src/app/page.tsx`). Es la productización del sistema que se construyó
 primero para Sagrado Sushi (`sagrado-sushi-carta/`, fork de
 `presencia-carta/`) — ver `landing/Brief Landing.dc.html` para el brief
 original.
@@ -65,6 +70,23 @@ antes de borrar), así que corregir un precio en la tabla no cuesta 162
 descargas.
 
 Para el cliente siguiente, copiar los archivos y cambiar los datos.
+
+## La landing (`/`)
+
+Puerto del artboard "Landing v3" de Claude Design (`landing/Landing v3.dc.html`,
+guardado como referencia de copy y diseño). Corre sobre el design system
+"organic" del artboard: papel crema, terracota y oliva, con Caprasimo para los
+títulos. Los tokens viven en `globals.css` bajo `.landing`, aparte de los de
+las cartas — `:root` ahí lo pinta el tema de cada cliente en tiempo de
+request, y mezclarlos sería que un cliente pueda despintar la landing
+cambiando sus colores.
+
+Las maquetas del encabezado (catálogo, mensaje, ticket) están dibujadas con
+CSS y no son capturas: una captura envejece con cada cambio de la app y con
+cada cambio de precio del cliente que se haya usado de ejemplo. La prueba de
+que el sistema existe es la sección de **Piedro Shop**, que linkea al catálogo
+real y navegable. Ahí no hay números de venta a propósito: no los tenemos, y
+un porcentaje inventado se cae en la primera pregunta de la reunión.
 
 ## El panel: lo que el cliente cambia solo
 

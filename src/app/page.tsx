@@ -1,354 +1,583 @@
 import type { Metadata } from 'next';
+import { CasoPiedroShop } from '@/componentes/landing/CasoPiedroShop';
+import { Logo, MaquetaEncabezado, Tilde } from '@/componentes/landing/Maqueta';
+import { CLASES_FUENTES } from '@/componentes/landing/tipografia';
+import { enlaceWhatsApp } from '@/logica/whatsapp';
 
-// Falta el número real de WhatsApp de Comanda Directa (pendiente, ver
-// "Qué falta para publicarla" en landing/Brief Landing.dc.html). Se deja acá,
-// en un solo lugar, para no tener que buscar el botón por toda la página el
-// día que llegue el número.
-const WHATSAPP_HREF = '#';
+/** La landing del producto: puerto del artboard "Landing v3" de Claude
+ *  Design (queda en `landing/` como referencia de copy y diseño).
+ *
+ *  El producto se llama "Hacé tu pedido", igual que el dominio. "Comanda
+ *  Directa" quedó como el nombre del repo y del motor. */
+
+const NOMBRE = 'Hacé tu pedido';
+const WHATSAPP = '5491168830798';
+
+/** El link se arma con el mismo helper que usa el pedido de cada cliente:
+ *  normaliza el número y escapa el texto. Si el número dejara de ser válido,
+ *  devuelve null y el botón no se muestra — antes que un `wa.me/` roto. */
+const CONSULTAR =
+  enlaceWhatsApp(WHATSAPP, 'Hola, quiero saber cómo funciona el sistema de pedidos.') ?? '#';
 
 export const metadata: Metadata = {
-  title: 'Comanda Directa',
+  title: 'Hacé tu pedido — pedidos por WhatsApp con catálogo online',
   description:
-    'Carta con QR, pedidos que llegan escritos al WhatsApp del local, e impresión de la comanda de cocina.',
+    'Catálogo online con link y QR, pedidos que llegan completos a tu WhatsApp e impresión del ticket. Sin comisión por pedido.',
 };
+
+const VENTAJAS = [
+  'Sin comisión por pedido',
+  'Usa el WhatsApp que ya tenés',
+  'Tu cliente no instala nada',
+  'Editás lo que quieras, cuando quieras',
+];
+
+const RUBROS = ['Restaurantes', 'Almacenes', 'Panaderías', 'Viandas', 'Pet shops', 'Ferreterías'];
+
+const PILARES = [
+  {
+    titulo: 'Solo hace falta WhatsApp',
+    texto: 'Los pedidos llegan al número de siempre.',
+    icono: (
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    ),
+  },
+  {
+    titulo: 'Un link o un QR, sin apps',
+    texto: 'Tu cliente abre el catálogo en el navegador y listo.',
+    icono: (
+      <>
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <path d="M14 14h3v3h-3zM19 19h2v2h-2z" />
+      </>
+    ),
+  },
+  {
+    titulo: 'Imprimí cada pedido',
+    texto: 'Ticket para preparar y para el repartidor, en un toque.',
+    icono: (
+      <>
+        <path d="M6 9V2h12v7" />
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+        <path d="M6 14h12v8H6z" />
+      </>
+    ),
+  },
+];
 
 const PASOS = [
   {
-    numero: '01',
-    titulo: 'Se carga la carta',
-    texto: 'Con la instalación: platos, precios, fotos, zonas de envío y medios de pago del local.',
+    paso: 'Paso 01',
+    titulo: 'Se carga el catálogo',
+    texto: 'Con la puesta a punto: productos, precios, fotos, zonas de envío y medios de pago.',
   },
   {
-    numero: '02',
-    titulo: 'El comensal pide',
-    texto: 'Escanea el QR, arma el pedido, elige salón, retiro o delivery, y cómo va a pagar.',
+    paso: 'Paso 02',
+    titulo: 'Tu cliente pide',
+    texto: 'Entra por el link o escanea el QR, arma el pedido, elige retiro o envío, y cómo va a pagar.',
   },
   {
-    numero: '03',
-    titulo: 'Llega escrito al local',
+    paso: 'Paso 03',
+    titulo: 'Llega a tu WhatsApp',
     texto: 'Un mensaje de WhatsApp con el detalle completo y el total. Nadie transcribe nada.',
   },
   {
-    numero: '04',
+    paso: 'Paso 04',
     titulo: 'Se imprime',
-    texto: 'Un botón manda la comanda a la cocina y, si es delivery, el ticket del cadete.',
+    texto: 'Un botón imprime el ticket para armar el pedido y, si es con envío, el del repartidor.',
   },
 ];
 
 const FUNCIONES = [
   {
-    titulo: 'Carta con QR',
-    texto: 'Se abre en el navegador, con fotos, precios y descripciones. Sirve para la mesa y para el delivery.',
+    titulo: 'Catálogo con link y QR',
+    texto:
+      'Se abre en el navegador, con fotos, precios y descripciones. Lo compartís en redes, estados o en el local.',
   },
   {
     titulo: 'Pedido armado',
-    texto: 'Modalidad, zona de envío y medio de pago los elige el comensal. El mensaje llega completo.',
+    texto: 'Modalidad, zona de envío y medio de pago los elige tu cliente. El mensaje llega completo.',
   },
   {
     titulo: 'Impresión térmica',
-    texto: 'Comanda de cocina y ticket del cadete con dirección y total a cobrar, desde WhatsApp Web.',
+    texto: 'Ticket de preparación y ticket de entrega con dirección y total a cobrar, desde WhatsApp Web.',
   },
   {
-    titulo: 'Carta editable al instante',
-    texto: 'Cambiar un precio o marcar un plato sin stock son dos toques, y el comensal lo ve sin recargar.',
+    titulo: 'Editás todo al instante',
+    texto: 'Cambiar un precio o marcar algo sin stock son dos toques, y tu cliente lo ve sin recargar.',
   },
   {
     titulo: 'Descuentos a criterio',
-    texto: 'Por porcentaje, por monto o regalando un renglón. Siempre decide el local, nunca el sistema.',
+    texto: 'Por porcentaje, por monto o regalando un renglón. Siempre decidís vos, nunca el sistema.',
   },
   {
     titulo: 'Registro de pedidos',
-    texto: 'Cada pedido queda guardado con lo que se terminó cobrando, para revisar el turno después.',
+    texto: 'Cada pedido queda guardado con lo que se terminó cobrando, para revisar el día después.',
+  },
+];
+
+const LIMITES = [
+  {
+    titulo: 'No procesa pagos',
+    texto: 'El cobro se acuerda y se hace como siempre. El sistema registra lo cobrado, no lo cobra.',
+  },
+  {
+    titulo: 'No reemplaza la facturación',
+    texto: 'No emite comprobantes fiscales ni se integra con el sistema contable.',
+  },
+  {
+    titulo: 'Necesita PC e impresora',
+    texto:
+      'Para imprimir hace falta una computadora con WhatsApp Web y una impresora térmica de 80 mm.',
   },
 ];
 
 const PREGUNTAS = [
   {
     q: '¿Hay que cambiar el número de WhatsApp?',
-    a: 'No. Los pedidos llegan al mismo número que ya usa el local, y se contestan desde ahí.',
+    a: 'No. Los pedidos llegan al mismo número que ya usás, y se contestan desde ahí.',
   },
   {
-    q: '¿Sirve para salón y para delivery?',
-    a: 'Sí. El comensal elige salón, retiro o delivery. En delivery se imprime además el ticket del cadete, con dirección y total a cobrar.',
+    q: '¿Sirve para mi rubro?',
+    a: 'Si tus clientes ya te piden por WhatsApp, sí: comida, almacén, panadería, mascotas, ferretería, regalería. Retiro o envío; con envío se imprime además el ticket del repartidor.',
   },
   {
-    q: '¿Quién carga la carta?',
-    a: 'La primera carga va con la instalación. Después la edita el local cuando quiera, desde el panel.',
+    q: '¿Quién carga el catálogo?',
+    a: 'La primera carga va con la personalización. Después lo editás vos cuando quieras, desde el panel.',
   },
   {
     q: '¿Funciona con cualquier impresora?',
-    a: 'Con impresoras térmicas de 80 mm. Antes de instalar se revisa la que ya está en el mostrador.',
+    a: 'Con impresoras térmicas de 80 mm. Antes de arrancar se revisa la que ya tenés.',
   },
   {
     q: '¿Y si se corta internet?',
-    a: 'Se sigue tomando el pedido por WhatsApp como siempre. La carta y la impresión necesitan conexión.',
+    a: 'Se sigue tomando el pedido por WhatsApp como siempre. El catálogo y la impresión necesitan conexión.',
   },
 ];
 
-export default function PaginaLanding() {
+const ENLACES_NAV = [
+  ['#como-funciona', 'Cómo funciona'],
+  ['#muestra', 'Muestra'],
+  ['#funciones', 'Qué incluye'],
+  ['#precio', 'Precio'],
+  ['#preguntas', 'Preguntas'],
+];
+
+export default function Landing() {
   return (
-    <div className="bg-neutral-950 text-white">
-      <nav className="sticky top-0 z-30 border-b border-white/10 bg-neutral-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3 sm:gap-8 sm:px-8">
-          <span className="flex items-center gap-2 text-lg font-semibold">
-            <span className="inline-block h-6 w-6 rounded-full bg-orange-500" aria-hidden="true" />
-            Comanda Directa
-          </span>
-          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium">
-            <a href="#como-funciona" className="hover:text-orange-400">
-              Cómo funciona
-            </a>
-            <a href="#funciones" className="hover:text-orange-400">
-              Funciones
-            </a>
-            <a href="#precio" className="hover:text-orange-400">
-              Precio
-            </a>
-            <a href="#preguntas" className="hover:text-orange-400">
-              Preguntas
-            </a>
+    <div className={`landing ${CLASES_FUENTES} min-h-dvh overflow-x-hidden`}>
+      {/* `body` toma su fondo de `--color-fondo`, que es de las cartas y por
+          defecto es oscuro: sin esto se ve una franja negra al hacer overscroll
+          arriba y abajo de la landing. */}
+      <style>{':root{--color-fondo:#f5ead8;--color-texto:#201e1d}'}</style>
+
+      <nav
+        className="sticky top-0 z-30 backdrop-blur-[12px]"
+        style={{
+          background: 'color-mix(in srgb, var(--l-papel) 90%, transparent)',
+          borderBottom: '1px solid var(--l-linea)',
+        }}
+      >
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 sm:px-8">
+          <div className="titulo flex items-center gap-2.5 text-[21px]">
+            <Logo />
+            {NOMBRE}
+          </div>
+          <div className="hidden flex-wrap gap-x-5 gap-y-2 text-sm font-semibold lg:flex">
+            {ENLACES_NAV.map(([href, texto]) => (
+              <a key={href} href={href} className="no-underline" style={{ color: 'var(--l-tinta)' }}>
+                {texto}
+              </a>
+            ))}
           </div>
           <a
-            href={WHATSAPP_HREF}
-            className="ml-auto whitespace-nowrap rounded-full bg-orange-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 hover:bg-orange-400"
+            href={CONSULTAR}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="landing-boton-wa ml-auto whitespace-nowrap px-5 py-2.5 text-sm no-underline"
           >
             Consultar por WhatsApp
           </a>
         </div>
       </nav>
 
-      <header className="mx-auto max-w-6xl px-4 pt-12 pb-8 sm:px-8 sm:pt-16">
-        <div className="inline-flex items-center gap-2 rounded-full bg-orange-500/15 px-4 py-1.5 text-sm font-semibold text-orange-300">
-          Para locales que ya reciben pedidos por WhatsApp
+      <header className="relative overflow-hidden px-4 pt-9 sm:px-8 sm:pt-14">
+        <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-2 lg:gap-12">
+          <div>
+            <div
+              className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[13px] font-bold"
+              style={{ background: 'var(--l-oliva-200)', color: 'var(--l-oliva-800)' }}
+            >
+              Para negocios que ya venden por WhatsApp
+            </div>
+            <h1 className="m-0 mb-5 max-w-[19ch] text-[clamp(34px,6.4vw,58px)] leading-[1.04]">
+              Tus clientes piden por WhatsApp. Vos lo recibís ordenado.
+            </h1>
+            <p className="m-0 mb-7 max-w-[46ch] text-[clamp(17px,2vw,19px)] leading-[1.5]">
+              Un catálogo online con link y QR, pedidos que llegan completos a tu WhatsApp, y un
+              botón que imprime el ticket para preparar y para entregar.
+            </p>
+
+            <div className="mb-7 flex flex-wrap gap-2">
+              {RUBROS.map((r) => (
+                <span key={r} className="landing-etiqueta">
+                  {r}
+                </span>
+              ))}
+            </div>
+
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <a
+                href={CONSULTAR}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="landing-boton-wa px-7 py-4 text-[17px] no-underline"
+                style={{ boxShadow: 'var(--l-sombra-md)' }}
+              >
+                Consultar por WhatsApp
+              </a>
+              <a
+                href="#como-funciona"
+                className="landing-boton-secundario px-6 py-4 text-[16px] no-underline"
+                style={{ color: 'var(--l-tinta)' }}
+              >
+                Ver cómo funciona
+              </a>
+            </div>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-2.5">
+              {VENTAJAS.map((v) => (
+                <div key={v} className="flex items-center gap-2 text-sm font-semibold">
+                  <Tilde />
+                  {v}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <MaquetaEncabezado />
         </div>
-        <h1 className="mt-6 max-w-2xl text-4xl font-bold leading-tight sm:text-5xl">
-          Del WhatsApp a la cocina, sin copiar y pegar.
-        </h1>
-        <p className="mt-5 max-w-xl text-lg text-neutral-300">
-          Carta con QR, pedidos que llegan escritos al WhatsApp del local, y un botón que imprime la
-          comanda de cocina y el ticket del cadete.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center gap-4">
-          <a
-            href={WHATSAPP_HREF}
-            className="rounded-full bg-orange-500 px-7 py-4 text-base font-semibold text-neutral-950 hover:bg-orange-400"
-          >
-            Consultar por WhatsApp
-          </a>
-          <a
-            href="#como-funciona"
-            className="rounded-full border border-white/20 px-6 py-4 text-base font-semibold hover:border-white/40"
-          >
-            Ver cómo funciona
-          </a>
-        </div>
-        <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-neutral-300">
-          <li>Sin comisión por pedido</li>
-          <li>Usa el WhatsApp que ya tiene el local</li>
-          <li>El comensal no instala nada</li>
-        </ul>
       </header>
 
-      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-8">
-        <div className="grid gap-6 rounded-2xl bg-white/5 p-8 sm:grid-cols-3">
-          <div>
-            <p className="font-semibold">Solo hace falta WhatsApp</p>
-            <p className="mt-1 text-sm text-neutral-300">Los pedidos siguen llegando al número de siempre.</p>
-          </div>
-          <div>
-            <p className="font-semibold">Un QR, sin apps</p>
-            <p className="mt-1 text-sm text-neutral-300">El comensal abre la carta en el navegador y listo.</p>
-          </div>
-          <div>
-            <p className="font-semibold">Imprime en el mostrador</p>
-            <p className="mt-1 text-sm text-neutral-300">Comanda de cocina y ticket del cadete, en un toque.</p>
-          </div>
+      <section className="mx-auto max-w-6xl px-4 pt-9 pb-2 sm:px-8">
+        <div
+          className="grid gap-7 rounded-[28px] px-6 py-8 sm:px-10 md:grid-cols-3"
+          style={{ background: 'var(--l-superficie)' }}
+        >
+          {PILARES.map((p) => (
+            <div key={p.titulo} className="flex items-start gap-3.5">
+              <span
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+                style={{ background: 'var(--l-papel)' }}
+              >
+                <svg
+                  width="21"
+                  height="21"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--l-terracota-700)"
+                  strokeWidth="2.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  {p.icono}
+                </svg>
+              </span>
+              <span>
+                <span className="titulo mb-1 block text-[18px]">{p.titulo}</span>
+                <span className="block text-[15px]">{p.texto}</span>
+              </span>
+            </div>
+          ))}
         </div>
       </section>
 
-      <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-16 sm:px-8">
-        <h2 className="text-3xl font-bold sm:text-4xl">Cómo funciona</h2>
-        <p className="mt-3 max-w-xl text-lg text-neutral-300">
-          Cuatro pasos, en el orden en que pasan durante el servicio.
+      <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-16">
+        <h2 className="m-0 mb-3 text-[clamp(30px,5vw,44px)]">Cómo funciona</h2>
+        <p className="m-0 mb-10 max-w-[52ch] text-[18px]">
+          Cuatro pasos, en el orden en que pasan en el día a día.
         </p>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {PASOS.map((p) => (
-            <div key={p.numero} className="rounded-2xl bg-white/5 p-7">
-              <p className="text-sm font-semibold text-orange-400">Paso {p.numero}</p>
-              <h3 className="mt-4 text-xl font-semibold">{p.titulo}</h3>
-              <p className="mt-2 text-sm text-neutral-300">{p.texto}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-8">
-        <div className="rounded-2xl bg-orange-600 p-8 sm:p-12">
-          <p className="text-sm font-semibold uppercase tracking-wide text-orange-100">
-            El diferencial, y es uno solo
-          </p>
-          <h2 className="mt-4 max-w-lg text-3xl font-bold sm:text-4xl">Nada se calcula solo.</h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2">
-            <p className="text-neutral-50">
-              El descuento, el costo de envío y el medio de pago los decide el local, pedido por
-              pedido: para compensar a un cliente que tuvo un problema antes, para regalar piezas en un
-              pedido grande, o para ajustar la zona según cómo venga la carga de la noche.
-            </p>
-            <p className="text-neutral-50">
-              Frente a una plataforma que automatiza y cobra por pedido, acá el local mantiene el
-              criterio.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="funciones" className="mx-auto max-w-6xl px-4 pb-16 sm:px-8">
-        <h2 className="text-3xl font-bold sm:text-4xl">Qué incluye</h2>
-        <p className="mt-3 max-w-xl text-lg text-neutral-300">Todo esto ya está construido y funcionando.</p>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {FUNCIONES.map((f) => (
-            <div key={f.titulo} className="rounded-2xl border border-white/10 bg-white/5 p-7">
-              <h3 className="text-xl font-semibold">{f.titulo}</h3>
-              <p className="mt-2 text-sm text-neutral-300">{f.texto}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-8">
-        <div className="grid items-center gap-10 sm:grid-cols-2">
-          <div>
-            <h2 className="max-w-md text-3xl font-bold sm:text-4xl">
-              La carta la maneja el local, no el proveedor.
-            </h2>
-            <p className="mt-5 max-w-md text-lg text-neutral-300">
-              Se agotó un plato a las nueve de la noche: se marca y desaparece de la carta. Subió un
-              precio: se cambia y ya está. Lo opera cualquiera del mostrador, sin llamar a nadie ni
-              esperar a mañana.
-            </p>
-            <a
-              href={WHATSAPP_HREF}
-              className="mt-7 inline-block rounded-full bg-orange-500 px-6 py-3.5 text-base font-semibold text-neutral-950 hover:bg-orange-400"
+            <div
+              key={p.paso}
+              className="rounded-[28px] px-6 py-7"
+              style={{ background: 'var(--l-neutro-100)' }}
             >
-              Preguntar por el local propio
-            </a>
-          </div>
-          <div className="aspect-[4/3] rounded-2xl border border-dashed border-white/20 bg-white/5" />
+              <div className="titulo mb-4 text-[15px]" style={{ color: 'var(--l-terracota-700)' }}>
+                {p.paso}
+              </div>
+              <h3 className="m-0 mb-2 text-[21px]">{p.titulo}</h3>
+              <p className="m-0 text-[15px]">{p.texto}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      <section id="limites" className="mx-auto max-w-6xl px-4 pb-16 sm:px-8">
-        <div className="rounded-2xl border-2 border-dashed border-white/20 p-8 sm:p-11">
-          <h2 className="text-2xl font-bold sm:text-3xl">Qué no hace</h2>
-          <p className="mt-2 max-w-xl text-neutral-300">Conviene saberlo antes de escribir que después de instalarlo.</p>
-          <div className="mt-8 grid gap-7 sm:grid-cols-3">
+      <section id="control" className="px-4 pb-12 sm:px-8 sm:pb-16">
+        <div
+          className="mx-auto max-w-6xl rounded-[28px] px-6 py-9 sm:px-12 sm:py-14"
+          style={{ background: 'var(--l-oliva-700)', color: 'var(--l-papel)' }}
+        >
+          <div
+            className="mb-4 text-[13px] font-bold uppercase tracking-[0.07em]"
+            style={{ color: 'var(--l-oliva-200)' }}
+          >
+            El control queda en tu negocio
+          </div>
+          <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
             <div>
-              <h3 className="font-semibold">No procesa pagos</h3>
-              <p className="mt-1 text-sm text-neutral-300">
-                El cobro se acuerda y se hace como siempre. El sistema registra lo cobrado, no lo cobra.
+              <h2 className="m-0 mb-5 max-w-[20ch] text-[clamp(32px,5.2vw,48px)] leading-[1.06]">
+                Nada se calcula solo.
+              </h2>
+              <p className="m-0 mb-3.5 max-w-[52ch] text-[18px]">
+                Antes de imprimir, ajustás el medio de pago, el descuento y la zona de envío. Un
+                porcentaje, un monto fijo o regalar un renglón del pedido: se decide pedido por
+                pedido.
+              </p>
+              <p className="m-0 max-w-[52ch] text-[18px]">
+                Ese margen es una herramienta: compensar a un cliente que tuvo un problema la vez
+                anterior, sumar algo en un pedido grande, cobrar el envío según la distancia. Un
+                sistema que lo automatiza le saca esa decisión de las manos.
               </p>
             </div>
-            <div>
-              <h3 className="font-semibold">No reemplaza la facturación</h3>
-              <p className="mt-1 text-sm text-neutral-300">
-                No emite comprobantes fiscales ni se integra con el sistema contable.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Necesita PC e impresora</h3>
-              <p className="mt-1 text-sm text-neutral-300">
-                Para imprimir hace falta una computadora con WhatsApp Web y una impresora térmica de 80 mm.
-              </p>
+            <div
+              className="rounded-[16px] p-6"
+              style={{ background: 'color-mix(in srgb, #fff 12%, transparent)' }}
+            >
+              <div
+                className="mb-4 text-[12.5px] font-bold uppercase tracking-[0.07em]"
+                style={{ color: 'var(--l-oliva-200)' }}
+              >
+                Lo que se decide en cada pedido
+              </div>
+              <div className="grid gap-3 text-[16px]">
+                {[
+                  ['Descuento', '% · monto · un renglón'],
+                  ['Envío', 'por zona, o sin cargo'],
+                  ['Medio de pago', 'el que se acuerde'],
+                ].map(([k, v], i) => (
+                  <div
+                    key={k}
+                    className={`flex justify-between gap-4 ${i < 2 ? 'border-b pb-3' : ''}`}
+                    style={i < 2 ? { borderColor: 'color-mix(in srgb, #fff 22%, transparent)' } : undefined}
+                  >
+                    <span>{k}</span>
+                    <span className="opacity-75">{v}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="precio" className="mx-auto max-w-6xl px-4 pb-16 sm:px-8">
-        <div className="rounded-2xl bg-white/5 p-8 sm:p-12">
-          <h2 className="text-3xl font-bold sm:text-4xl">Precio</h2>
-          <p className="mt-3 max-w-xl text-lg text-neutral-300">
-            Una instalación al inicio y una mensualidad fija. Sin comisión por pedido: lo que se vende
-            es del local.
+      <CasoPiedroShop />
+
+      <section id="funciones" className="mx-auto max-w-6xl px-4 pb-12 sm:px-8 sm:pb-16">
+        <h2 className="m-0 mb-3 text-[clamp(30px,5vw,44px)]">Qué incluye</h2>
+        <p className="m-0 mb-10 max-w-[52ch] text-[18px]">
+          Todo esto ya está funcionando hoy en un negocio real, no en una demo.
+        </p>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {FUNCIONES.map((f) => (
+            <div
+              key={f.titulo}
+              className="rounded-[28px] p-7"
+              style={{ background: 'var(--l-neutro-100)', border: '1px solid var(--l-linea)' }}
+            >
+              <h3 className="m-0 mb-2 text-[21px]">{f.titulo}</h3>
+              <p className="m-0 text-[15px]">{f.texto}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="limites" className="mx-auto max-w-6xl px-4 pb-12 sm:px-8 sm:pb-16">
+        <div
+          className="rounded-[28px] px-6 py-8 sm:px-11 sm:py-11"
+          style={{ border: '2px dashed var(--l-neutro-400)' }}
+        >
+          <h2 className="m-0 mb-2.5 text-[clamp(27px,4.4vw,38px)]">Qué no hace</h2>
+          <p className="m-0 mb-8 max-w-[52ch] text-[17px]">
+            Mejor saberlo antes de escribir que después de instalarlo.
           </p>
-          <div className="mt-9 grid gap-5 sm:grid-cols-3">
-            <div className="rounded-xl bg-neutral-950 p-7">
-              <p className="text-sm font-semibold uppercase tracking-wide text-orange-400">Instalación</p>
-              <p className="mt-3 text-2xl font-bold">A definir</p>
-              <p className="mt-3 text-sm text-neutral-300">
-                Carga de la carta, configuración de la impresora y acompañamiento del primer servicio.
+          <div className="grid gap-7 sm:grid-cols-3">
+            {LIMITES.map((l) => (
+              <div key={l.titulo}>
+                <h4 className="m-0 mb-1.5 text-[19px]">{l.titulo}</h4>
+                <p className="m-0 text-[15px]">{l.texto}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="precio" className="mx-auto max-w-6xl px-4 pb-12 sm:px-8 sm:pb-16">
+        <div
+          className="rounded-[28px] px-6 py-9 sm:px-12 sm:py-13"
+          style={{ background: 'var(--l-superficie)' }}
+        >
+          <h2 className="m-0 mb-3 text-[clamp(30px,5vw,44px)]">Precio</h2>
+          <p className="m-0 mb-9 max-w-[54ch] text-[18px]">
+            Una personalización al inicio y una mensualidad fija. Sin comisión por pedido: lo que
+            vendés es tuyo.
+          </p>
+          <div className="grid gap-5 md:grid-cols-3">
+            <div className="rounded-[16px] p-8" style={{ background: 'var(--l-papel)' }}>
+              <div
+                className="mb-3.5 text-[13px] font-bold uppercase tracking-[0.07em]"
+                style={{ color: 'var(--l-terracota-700)' }}
+              >
+                Personalización
+              </div>
+              <div className="titulo mb-3.5 text-[clamp(30px,3.4vw,36px)]">US$ 50</div>
+              <p className="m-0 text-[15px]">
+                Aplicación del manual de marca, carga inicial del catálogo y primera puesta a punto.
               </p>
             </div>
-            <div className="rounded-xl border-2 border-orange-500 bg-neutral-950 p-7">
-              <p className="text-sm font-semibold uppercase tracking-wide text-orange-400">Mensualidad</p>
-              <p className="mt-3 text-2xl font-bold">A definir</p>
-              <p className="mt-3 text-sm text-neutral-300">Carta, pedidos e impresión sin límite, con soporte por WhatsApp.</p>
+
+            <div
+              className="rounded-[16px] p-8"
+              style={{ background: 'var(--l-papel)', border: '2px solid var(--l-terracota)' }}
+            >
+              <div
+                className="mb-3.5 text-[13px] font-bold uppercase tracking-[0.07em]"
+                style={{ color: 'var(--l-terracota-700)' }}
+              >
+                Mensualidad
+              </div>
+              <div className="mb-3.5 flex items-baseline gap-1.5 whitespace-nowrap">
+                <span className="titulo text-[clamp(28px,3.2vw,36px)]">US$ 10</span>
+                <span className="text-[16px] font-semibold">/ mes</span>
+              </div>
+              <p className="m-0 mb-3 text-[15px]">
+                Catálogo, pedidos e impresión sin límite, con soporte por WhatsApp.
+              </p>
+              <div
+                className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-bold"
+                style={{ background: 'var(--l-oliva-200)', color: 'var(--l-oliva-800)' }}
+              >
+                Pago anual US$ 100 · dos meses sin cargo
+              </div>
             </div>
-            <div className="rounded-xl bg-neutral-950 p-7">
-              <p className="text-sm font-semibold uppercase tracking-wide text-orange-400">Comisión por pedido</p>
-              <p className="mt-3 text-2xl font-bold">Ninguna</p>
-              <p className="mt-3 text-sm text-neutral-300">Es lo mismo si es una noche floja o un sábado lleno: el costo no cambia.</p>
+
+            <div className="rounded-[16px] p-8" style={{ background: 'var(--l-papel)' }}>
+              <div
+                className="mb-3.5 text-[13px] font-bold uppercase tracking-[0.07em]"
+                style={{ color: 'var(--l-terracota-700)' }}
+              >
+                Comisión por pedido
+              </div>
+              <div className="titulo mb-3.5 text-[clamp(30px,3.4vw,36px)]">Ninguna</div>
+              <p className="m-0 text-[15px]">
+                Da lo mismo si es un día flojo o un sábado lleno: el costo no cambia.
+              </p>
             </div>
           </div>
+
           <a
-            href={WHATSAPP_HREF}
-            className="mt-9 inline-block rounded-full bg-orange-500 px-7 py-4 text-base font-semibold text-neutral-950 hover:bg-orange-400"
+            href={CONSULTAR}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="landing-boton-wa mt-8 inline-block px-7 py-3.5 text-[16px] no-underline"
           >
             Pedir el precio por WhatsApp
           </a>
         </div>
       </section>
 
-      <section id="preguntas" className="mx-auto max-w-6xl px-4 pb-20 sm:px-8">
-        <h2 className="text-3xl font-bold sm:text-4xl">Preguntas frecuentes</h2>
-        <div className="mt-9 grid max-w-3xl gap-3">
+      <section id="preguntas" className="mx-auto max-w-6xl px-4 pb-16 sm:px-8 sm:pb-20">
+        <h2 className="m-0 mb-8 text-[clamp(30px,5vw,44px)]">Preguntas frecuentes</h2>
+        <div className="grid max-w-[860px] gap-3">
           {PREGUNTAS.map((p) => (
-            <details key={p.q} className="rounded-xl bg-white/5 p-6 [&_summary::-webkit-details-marker]:hidden">
-              <summary className="cursor-pointer list-none text-lg font-semibold">{p.q}</summary>
-              <p className="mt-3 text-neutral-300">{p.a}</p>
+            <details
+              key={p.q}
+              className="rounded-[16px] px-6 py-5"
+              style={{ background: 'var(--l-neutro-100)' }}
+            >
+              <summary className="titulo flex items-center justify-between gap-5 text-[clamp(16px,2.2vw,19px)]">
+                {p.q}
+                <span
+                  className="landing-mas font-semibold"
+                  style={{ fontFamily: 'var(--l-fuente-texto)', color: 'var(--l-terracota-700)' }}
+                  aria-hidden="true"
+                >
+                  ＋
+                </span>
+              </summary>
+              <p className="mt-3.5 mb-0 max-w-[62ch] text-[16px]">{p.a}</p>
             </details>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-8">
-        <div className="rounded-2xl bg-orange-500 p-10 text-neutral-950 sm:p-16">
-          <h2 className="max-w-md text-3xl font-bold sm:text-4xl">Cuéntenos cómo trabaja su local.</h2>
-          <p className="mt-4 max-w-sm text-lg">
-            Se revisa la carta, la impresora y cómo se toman los pedidos hoy. Si no encaja, se dice.
-          </p>
-          <a
-            href={WHATSAPP_HREF}
-            className="mt-7 inline-block rounded-full bg-neutral-950 px-7 py-4 text-base font-semibold text-white hover:bg-neutral-800"
-          >
-            Escribir por WhatsApp
-          </a>
+      <section className="px-4 pb-20 sm:px-8">
+        <div
+          className="relative mx-auto max-w-6xl overflow-hidden rounded-[28px] px-6 py-10 sm:px-12 sm:py-16"
+          style={{ background: 'var(--l-terracota)', color: 'var(--l-papel)' }}
+        >
+          <div
+            aria-hidden="true"
+            className="absolute -bottom-[150px] -right-[90px] h-[440px] w-[440px] rounded-full"
+            style={{ background: 'color-mix(in srgb, #fff 12%, transparent)' }}
+          />
+          <div className="relative max-w-[36ch]">
+            <h2 className="m-0 mb-4 text-[clamp(32px,5.6vw,52px)] leading-[1.06]">
+              Contanos cómo vendés hoy.
+            </h2>
+            <p className="m-0 mb-7 max-w-[44ch] text-[19px]">
+              Miramos tus productos, cómo te llegan los pedidos y si tenés impresora. Si no encaja,
+              te lo decimos.
+            </p>
+            <a
+              href={CONSULTAR}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-full px-8 py-4 text-[17px] font-bold no-underline"
+              style={{ background: 'var(--l-papel)', color: 'var(--l-terracota-800)' }}
+            >
+              Escribir por WhatsApp
+            </a>
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-white/10">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3 sm:px-8">
+      <footer style={{ borderTop: '1px solid var(--l-linea)' }}>
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-8 md:grid-cols-3">
           <div>
-            <p className="flex items-center gap-2 text-lg font-semibold">
-              <span className="inline-block h-5 w-5 rounded-full bg-orange-500" aria-hidden="true" />
-              Comanda Directa
-            </p>
-            <p className="mt-3 max-w-xs text-sm text-neutral-400">
-              Pedidos por WhatsApp con carta QR e impresión de comandas, para locales que quieren
-              seguir decidiendo cada pedido.
+            <div className="titulo mb-2.5 flex items-center gap-2.5 text-[20px]">
+              <Logo tamano={26} />
+              {NOMBRE}
+            </div>
+            <p className="m-0 max-w-[38ch] text-[15px]" style={{ color: 'var(--l-tinta-suave)' }}>
+              Pedidos por WhatsApp con catálogo online e impresión de tickets, para negocios que
+              quieren seguir decidiendo cada pedido.
             </p>
           </div>
-          <div className="grid gap-2 text-sm">
-            <p className="font-semibold">La página</p>
-            <a href="#como-funciona" className="text-neutral-300 hover:text-white">Cómo funciona</a>
-            <a href="#funciones" className="text-neutral-300 hover:text-white">Qué incluye</a>
-            <a href="#precio" className="text-neutral-300 hover:text-white">Precio</a>
-            <a href="#limites" className="text-neutral-300 hover:text-white">Qué no hace</a>
+          <div className="grid content-start gap-2 text-[15px]">
+            <div className="titulo mb-1 text-[16px]">La página</div>
+            {ENLACES_NAV.map(([href, texto]) => (
+              <a key={href} href={href} className="no-underline" style={{ color: 'var(--l-tinta)' }}>
+                {texto}
+              </a>
+            ))}
           </div>
-          <div className="grid gap-2 text-sm">
-            <p className="font-semibold">Contacto</p>
-            <a href={WHATSAPP_HREF} className="text-neutral-300 hover:text-white">Consultar por WhatsApp</a>
-            <p className="text-neutral-500">Funcionando hoy en un local de Buenos Aires.</p>
+          <div className="grid content-start gap-2 text-[15px]">
+            <div className="titulo mb-1 text-[16px]">Contacto</div>
+            <a
+              href={CONSULTAR}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="no-underline"
+              style={{ color: 'var(--l-tinta)' }}
+            >
+              Consultar por WhatsApp
+            </a>
+            <span style={{ color: 'var(--l-tinta-suave)' }}>Funcionando hoy en Buenos Aires.</span>
           </div>
         </div>
       </footer>

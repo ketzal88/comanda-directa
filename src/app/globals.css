@@ -273,3 +273,100 @@ body {
   -ms-overflow-style: none;
 }
 .halloween-sin-barra::-webkit-scrollbar { display: none; }
+
+/* ── Landing ─────────────────────────────────────────────────────────────
+   Puerto del artboard "Landing v3" de Claude Design, que corre sobre el
+   design system "organic" (`landing/_ds/organic-…/styles.css`): papel crema,
+   terracota y oliva, con Caprasimo para los títulos.
+
+   Los tokens van bajo `.landing` y no en `:root` porque `:root` ya es de las
+   cartas: ahí lo pinta el tema de cada cliente en tiempo de request
+   (`[cliente]/layout.tsx`). Son dos sistemas distintos conviviendo en el
+   mismo build, y mezclarlos sería que un cliente pueda despintar la landing
+   cambiando sus colores. */
+.landing {
+  --l-papel: #f5ead8;
+  --l-superficie: #ebddc5;
+  --l-blanco: #fdfbf7;
+  --l-tinta: #201e1d;
+  --l-tinta-suave: color-mix(in srgb, #201e1d 65%, transparent);
+  --l-linea: color-mix(in srgb, #201e1d 16%, transparent);
+
+  --l-neutro-100: #f9f4ed;
+  --l-neutro-400: #c0b6a5;
+
+  --l-terracota: #c67139;
+  --l-terracota-200: #ffe1d0;
+  --l-terracota-700: #8c491a;
+  --l-terracota-800: #643312;
+
+  --l-oliva: #7a8a5e;
+  --l-oliva-100: #f0fae1;
+  --l-oliva-200: #e1eecc;
+  --l-oliva-500: #8fa073;
+  --l-oliva-600: #728157;
+  --l-oliva-700: #56633f;
+  --l-oliva-800: #3d472b;
+
+  --l-whatsapp: #25d366;
+  --l-whatsapp-oscuro: #1eb256;
+
+  --l-radio-md: 16px;
+  --l-radio-lg: 28px;
+  --l-sombra-md: 0 2px 8px color-mix(in srgb, #201e1d 8%, transparent),
+    0 8px 24px color-mix(in srgb, #201e1d 8%, transparent);
+  --l-sombra-lg: 0 4px 12px color-mix(in srgb, #201e1d 8%, transparent),
+    0 18px 44px color-mix(in srgb, #201e1d 12%, transparent);
+
+  background: var(--l-papel);
+  color: var(--l-tinta);
+  font-family: var(--l-fuente-texto), system-ui, sans-serif;
+}
+
+.landing h1,
+.landing h2,
+.landing h3,
+.landing h4,
+.landing .titulo {
+  font-family: var(--l-fuente-titulo), system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.landing-mono {
+  font-family: var(--l-fuente-mono), ui-monospace, monospace;
+}
+
+/* El verde es el de WhatsApp, no el de la marca: el botón tiene que leerse
+   como "esto abre WhatsApp" antes que como "esto es de esta empresa". */
+.landing-boton-wa {
+  background: var(--l-whatsapp);
+  color: #fff;
+  border-radius: 999px;
+  font-weight: 700;
+  transition: background-color 0.15s;
+}
+.landing-boton-wa:hover { background: var(--l-whatsapp-oscuro); }
+
+.landing-boton-secundario {
+  border: 2px solid var(--l-tinta);
+  border-radius: 999px;
+  font-weight: 700;
+  transition: background-color 0.15s;
+}
+.landing-boton-secundario:hover { background: var(--l-superficie); }
+
+.landing-etiqueta {
+  background: var(--l-neutro-100);
+  border: 1px solid var(--l-linea);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* El acordeón de preguntas: `<details>` nativo, sin JavaScript. El triángulo
+   por defecto se saca porque el "+" que gira es parte del diseño. */
+.landing details > summary { list-style: none; cursor: pointer; }
+.landing details > summary::-webkit-details-marker { display: none; }
+.landing details[open] .landing-mas { transform: rotate(45deg); }
+.landing-mas { transition: transform 0.18s; }
