@@ -17,7 +17,7 @@ import type { Carta, ConfigPedido, Item, Tema } from '@/logica/tipos';
  */
 
 export const SLUG_HALLOWEEN = 'halloween';
-export const NOMBRE_HALLOWEEN = 'Halloween';
+export const NOMBRE_HALLOWEEN = 'Piedro Shop';
 
 /** De dónde salieron los productos y los precios, por si hay que rehacer la
  *  lista o buscar las fotos. NO se inserta en la base ni se muestra: son
@@ -28,9 +28,9 @@ export const FUENTE =
 /** La plantilla que elige `[cliente]/page.tsx` por `clientes.plantilla`. */
 export const PLANTILLA_HALLOWEEN = 'halloween';
 
-/** Papel crema, violeta y naranja calabaza: los colores del flyer con el que
- *  el cliente sale a vender por WhatsApp, para que quien llega desde ese
- *  flyer reconozca la carta como la misma campaña.
+/** Papel crema, violeta y naranja calabaza: los colores del artboard de la
+ *  campaña, para que quien llega desde el flyer de WhatsApp reconozca la
+ *  carta como la misma marca.
  *
  *  Es un tema CLARO. El primer intento fue negro de noche, que es lo que uno
  *  dibuja cuando piensa "Halloween", pero contra un fondo negro las fotos
@@ -41,22 +41,28 @@ export const PLANTILLA_HALLOWEEN = 'halloween';
  *  `.halloween`); estos cuatro son los que usa el MOTOR: la hoja del pedido
  *  y la barra inferior, que son comunes a todos los clientes. */
 export const TEMA_HALLOWEEN: Tema = {
-  colorFondo: '#fdf6e9',
-  colorTexto: '#3b1f5c',
-  colorTextoSuave: '#8a6fb0',
-  colorAcento: '#f5761a',
+  colorFondo: '#fbf6ee',
+  colorTexto: '#2a1b45',
+  colorTextoSuave: '#6a5a86',
+  colorAcento: '#f28a2e',
 };
 
 export const CONFIG_PEDIDO_HALLOWEEN: ConfigPedido = {
   whatsapp: '5491132556379',
-  // Sin salón: no es un local con mesas. Delivery queda abierto sin zonas
-  // cargadas (el envío se acuerda por chat); cargarlas en el panel hace que
-  // el costo se sume solo al total.
+  // Sin salón: no es un local con mesas.
   modalidades: ['retiro', 'delivery'],
   cabecera: '',
   // Sin "link" hasta que exista el generador de Mercado Pago.
   mediosDePago: ['transferencia', 'efectivo'],
-  zonasEnvio: [],
+  // Las dos zonas que anuncia la campaña. Cargadas acá y no escritas en el
+  // diseño, el precio del envío se suma solo al total y viaja en el mensaje
+  // de WhatsApp; la plantilla las lee de la misma lista para los carteles
+  // del encabezado y del pie, así que no pueden decir una cosa y cobrar otra.
+  // Precio 0 = sin cargo (la carta lo muestra como "envío gratis").
+  zonasEnvio: [
+    { nombre: 'Villanueva y alrededores', precio: 0 },
+    { nombre: 'Nordelta y alrededores', precio: 5000 },
+  ],
   descuentoRetiro: { tipo: 'ninguno' },
 };
 
@@ -275,9 +281,11 @@ export const CATALOGO_HALLOWEEN: Carta = {
   ],
   items: [...INFANTILES, ...ADULTO, ...WOW, ...ACCESORIOS, ...TRICK_OR_TREAT, ...DECORACION],
   config: {
+    // El orden importa: la plantilla pinta la primera con la letra
+    // manuscrita del diseño y las siguientes como letra chica del pie.
     notas: [
-      'Precios en pesos, sujetos a disponibilidad de stock.',
       'Armá el pedido y mandalo por WhatsApp: te confirmamos stock, envío y forma de pago.',
+      'Precios en pesos, sujetos a disponibilidad de stock.',
     ],
     cubiertoPorPersona: 0,
   },

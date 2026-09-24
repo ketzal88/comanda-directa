@@ -1,106 +1,151 @@
-/** Los dibujos de la plantilla de Halloween: murciélagos, telaraña, araña y
- *  calabaza.
+/** Los adornos del encabezado: murciélagos cruzando, araña colgando,
+ *  telaraña, fantasmas y estrellas.
  *
- *  Son SVG inline y no imágenes: son cuatro formas planas de un par de
- *  cientos de bytes cada una, así que un archivo por dibujo serían cuatro
- *  requests para algo que pesa menos que la petición. Inline además heredan
- *  `currentColor`, que es lo que les deja tomar el violeta o el naranja de
- *  la plantilla sin una copia por color.
+ *  Son emoji y no SVG, como en el artboard. Un emoji pesa cuatro bytes, lo
+ *  dibuja la fuente del sistema a cualquier tamaño sin perder nitidez, y trae
+ *  el color puesto — que es justo lo que se quiere acá, donde conviven un
+ *  murciélago negro, una calabaza naranja y un fantasma blanco. La contra es
+ *  que cada plataforma los dibuja a su manera; para decoración de fondo eso
+ *  no cambia nada, y para un dibujo de marca (un logo) sí habría que usar
+ *  SVG.
  *
- *  Todos llevan `aria-hidden`: no dicen nada que el texto no diga ya. */
+ *  Todo va con `aria-hidden`: no dicen nada que el texto no diga ya, y un
+ *  lector de pantalla leyendo "murciélago murciélago murciélago" antes del
+ *  título es ruido. */
 
-export function Murcielago({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 64 32" className={className} aria-hidden="true" fill="currentColor">
-      {/* las alas van en su propio grupo para poder aletear sin mover el cuerpo */}
-      <g className="h-aletea">
-        <path d="M32 10c-4-7-11-9-17-7 3 2 4 5 3 8-3-2-7-2-10 1 5 0 8 3 9 7 4-4 10-6 15-5z" />
-        <path d="M32 10c4-7 11-9 17-7-3 2-4 5-3 8 3-2 7-2 10 1-5 0-8 3-9 7-4-4-10-6-15-5z" />
-      </g>
-      <ellipse cx="32" cy="14" rx="4" ry="6" />
-      <path d="M29 8l-2-4 4 2zM35 8l2-4-4 2z" />
-    </svg>
-  );
-}
+const capa: React.CSSProperties = { position: 'absolute', pointerEvents: 'none' };
 
-export function Telarana({ className = '' }: { className?: string }) {
+function Murcielago({ top, duracion, retraso, escala }: {
+  top: string;
+  duracion: number;
+  retraso: number;
+  escala: number;
+}) {
   return (
-    <svg
-      viewBox="0 0 100 100"
-      className={className}
-      aria-hidden="true"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
+    <div
+      style={{
+        ...capa,
+        top,
+        left: 0,
+        fontSize: 28,
+        ['--s' as string]: escala,
+        animation: `hw-bat ${duracion}s linear ${retraso}s infinite`,
+      }}
     >
-      <path d="M0 0 L0 100M0 0 L100 0M0 0 L70 70M0 0 L30 92M0 0 L92 30" />
-      <path d="M22 0a22 22 0 0 1-22 22M42 0a42 42 0 0 1-42 42M64 0a64 64 0 0 1-64 64M86 0a86 86 0 0 1-86 86" />
-    </svg>
+      <span className="hw-flap">🦇</span>
+    </div>
   );
 }
 
-/** La araña que baja del hilo. El hilo es parte del dibujo para que colgar
- *  sea una sola animación sobre el grupo entero. */
-export function Arana({ className = '' }: { className?: string }) {
+function Estrella({ top, left, color, tamano, desfase }: {
+  top: string;
+  left: string;
+  color: string;
+  tamano: number;
+  desfase: number;
+}) {
   return (
-    <svg viewBox="0 0 40 74" className={className} aria-hidden="true">
-      <line x1="20" y1="0" x2="20" y2="40" stroke="currentColor" strokeWidth="1.5" />
-      <g fill="currentColor" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-        <path d="M11 50 2 43M11 57 2 58M29 50l9-7M29 57l9 1M13 62l-6 9M27 62l6 9" fill="none" />
-        <circle cx="20" cy="49" r="6" />
-        <circle cx="20" cy="59" r="9" />
-      </g>
-      <g fill="#fff">
-        <circle cx="17.5" cy="48" r="1.6" />
-        <circle cx="22.5" cy="48" r="1.6" />
-      </g>
-    </svg>
+    <div
+      style={{
+        ...capa,
+        top,
+        left,
+        color,
+        fontSize: tamano,
+        animation: `hw-twinkle ${2 + desfase}s ease-in-out ${-desfase}s infinite`,
+      }}
+    >
+      ✦
+    </div>
   );
 }
 
-export function Calabaza({ className = '' }: { className?: string }) {
+/** La capa decorativa del encabezado, entera. Va detrás del título
+ *  (`zIndex: 0`) y el contenido por encima. */
+export function AdornosEncabezado() {
   return (
-    <svg viewBox="0 0 64 60" className={className} aria-hidden="true">
-      <path d="M32 12c-3-6-9-9-13-8 2 3 3 6 2 9z" fill="#4e8f76" />
-      <path
-        d="M32 12c14 0 26 9 26 24S46 58 32 58 6 51 6 36 18 12 32 12z"
-        fill="currentColor"
-      />
-      <path
-        d="M19 30l9 5-9 5zM45 30l-9 5 9 5zM20 46c4 4 8 5 12 5s8-1 12-5c-4 1-8 1-12 1s-8 0-12-1z"
-        fill="#3b1f5c"
-      />
-      <path d="M30 11h4v48h-4z" fill="#000" opacity=".07" />
-    </svg>
+    <div aria-hidden="true" style={{ ...capa, inset: 0, zIndex: 0 }}>
+      <Murcielago top="8px" duracion={14} retraso={0} escala={1} />
+      <Murcielago top="150px" duracion={18} retraso={-7} escala={0.7} />
+      <Murcielago top="70px" duracion={22} retraso={-13} escala={0.55} />
+
+      <div
+        className="hw-spider"
+        style={{
+          ...capa,
+          top: -30,
+          left: 'clamp(10px,4vw,60px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ width: 1.5, height: 80, background: 'rgb(42 27 69 / 0.45)' }} />
+        <div style={{ fontSize: 26, marginTop: -4 }}>🕷️</div>
+      </div>
+
+      <div
+        style={{
+          ...capa,
+          top: 12,
+          right: 'clamp(6px,3vw,40px)',
+          fontSize: 'clamp(40px,11vw,70px)',
+          opacity: 0.9,
+          transform: 'rotate(8deg)',
+        }}
+      >
+        🕸️
+      </div>
+
+      <div
+        className="hw-ghost"
+        style={{ ...capa, top: '44%', left: 'clamp(4px,3vw,60px)', fontSize: 30 }}
+      >
+        👻
+      </div>
+      <div
+        style={{
+          ...capa,
+          top: '62%',
+          right: 'clamp(4px,4vw,70px)',
+          fontSize: 24,
+          animation: 'hw-ghost 5.4s ease-in-out -2s infinite',
+        }}
+      >
+        🍬
+      </div>
+
+      <Estrella top="18px" left="22%" color="#f28a2e" tamano={20} desfase={0.4} />
+      <Estrella top="120px" left="88%" color="#f28a2e" tamano={16} desfase={1.1} />
+      <Estrella top="200px" left="6%" color="#8b6bc7" tamano={14} desfase={0.8} />
+      <Estrella top="58%" left="92%" color="#8b6bc7" tamano={13} desfase={1.6} />
+      <Estrella top="72%" left="10%" color="#f28a2e" tamano={15} desfase={0.2} />
+    </div>
   );
 }
 
-/** La bandada del encabezado. Cada murciélago arranca en otro momento y
- *  tarda distinto, porque tres bichos sincronizados leen como un GIF. */
-export function Bandada() {
-  const vuelos = [
-    { top: '12%', escala: 0.7, retraso: '0s', duracion: '26s', opacidad: 0.5 },
-    { top: '38%', escala: 1, retraso: '-9s', duracion: '34s', opacidad: 0.75 },
-    { top: '66%', escala: 0.5, retraso: '-18s', duracion: '22s', opacidad: 0.4 },
-  ];
-
+/** "Halloween" letra por letra: cada una cae desde arriba y después se
+ *  balancea sola. Es una sola palabra, así que el costo de partirla es un
+ *  `<span>` por letra; a cambio el título se arma en pantalla en vez de
+ *  aparecer hecho.
+ *
+ *  `aria-label` en el `<h1>` que la contiene: partida en letras, un lector de
+ *  pantalla podría deletrearla. */
+export function TituloAnimado({ texto }: { texto: string }) {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      {vuelos.map((v, i) => (
+    <>
+      {[...texto].map((letra, i) => (
         <span
           key={i}
-          className="h-vuela absolute left-0 block w-12 text-[color:var(--h-violeta)]"
           style={{
-            top: v.top,
-            opacity: v.opacidad,
-            animationDelay: v.retraso,
-            animationDuration: v.duracion,
+            display: 'inline-block',
+            ['--r' as string]: `${i % 2 ? 3 : -3}deg`,
+            animation: `hw-drop .8s cubic-bezier(.2,.9,.3,1.3) ${0.25 + i * 0.07}s both, hw-wobble ${2.6 + (i % 3) * 0.4}s ease-in-out ${1.4 + i * 0.1}s infinite`,
           }}
         >
-          <Murcielago className={`w-full ${v.escala < 1 ? 'scale-75' : ''}`} />
+          {letra}
         </span>
       ))}
-    </div>
+    </>
   );
 }

@@ -1,116 +1,141 @@
 'use client';
 
-import { Calabaza } from './Adornos';
+import { chispas } from './chispas';
 import { usePedido } from '@/componentes/pedido/usePedido';
 import { useClienteActual } from '@/componentes/ClienteContext';
+import { claveLinea } from '@/logica/pedido';
 import { formatearPrecio } from '@/logica/precio';
 import { precioDesde, tieneVariantes, variantesDe } from '@/logica/variantes';
 import type { Item } from '@/logica/tipos';
 
-type Props = { item: Item; onAbrir: (item: Item) => void; retraso: number };
+type Props = { item: Item; onAbrir: (item: Item) => void };
 
-/** Un producto en la grilla: foto, nombre y precio.
+/** Un producto en la grilla: foto, nombre, precio y el botón de agregar.
  *
- *  La tarjeta entera es el botón que abre la ficha, en vez de tener un "+"
- *  que agrega desde acá. Con talles no hay nada que agregar sin preguntar
- *  primero cuál, y con un blanco de 44px el nombre no alcanza para decidir
- *  una compra de $60.000: la foto grande es el paso obligado, no un extra.
- *
- *  Cuando el producto ya está en el pedido lo dice con un globo, así se ve
- *  scrolleando y no hay que abrir la hoja para saber qué se lleva. */
-export function TarjetaProducto({ item, onAbrir, retraso }: Props) {
+ *  La foto abre la ficha y el botón agrega, que son dos cosas distintas y por
+ *  eso son dos botones. Con una excepción que el artboard no contemplaba: si
+ *  el producto viene en varios talles, agregar desde acá sería elegir por el
+ *  comprador. En ese caso el botón dice "Elegir talle" y abre la ficha, donde
+ *  cada talle tiene su propio contador. Un disfraz en el talle equivocado es
+ *  una devolución. */
+export function TarjetaProducto({ item, onAbrir }: Props) {
   const { slug } = useClienteActual();
-  const { cantidadDe } = usePedido(slug);
+  const { agregarItem, cambiarCantidad, cantidadDe } = usePedido(slug);
 
-  const enElPedido = variantesDe(item).reduce((n, v) => n + cantidadDe(item.id, v.etiqueta), 0);
+  const medidas = variantesDe(item);
+  const hayQueElegir = tieneVariantes(item) && medidas.length > 1;
+  const cantidad = medidas.reduce((n, v) => n + cantidadDe(item.id, v.etiqueta), 0);
   const desde = precioDesde(item);
-  const variasMedidas = tieneVariantes(item) && variantesDe(item).length > 1;
+
+  const sumar = (e: React.MouseEvent<HTMLButtonElement>) => {
+    chispas(e.currentTarget, cantidad === 0);
+    agregarItem(item, medidas[0].etiqueta || undefined);
+  };
 
   return (
-    <button
-      type="button"
-      onClick={() => onAbrir(item)}
-      style={{ animationDelay: `${retraso}ms` }}
-      className={`halloween-tarjeta h-entra relative flex flex-col overflow-hidden text-left ${
-        item.agotado ? 'opacity-60' : ''
-      }`}
+    <article
+      className="halloween-tarjeta hw-entra-scroll flex flex-col gap-2 p-2 pb-2.5"
+      style={{ opacity: item.agotado ? 0.55 : 1 }}
     >
-      {enElPedido > 0 && (
-        <span
-          className="absolute right-2 top-2 z-10 grid place-items-center min-w-7 h-7 px-2 rounded-full border-2 text-[13px] font-extrabold tabular-nums"
-          style={{
-            background: 'var(--h-naranja)',
-            borderColor: 'var(--h-violeta)',
-            color: '#fff',
-          }}
-        >
-          {enElPedido}
-          <span className="sr-only"> en el pedido</span>
-        </span>
-      )}
-
-      <span
-        className="block w-full aspect-square"
-        style={{ background: 'var(--h-papel)' }}
+      <button
+        type="button"
+        onClick={() => onAbrir(item)}
+        aria-label={`Ver ${item.nombre} en grande`}
+        className="block w-full aspect-square overflow-hidden rounded-[10px] border-0 p-0 cursor-zoom-in"
+        style={{ background: 'var(--h-foto)' }}
       >
         {item.fotoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={item.fotoUrl}
-            alt=""
+            alt={item.nombre}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-contain"
+            className="block w-full h-full object-cover"
           />
         ) : (
-          <span className="grid place-items-center w-full h-full">
-            <Calabaza className="w-14 text-[color:var(--h-naranja-claro)]" />
+          <span className="grid place-items-center w-full h-full text-[38px]" aria-hidden="true">
+            🎃
           </span>
         )}
-      </span>
+      </button>
 
-      <span
-        className="flex flex-1 flex-col gap-1 px-3 py-2.5 border-t-2"
-        style={{ borderColor: 'var(--h-violeta)' }}
-      >
-        <span
-          className="block text-[14px] font-bold leading-[1.25]"
-          style={{ color: 'var(--h-violeta)' }}
-        >
-          {item.nombre}
-        </span>
-
-        <span className="mt-auto flex items-baseline gap-1.5 flex-wrap">
-          {desde > 0 ? (
-            <>
-              {variasMedidas && (
-                <span className="text-[11px] font-bold" style={{ color: 'var(--h-violeta-medio)' }}>
-                  desde
-                </span>
-              )}
-              <span
-                className="text-[16px] font-extrabold tabular-nums"
-                style={{ color: 'var(--h-naranja)' }}
-              >
-                {formatearPrecio(desde)}
-              </span>
-            </>
-          ) : (
-            <span className="text-[13px] font-bold" style={{ color: 'var(--h-violeta-medio)' }}>
-              Consultar precio
+      <div className="flex flex-1 flex-col gap-0.5 px-1">
+        <div className="text-[14.5px] font-medium leading-[1.2] text-pretty">{item.nombre}</div>
+        <div className="mt-auto pt-1 flex items-baseline gap-1">
+          {hayQueElegir && (
+            <span className="halloween-mano text-[15px]" style={{ color: 'var(--h-tinta-suave)' }}>
+              desde
             </span>
           )}
-        </span>
-
-        {item.agotado && (
-          <span
-            className="text-[11px] font-extrabold uppercase tracking-wide"
-            style={{ color: 'var(--h-violeta-medio)' }}
-          >
-            Sin stock
+          <span className="font-bold text-[17px]" style={{ color: 'var(--h-tinta)' }}>
+            {desde > 0 ? formatearPrecio(desde) : 'Consultar'}
           </span>
-        )}
-      </span>
-    </button>
+        </div>
+      </div>
+
+      {item.agotado ? (
+        <div
+          className="h-10 grid place-items-center rounded-full text-[14px] font-semibold uppercase tracking-wide"
+          style={{ background: 'var(--h-foto)', color: 'var(--h-tinta-suave)' }}
+        >
+          Sin stock
+        </div>
+      ) : hayQueElegir ? (
+        <button
+          type="button"
+          onClick={() => onAbrir(item)}
+          className="h-10 rounded-full border-2 font-semibold text-[15px] transition-colors"
+          style={{
+            borderColor: 'var(--h-tinta)',
+            background: cantidad > 0 ? 'var(--h-tinta)' : 'var(--h-crema)',
+            color: cantidad > 0 ? 'var(--h-crema)' : 'var(--h-tinta)',
+          }}
+        >
+          {cantidad > 0 ? `${cantidad} en el pedido` : 'Elegir talle'}
+        </button>
+      ) : cantidad > 0 ? (
+        <div
+          className="h-10 flex items-center justify-between rounded-full px-1 text-white"
+          style={{ background: 'var(--h-naranja)' }}
+        >
+          <button
+            type="button"
+            onClick={() => cambiarCantidad(claveLinea(item.id, medidas[0].etiqueta), cantidad - 1)}
+            aria-label={`Sacar uno de ${item.nombre}`}
+            className="w-[34px] h-[34px] rounded-full border-0 text-[20px] font-bold leading-none text-white"
+            style={{ background: 'rgb(255 255 255 / 0.22)' }}
+          >
+            <span aria-hidden="true">−</span>
+          </button>
+          <span className="font-bold text-[16px] tabular-nums" aria-live="polite">
+            {cantidad}
+          </span>
+          <button
+            type="button"
+            onClick={sumar}
+            aria-label={`Agregar otro ${item.nombre}`}
+            className="w-[34px] h-[34px] rounded-full border-0 text-[20px] font-bold leading-none text-white"
+            style={{ background: 'rgb(255 255 255 / 0.22)' }}
+          >
+            <span aria-hidden="true">+</span>
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={sumar}
+          aria-label={`Agregar ${item.nombre} al pedido`}
+          className="h-10 rounded-full border-2 font-semibold text-[15px]"
+          style={{
+            borderColor: 'var(--h-tinta)',
+            background: 'var(--h-crema)',
+            color: 'var(--h-tinta)',
+          }}
+        >
+          + Agregar
+        </button>
+      )}
+    </article>
   );
 }

@@ -100,158 +100,176 @@ body {
 }
 
 /* ── Plantilla "halloween" ────────────────────────────────────────────────
-   Identidad propia de la campaña de temporada, tomada del flyer que el
-   cliente manda por WhatsApp: papel crema, violeta y naranja calabaza.
+   Puerto del artboard de Claude Design (`landing/` guarda los del brief de
+   la landing; éste vino aparte). Los colores, las tipografías y el
+   movimiento salen de ahí; los datos NO: el artboard tenía los 81 productos
+   escritos adentro y acá vienen de Supabase, que es lo que hace que el
+   cliente pueda cambiar un precio sin tocar el código.
 
-   Por qué colores propios y no las cuatro variables del tema: el tema tiene
-   cuatro colores porque un restaurante tiene cuatro. Esta plantilla necesita
-   media docena más (dos violetas, dos naranjas, lila, menta) que no son del
-   cliente sino DE LA PLANTILLA — el mismo motivo por el que `clientes.tema`
-   no las tiene. El tema del cliente sí se setea en juego con estos, porque
-   la hoja del pedido y la barra inferior son del motor y lo usan.
+   Paleta propia y no las cuatro variables del tema: `clientes.tema` tiene
+   cuatro colores porque un restaurante tiene cuatro. Este diseño usa una
+   docena. Las cuatro del tema se setean en juego con éstas, porque la hoja
+   del pedido y la barra inferior son del motor y las comparten todos.
 
-   Todo lo de acá vive bajo `.halloween`: la plantilla Clásica no se entera. */
+   Todo vive bajo `.halloween`: la plantilla Clásica no se entera. */
 .halloween {
-  --h-crema: #fdf6e9;
+  --h-crema: #fbf6ee;
   --h-papel: #ffffff;
-  --h-violeta: #3b1f5c;
-  --h-violeta-medio: #6b3fa0;
-  --h-lila: #c9b3e8;
-  --h-lila-suave: #efe6fa;
-  --h-naranja: #f5761a;
-  --h-naranja-claro: #fdbe6e;
-  --h-menta: #a8d8c4;
-  --h-sombra: 0 2px 0 rgb(59 31 92 / 0.12), 0 8px 20px -10px rgb(59 31 92 / 0.35);
+  --h-foto: #f4eee4;
+  --h-tinta: #2a1b45;
+  --h-tinta-suave: #6a5a86;
+  --h-naranja: #f28a2e;
+  --h-naranja-hondo: #d8661a;
+  --h-lila: #dccdf5;
+  --h-lila-medio: #b89bea;
+  --h-durazno: #fbcb9f;
+  --h-menta: #c9e9d6;
+  --h-whatsapp: #25d366;
+  --h-whatsapp-tinta: #0b2e17;
 
   background: var(--h-crema);
-  color: var(--h-violeta);
+  color: var(--h-tinta);
+  font-family: var(--h-fuente), system-ui, sans-serif;
 }
 
-/* Papel crema con una trama de puntos muy tenue: sin esto el fondo plano
-   compite con las fotos, que también son crema. */
-.halloween-fondo {
-  background-image: radial-gradient(rgb(107 63 160 / 0.07) 1px, transparent 1px);
-  background-size: 18px 18px;
+/* La cursiva escrita a mano del flyer: subtítulos, notas al margen y los
+   globitos. Es un nivel tipográfico, no un adorno suelto. */
+.halloween-mano {
+  font-family: var(--h-fuente-mano), cursive;
+  font-weight: 400;
+}
+.halloween-terror {
+  font-family: var(--h-fuente-terror), cursive;
+  font-weight: 400;
 }
 
-/* El título de categoría sobre una pincelada, como en el flyer. El trazo es
-   un pseudo-elemento y no una imagen: escala con el texto en cualquier
-   idioma y no suma un request. */
-.halloween-pincelada {
-  position: relative;
-  display: inline-block;
-  padding: 2px 16px 4px;
-  color: var(--h-papel);
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  /* `isolation` y no sólo `position: relative`: el trazo va en un ::before
-     con z-index negativo, y sin un contexto de apilamiento propio ese -1 lo
-     manda detrás del fondo de la página — el título quedaba en blanco sobre
-     crema, o sea invisible. */
-  isolation: isolate;
+/* Los rectángulos "recortados a mano": esquinas con radios distintos en cada
+   vértice. Es lo que hace que el cartel parezca pegado y no una caja de CSS. */
+.halloween-recorte {
+  border-radius: 12px 34px 10px 28px / 26px 10px 32px 12px;
 }
-.halloween-pincelada::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--h-violeta-medio);
-  border-radius: 40% 60% 55% 45% / 60% 50% 50% 40%;
-  transform: rotate(-1.2deg);
-  z-index: -1;
+.halloween-recorte-globo {
+  border-radius: 14px 38px 12px 30px / 30px 12px 36px 14px;
 }
-.halloween-pincelada-naranja::before { background: var(--h-naranja); }
-.halloween-pincelada-menta::before { background: #4e8f76; }
+.halloween-recorte-panel {
+  border-radius: 28px 44px 24px 40px / 40px 24px 44px 28px;
+}
 
-/* La tarjeta de producto. El borde inferior más grueso le da el apoyo de
-   sticker que tiene el flyer. */
 .halloween-tarjeta {
   background: var(--h-papel);
-  border: 2px solid var(--h-violeta);
-  border-bottom-width: 5px;
-  border-radius: 18px;
-  box-shadow: var(--h-sombra);
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  border-radius: 16px;
+  box-shadow:
+    0 1px 0 rgb(42 27 69 / 0.06),
+    0 6px 16px rgb(42 27 69 / 0.07);
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.25s;
 }
-.halloween-tarjeta:active { transform: translateY(2px) scale(0.985); }
 @media (hover: hover) {
   .halloween-tarjeta:hover {
-    transform: translateY(-3px) rotate(-0.4deg);
-    box-shadow: 0 5px 0 rgb(59 31 92 / 0.14), 0 16px 28px -12px rgb(59 31 92 / 0.45);
+    transform: translateY(-4px) rotate(-0.8deg);
+    box-shadow: 0 14px 28px rgb(42 27 69 / 0.14);
   }
 }
 
-.halloween-chip {
-  border-radius: 999px;
-  border: 2px solid var(--h-violeta);
-  background: var(--h-lila-suave);
-  color: var(--h-violeta);
-  font-weight: 700;
+/* La polaroid del encabezado: marco blanco con más aire abajo, como una foto
+   revelada. */
+.halloween-polaroid {
+  background: #fff;
+  padding: 7px 7px 26px;
+  box-shadow: 0 10px 24px rgb(42 27 69 / 0.16);
 }
-.halloween-chip[aria-pressed='true'],
-.halloween-chip[aria-current='true'] {
-  background: var(--h-naranja);
-  border-color: var(--h-violeta);
-  color: #fff;
-}
-
-.halloween-boton {
-  background: var(--h-naranja);
-  color: #fff;
-  border: 2px solid var(--h-violeta);
-  border-bottom-width: 4px;
-  border-radius: 999px;
-  font-weight: 800;
-  transition: transform 120ms ease;
-}
-.halloween-boton:active { transform: translateY(2px); border-bottom-width: 2px; }
 
 /* ── Movimiento ──────────────────────────────────────────────────────────
-   Todo lo de abajo es decorativo. Se apaga entero con `prefers-reduced-
-   motion`: un catálogo de 81 productos con cosas moviéndose en cada scroll
-   es exactamente el caso que esa preferencia existe para resolver. */
-@keyframes h-vuelo {
-  from { transform: translateX(-12vw) translateY(0) rotate(-6deg); }
-  50%  { transform: translateX(45vw) translateY(-14px) rotate(4deg); }
-  to   { transform: translateX(112vw) translateY(4px) rotate(-3deg); }
+   Se apaga entero con `prefers-reduced-motion`. Un catálogo de 81 productos
+   con cosas moviéndose en cada scroll es exactamente el caso que esa
+   preferencia existe para resolver. */
+@keyframes hw-float {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50%      { transform: translateY(-6px) rotate(var(--r, 0deg)); }
 }
-@keyframes h-aleteo {
+@keyframes hw-bat {
+  0%   { transform: translate(-15vw, 0) scale(var(--s, 1)); }
+  25%  { transform: translate(25vw, -30px) scale(var(--s, 1)); }
+  50%  { transform: translate(55vw, 20px) scale(var(--s, 1)); }
+  75%  { transform: translate(85vw, -25px) scale(var(--s, 1)); }
+  100% { transform: translate(120vw, 0) scale(var(--s, 1)); }
+}
+@keyframes hw-flap {
   0%, 100% { transform: scaleY(1); }
   50%      { transform: scaleY(0.55); }
 }
-@keyframes h-flotar {
+@keyframes hw-spider {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-7px); }
+  50%      { transform: translateY(46px); }
 }
-@keyframes h-colgar {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50%      { transform: translateY(9px) rotate(2deg); }
+@keyframes hw-ghost {
+  0%, 100% { transform: translate(0, 0) rotate(-6deg); opacity: 0.9; }
+  50%      { transform: translate(8px, -16px) rotate(6deg); opacity: 0.55; }
 }
-@keyframes h-aparecer {
-  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+@keyframes hw-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.7) rotate(0); }
+  50%      { opacity: 1; transform: scale(1.15) rotate(20deg); }
+}
+@keyframes hw-drop {
+  0%   { opacity: 0; transform: translateY(-60px) rotate(-12deg); }
+  60%  { opacity: 1; transform: translateY(8px) rotate(4deg); }
+  100% { opacity: 1; transform: translateY(0) rotate(var(--r, 0deg)); }
+}
+@keyframes hw-wobble {
+  0%, 100% { transform: rotate(var(--r, 0deg)) translateY(0); }
+  50%      { transform: rotate(calc(var(--r, 0deg) * -1)) translateY(-3px); }
+}
+@keyframes hw-wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50%      { transform: rotate(8deg); }
+}
+@keyframes hw-rise {
+  from { opacity: 0; transform: translateY(28px) scale(0.96); }
   to   { opacity: 1; transform: none; }
 }
-@keyframes h-titilar {
-  0%, 100% { opacity: 1; }
-  42%      { opacity: 0.72; }
-  47%      { opacity: 1; }
-  62%      { opacity: 0.8; }
+@keyframes hw-bob {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50%      { transform: translateY(-10px) rotate(calc(var(--r, 0deg) + 4deg)); }
 }
-@keyframes h-modal {
-  from { opacity: 0; transform: translateY(18px) scale(0.96); }
-  to   { opacity: 1; transform: none; }
+@keyframes hw-glow {
+  0%, 100% { text-shadow: 0 3px 0 var(--h-naranja-hondo), 0 0 0 rgb(242 138 46 / 0); }
+  50%      { text-shadow: 0 3px 0 var(--h-naranja-hondo), 0 0 28px rgb(242 138 46 / 0.55); }
 }
 
-.h-vuela  { animation: h-vuelo 26s linear infinite; }
-.h-aletea { animation: h-aleteo 340ms ease-in-out infinite; transform-origin: center; }
-.h-flota  { animation: h-flotar 4.5s ease-in-out infinite; }
-.h-cuelga { animation: h-colgar 5.5s ease-in-out infinite; transform-origin: top center; }
-.h-titila { animation: h-titilar 5s ease-in-out infinite; }
-.h-entra  { animation: h-aparecer 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-.h-modal-entra { animation: h-modal 220ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.hw-float   { animation: hw-float 5s ease-in-out infinite; }
+.hw-flap    { animation: hw-flap 0.28s ease-in-out infinite; display: inline-block; }
+.hw-spider  { animation: hw-spider 4.5s ease-in-out infinite; }
+.hw-ghost   { animation: hw-ghost 4.6s ease-in-out infinite; }
+.hw-wiggle  { animation: hw-wiggle 2.4s ease-in-out infinite; display: inline-block; }
+.hw-rise    { animation: hw-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.hw-bob     { animation: hw-bob 3.4s ease-in-out infinite; }
+.hw-glow    { animation: hw-glow 3.2s ease-in-out 1.6s infinite; }
+
+/* La grilla entra con el scroll donde el navegador lo soporta. Es progresivo
+   a propósito: sin `animation-timeline` las tarjetas simplemente están, que
+   es el comportamiento correcto y no una degradación. */
+@supports (animation-timeline: view()) {
+  .hw-entra-scroll {
+    animation: hw-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 55%;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .h-vuela, .h-aletea, .h-flota, .h-cuelga, .h-titila, .h-entra, .h-modal-entra {
+  .halloween *,
+  .halloween *::before,
+  .halloween *::after {
     animation: none !important;
   }
   .halloween-tarjeta { transition: none; }
 }
+
+/* El listado horizontal de categorías y el de cualquier fila que se arrastre:
+   sin barra visible, que en mobile no se usa y en desktop corta el diseño. */
+.halloween-sin-barra {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.halloween-sin-barra::-webkit-scrollbar { display: none; }
