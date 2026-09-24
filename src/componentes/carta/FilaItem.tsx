@@ -11,11 +11,16 @@ type Props = {
   /** true cuando el precio de las medidas ya está anunciado en el título del
    *  bloque: la fila muestra la medida y el "+", pero no repite el precio. */
   preciosEnTitulo?: boolean;
+  /** true cuando ALGÚN ítem de la carta tiene foto: la fila sin foto deja el
+   *  hueco para que los nombres queden alineados. Con la carta entera sin
+   *  fotos el hueco no se reserva — son 44px de ancho que en un teléfono se
+   *  notan, y sin nada con qué alinearse no alinean nada. */
+  conFotos?: boolean;
 };
 
 /** Un ítem de la carta: número, nombre, descripción, precio a la derecha, y
  *  el "+" del pedido. precio 0 = sin precio cargado: nunca se muestra "$0". */
-export function FilaItem({ item, preciosEnTitulo = false }: Props) {
+export function FilaItem({ item, preciosEnTitulo = false, conFotos = false }: Props) {
   const conMedidas = tieneVariantes(item);
 
   return (
@@ -33,7 +38,7 @@ export function FilaItem({ item, preciosEnTitulo = false }: Props) {
             className="w-11 h-11 shrink-0 rounded-full object-cover"
           />
         ) : (
-          <span className="w-11 h-11 shrink-0" aria-hidden="true" />
+          conFotos && <span className="w-11 h-11 shrink-0" aria-hidden="true" />
         )}
         <span className="flex-1 min-w-0">
           <span className={`nombre-item block ${item.agotado ? 'line-through' : ''}`}>

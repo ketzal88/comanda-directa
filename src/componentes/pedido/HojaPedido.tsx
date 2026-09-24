@@ -139,10 +139,18 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
   const enlace = enlaceWhatsApp(configPedido.whatsapp, mensaje);
   const puedeEnviar = Boolean(enlace) && habilitadas.length > 0;
 
-  const aclaracion =
+  // La propina se aclara solo donde hay mesa que atender: un cliente que
+  // vende para llevar (o que no es gastronómico) no tiene por qué explicarle
+  // al comprador que el total no la incluye.
+  const hayMesas = habilitadas.includes('salon');
+  const aclaracion = [
     cubiertos > 0
-      ? 'Calculado sobre los precios de carta, cubierto incluido. No suma la propina.'
-      : 'Calculado sobre los precios de carta. No suma la propina.';
+      ? 'Calculado sobre los precios de carta, cubierto incluido.'
+      : 'Calculado sobre los precios de carta.',
+    hayMesas ? 'No suma la propina.' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   const copiar = async () => {
     try {
@@ -347,7 +355,10 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
                 </button>
                 {mostrarErrores && !modalidad && (
                   <p className="metadata-item mt-2 text-tinta" aria-live="assertive">
-                    Elegí si es en el salón, retiro o delivery.
+                    {/* Las opciones salen de las habilitadas, no de una lista
+                        escrita a mano: nombrar el salón a un cliente que no
+                        tiene mesas manda a buscar un botón que no existe. */}
+                    Elegí una opción: {habilitadas.map((m) => ETIQUETA_MODALIDAD[m]).join(', ')}.
                   </p>
                 )}
               </>
@@ -466,7 +477,7 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
                 onChange={(e) => setNotas(e.target.value)}
                 maxLength={MAX_TEXTO}
                 rows={2}
-                placeholder="Sin palta, sin picante, alergias…"
+                placeholder="Algo que tengan que saber antes de armar tu pedido"
                 className={CLASE_CAMPO}
               />
             </label>

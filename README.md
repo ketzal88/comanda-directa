@@ -31,6 +31,30 @@ excluye del historial de este repo.
 Nada de esto pisa a otro cliente: cada fila de `clientes` es independiente,
 con su propia clave de panel y sus propias categorías/ítems (`cliente_id`).
 
+### Cuando la carta ya viene escrita: darla de alta por script
+
+Cargar ochenta productos a mano en el panel es una tarde y un par de precios
+mal tipeados. Cuando el cliente ya mandó la lista, conviene el camino de
+`halloween`: los datos en un módulo de `scripts/` (revisable en el diff, con
+pruebas encima) y un script que los inserta.
+
+```bash
+CLAVE_PANEL=loquesea npm run seed:halloween    # crea/recarga /halloween
+```
+
+- `scripts/catalogo-halloween.ts` — categorías, productos, tema y config de
+  pedido. No entra en el bundle: es dato de alta, no código servido.
+- `scripts/seed-halloween.ts` — inserta. Es idempotente y **destructivo para
+  ese cliente**: borra sus categorías e ítems y los reescribe. Después del
+  alta, los cambios chicos van por el panel; volver a correrlo pisa lo que el
+  cliente haya editado ahí.
+- `pruebas/catalogo-halloween.test.ts` — corre sobre los mismos datos:
+  precios enteros, nombres sin repetir, talles dentro de lo que acepta el
+  panel, y que el talle elegido llegue al mensaje de WhatsApp.
+- La clave del panel viaja por entorno (`CLAVE_PANEL`), no por el repo.
+
+Para el cliente siguiente, copiar los dos archivos y cambiar los datos.
+
 ## Poner en marcha Supabase (una sola vez para todo el motor)
 
 1. Crear un proyecto de Supabase (plan gratuito alcanza para arrancar).
@@ -63,6 +87,19 @@ clientes a la vez.
   parametrizados por `cliente_id`/slug. El tema (colores, logo) se pinta como
   variables CSS en tiempo de request (`[cliente]/layout.tsx`), no como
   `@theme` de Tailwind: así el mismo build sirve a todos los clientes.
+
+## Clientes dados de alta
+
+| slug | qué es | modalidades | notas |
+| --- | --- | --- | --- |
+| `demo` | carta de muestra para probar el motor | salón, retiro, delivery | `npm run seed:demo` |
+| `halloween` | catálogo de temporada de cotillón y disfraces | retiro, delivery | sin nombre comercial todavía; sin comandas ni link de pago |
+
+`halloween` es el primero que no es un restaurante, y por eso vale anotar qué
+alcanzó con lo que ya había: apagar `salon` y dejar `cubiertoPorPersona` en 0
+saca de la pantalla todo lo gastronómico, y `variantes` —pensadas para "5 pz"
+/ "10 pz" de sushi— sirven igual para el talle de un disfraz, que es dato de
+despacho y tiene que viajar en el mensaje de WhatsApp.
 
 ## Plantillas
 

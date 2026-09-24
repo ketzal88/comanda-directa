@@ -8,6 +8,9 @@ import type { Categoria, Item, Variante } from '@/logica/tipos';
 type Props = {
   categoria: Categoria;
   items: Item[]; // ya filtrados; si está vacío, la categoría NO se renderiza
+  /** Lo decide la carta entera, no esta categoría: una carta con fotos en
+   *  algunas categorías y no en otras alinearía distinto en cada sección. */
+  conFotos?: boolean;
 };
 
 function PreciosDelBloque({ variantes }: { variantes: Variante[] }) {
@@ -21,12 +24,17 @@ function PreciosDelBloque({ variantes }: { variantes: Variante[] }) {
   );
 }
 
-function Bloque({ items }: { items: Item[] }) {
+function Bloque({ items, conFotos }: { items: Item[]; conFotos: boolean }) {
   const comunes = preciosComunes(items);
   return (
     <>
       {items.map((item) => (
-        <FilaItem key={item.id} item={item} preciosEnTitulo={comunes != null} />
+        <FilaItem
+          key={item.id}
+          item={item}
+          preciosEnTitulo={comunes != null}
+          conFotos={conFotos}
+        />
       ))}
     </>
   );
@@ -34,7 +42,7 @@ function Bloque({ items }: { items: Item[] }) {
 
 /** Título de la categoría + regla fina + ítems agrupados por subcategoría.
  *  Una categoría sin ítems visibles no aparece. */
-export function ListaCategoria({ categoria, items }: Props) {
+export function ListaCategoria({ categoria, items, conFotos = false }: Props) {
   if (!items.length) return null;
 
   const subcategorias = [...categoria.subcategorias].sort((a, b) => a.orden - b.orden);
@@ -67,7 +75,7 @@ export function ListaCategoria({ categoria, items }: Props) {
         </p>
       )}
 
-      <Bloque items={sueltos} />
+      <Bloque items={sueltos} conFotos={conFotos} />
 
       {subcategorias.map((sub) => {
         const deSub = items.filter((i) => i.subcategoria === sub.nombre);
@@ -82,7 +90,7 @@ export function ListaCategoria({ categoria, items }: Props) {
               </p>
             )}
             <div className="mt-2">
-              <Bloque items={deSub} />
+              <Bloque items={deSub} conFotos={conFotos} />
             </div>
           </div>
         );

@@ -33,6 +33,10 @@ export function Carta({ carta, configPedido, logoUrl, desactualizada = false }: 
   );
   const visibles = useMemo(() => carta.items.filter((i) => i.activo), [carta.items]);
 
+  // Una sola decisión para toda la carta: si no hay ni una foto cargada, las
+  // filas no reservan el hueco de la miniatura (ver `FilaItem`).
+  const hayFotos = useMemo(() => visibles.some((i) => Boolean(i.fotoUrl)), [visibles]);
+
   const notaHablaDelCubierto = carta.config.notas.some((n) => /cubierto/i.test(n));
 
   useEffect(() => {
@@ -75,12 +79,13 @@ export function Carta({ carta, configPedido, logoUrl, desactualizada = false }: 
           items={visibles
             .filter((i) => i.categoriaId === c.id)
             .sort((a, b) => a.orden - b.orden || a.numero - b.numero)}
+          conFotos={hayFotos}
         />
       ))}
 
       {!visibles.length && (
         <div className="px-8 py-20 text-center">
-          <p className="nombre-item">Todavía no hay platos cargados.</p>
+          <p className="nombre-item">Todavía no hay nada cargado en la carta.</p>
           <p className="metadata-item mt-2">
             La carta se está preparando. Volvé a entrar en un rato o consultá en el local.
           </p>
