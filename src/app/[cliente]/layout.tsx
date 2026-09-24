@@ -30,9 +30,24 @@ export async function generateMetadata({ params }: { params: Props['params'] }):
   const cliente = await leerCliente(slug);
   if (!cliente) return {};
 
+  const bajada = `Catálogo de ${cliente.nombre}. Mirá los productos y hacé el pedido por WhatsApp.`;
+
   return {
     title: cliente.nombre,
-    description: `Catálogo de ${cliente.nombre}. Pedidos por WhatsApp.`,
+    description: bajada,
+    // El catálogo se reparte por WhatsApp: la vista previa del link es la
+    // portada del negocio. Sin esto se compartía sin dibujo y con el título
+    // del motor. La imagen la arma `[cliente]/opengraph-image.tsx` con los
+    // productos reales del cliente.
+    openGraph: {
+      type: 'website',
+      locale: 'es_AR',
+      siteName: cliente.nombre,
+      title: cliente.nombre,
+      description: bajada,
+      url: `/${cliente.slug}`,
+    },
+    twitter: { card: 'summary_large_image', title: cliente.nombre, description: bajada },
     ...(cliente.tema.logoUrl ? { icons: { icon: cliente.tema.logoUrl } } : {}),
   };
 }

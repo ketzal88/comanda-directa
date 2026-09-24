@@ -19,10 +19,26 @@ const WHATSAPP = '5491168830798';
 const CONSULTAR =
   enlaceWhatsApp(WHATSAPP, 'Hola, quiero saber cómo funciona el sistema de pedidos.') ?? '#';
 
+const TITULO = 'Hacé tu pedido — pedidos por WhatsApp con catálogo online';
+const BAJADA =
+  'Catálogo online con link y QR, pedidos que llegan completos a tu WhatsApp e impresión del ticket. Sin comisión por pedido.';
+
 export const metadata: Metadata = {
-  title: 'Hacé tu pedido — pedidos por WhatsApp con catálogo online',
-  description:
-    'Catálogo online con link y QR, pedidos que llegan completos a tu WhatsApp e impresión del ticket. Sin comisión por pedido.',
+  title: TITULO,
+  description: BAJADA,
+  // Esta landing se reparte por WhatsApp: la vista previa del link ES la
+  // portada. Sin estas etiquetas, el que la recibe ve el título pelado y
+  // ningún dibujo, que al lado de cualquier otro link parece un enlace roto.
+  // La imagen la genera `opengraph-image.tsx`.
+  openGraph: {
+    type: 'website',
+    locale: 'es_AR',
+    siteName: 'Hacé tu pedido',
+    title: TITULO,
+    description: BAJADA,
+    url: '/',
+  },
+  twitter: { card: 'summary_large_image', title: TITULO, description: BAJADA },
 };
 
 const VENTAJAS = [
