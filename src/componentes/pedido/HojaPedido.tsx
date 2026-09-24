@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useHojaPedido } from './useHojaPedido';
 import { CUBIERTO, claveLinea, nombreDeLinea } from '@/logica/pedido';
-import { formatearPrecio } from '@/logica/precio';
+import { formatearPrecio, textoEnvio } from '@/logica/precio';
 import { ETIQUETA_MEDIO, ETIQUETA_MODALIDAD, MAX_TEXTO } from '@/logica/whatsapp';
 import type { ConfigPedido, Item } from '@/logica/tipos';
 
@@ -429,7 +429,7 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
                         zona?.nombre === z.nombre ? 'border-tinta bg-tinta text-papel' : 'border-regla'
                       }`}
                     >
-                      {z.nombre} · {formatearPrecio(z.precio)}
+                      {z.nombre} · {textoEnvio(z.precio)}
                     </button>
                   ))}
                 </div>

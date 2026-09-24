@@ -49,19 +49,25 @@ export const TEMA_HALLOWEEN: Tema = {
 
 export const CONFIG_PEDIDO_HALLOWEEN: ConfigPedido = {
   whatsapp: '5491132556379',
-  // Sin salón: no es un local con mesas.
-  modalidades: ['retiro', 'delivery'],
+  // Sólo delivery: las tres opciones que se le ofrecen al comprador son
+  // DESTINOS (ver `zonasEnvio`), no formas de entrega, así que la pregunta de
+  // la hoja es "¿a dónde lo mandamos?" y no "¿cómo lo querés?". Con una sola
+  // modalidad habilitada el selector de modalidad ni se muestra.
+  modalidades: ['delivery'],
   cabecera: '',
   // Sin "link" hasta que exista el generador de Mercado Pago.
   mediosDePago: ['transferencia', 'efectivo'],
-  // Las dos zonas que anuncia la campaña. Cargadas acá y no escritas en el
-  // diseño, el precio del envío se suma solo al total y viaja en el mensaje
-  // de WhatsApp; la plantilla las lee de la misma lista para los carteles
-  // del encabezado y del pie, así que no pueden decir una cosa y cobrar otra.
-  // Precio 0 = sin cargo (la carta lo muestra como "envío gratis").
+  // Los destinos que se ofrecen. Cargados acá y no escritos en el diseño, el
+  // precio se suma solo al total y viaja en el mensaje de WhatsApp; la
+  // plantilla lee esta misma lista para los carteles del encabezado y del
+  // pie, así que no pueden decir una cosa y cobrar otra.
+  //
+  //   0    = sin cargo (la carta lo anuncia como "envío gratis")
+  //   null = a convenir: no se suma al total y el mensaje sale sin monto
   zonasEnvio: [
-    { nombre: 'Villanueva y alrededores', precio: 0 },
-    { nombre: 'Nordelta y alrededores', precio: 5000 },
+    { nombre: 'Villanueva', precio: 0 },
+    { nombre: 'Nordelta', precio: 5000 },
+    { nombre: 'A convenir', precio: null },
   ],
   descuentoRetiro: { tipo: 'ninguno' },
 };

@@ -162,8 +162,12 @@ export function armarMensaje(
   // cualquier bloque cuyo prefijo no reconozca y bonifica por posición.
   if (datos.medioDePago) bloques.push(`Pago: ${datos.medioDePago}`);
   if (zona) {
-    const monto = cuenta.envio > 0 ? formatearPrecio(cuenta.envio) : 'sin cargo';
-    bloques.push(`Envío: ${zona.nombre} — ${monto}`);
+    // Una zona sin cotizar sale SIN monto, no con un "a convenir" repetido:
+    // el local lee el renglón y la ausencia de número ya dice que falta
+    // acordarlo. Con `precio: 0` sí se escribe "sin cargo", porque ahí la
+    // decisión está tomada y conviene que quede por escrito.
+    const monto = zona.precio === null ? '' : ` — ${cuenta.envio > 0 ? formatearPrecio(cuenta.envio) : 'sin cargo'}`;
+    bloques.push(`Envío: ${zona.nombre}${monto}`);
   }
   if (cuenta.descuentoRetiro > 0) {
     const detalle =
@@ -183,17 +187,24 @@ export function armarMensaje(
   });
   if (filas.length) bloques.push(filas.join('\n'));
 
+  // El envío a convenir no se puede sumar, así que el total que se manda es
+  // sin él. Decirlo en el mismo renglón evita que el comprador lea el número
+  // como final y después discuta la diferencia.
+  const colaEnvio = zona?.precio === null ? ' + envío a convenir' : '';
+
   // nunca "$0": un total en cero es un pedido sin precios cargados.
   if (cuenta.hayLineasSinPrecio) {
     const parcial = cuenta.subtotal > 0 && cuenta.total > 0;
     bloques.push(
       parcial
-        ? `*Total: a confirmar (parcial ${formatearPrecio(cuenta.total)})*`
-        : '*Total: a confirmar*',
+        ? `*Total: a confirmar (parcial ${formatearPrecio(cuenta.total)})${colaEnvio}*`
+        : `*Total: a confirmar${colaEnvio}*`,
     );
   } else {
     bloques.push(
-      cuenta.total > 0 ? `*Total: ${formatearPrecio(cuenta.total)}*` : '*Total: a confirmar*',
+      cuenta.total > 0
+        ? `*Total: ${formatearPrecio(cuenta.total)}${colaEnvio}*`
+        : `*Total: a confirmar${colaEnvio}*`,
     );
   }
 

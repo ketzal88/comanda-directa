@@ -76,9 +76,15 @@ export type Descuento =
 export const MEDIOS_DE_PAGO = ['transferencia', 'efectivo', 'link'] as const;
 export type MedioDePago = (typeof MEDIOS_DE_PAGO)[number];
 
-/** Una zona de envío con su precio fijo. El local las asigna a mano según el
- *  barrio: la app no calcula distancias. */
-export type ZonaEnvio = { nombre: string; precio: number };
+/** Una zona de envío con su precio. El local las asigna a mano según el
+ *  barrio: la app no calcula distancias.
+ *
+ *  `precio` distingue TRES casos y no dos: un entero es lo que sale, `0` es
+ *  sin cargo —el local lo bonifica— y `null` es "a convenir", todavía no se
+ *  sabe. Sin el tercero, una zona sin cotizar habría que cargarla en 0 y la
+ *  carta le prometería envío gratis a alguien a quien después hay que
+ *  cobrarle. */
+export type ZonaEnvio = { nombre: string; precio: number | null };
 
 /** Cómo sale el pedido por WhatsApp para este cliente. */
 export type ConfigPedido = {

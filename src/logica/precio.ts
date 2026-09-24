@@ -16,3 +16,12 @@ export function parsearPrecio(texto: string): number | null {
   const valor = Number(soloEnteros);
   return Number.isFinite(valor) && valor >= 0 ? valor : null;
 }
+
+/** Cómo se nombra el costo de una zona de envío. Los tres casos de
+ *  `ZonaEnvio.precio` en un solo lugar: si cada pantalla los resuelve por su
+ *  cuenta, alguna va a mostrar "$0" donde dice "sin cargo", o "sin cargo"
+ *  donde nadie cotizó nada todavía. */
+export function textoEnvio(precio: number | null): string {
+  if (precio === null) return 'a convenir';
+  return precio > 0 ? formatearPrecio(precio) : 'sin cargo';
+}

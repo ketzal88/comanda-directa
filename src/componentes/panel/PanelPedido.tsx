@@ -35,7 +35,16 @@ export function PanelPedido({ slug, configPedido, cubiertoPorPersona, notas }: P
   const agregarZona = () => setZonasEnvio((prev) => [...prev, { nombre: '', precio: 0 }]);
   const cambiarZona = (i: number, campo: keyof ZonaEnvio, valor: string) =>
     setZonasEnvio((prev) =>
-      prev.map((z, idx) => (idx === i ? { ...z, [campo]: campo === 'precio' ? Number(valor) || 0 : valor } : z)),
+      prev.map((z, idx) =>
+        idx === i
+          ? {
+              ...z,
+              // vacío = "a convenir" (null), y no 0: 0 es envío bonificado y
+              // se le promete al comprador como gratis
+              [campo]: campo === 'precio' ? (valor.trim() === '' ? null : Number(valor) || 0) : valor,
+            }
+          : z,
+      ),
     );
   const sacarZona = (i: number) => setZonasEnvio((prev) => prev.filter((_, idx) => idx !== i));
 
@@ -108,6 +117,10 @@ export function PanelPedido({ slug, configPedido, cubiertoPorPersona, notas }: P
 
       <div>
         <p className={CLASE_LABEL}>Zonas de envío (delivery)</p>
+        <p className="mt-1 text-xs text-neutral-500">
+          El precio se suma al total del pedido. En 0 se muestra como “sin cargo”; vacío, como “a
+          convenir” y no se suma.
+        </p>
         <div className="mt-2 grid gap-2">
           {zonasEnvio.map((z, i) => (
             <div key={i} className="flex gap-2">
@@ -119,8 +132,8 @@ export function PanelPedido({ slug, configPedido, cubiertoPorPersona, notas }: P
               />
               <input
                 type="number"
-                placeholder="Precio"
-                value={z.precio}
+                placeholder="Precio (vacío = a convenir)"
+                value={z.precio ?? ''}
                 onChange={(e) => cambiarZona(i, 'precio', e.target.value)}
                 className={CLASE_CAMPO}
               />

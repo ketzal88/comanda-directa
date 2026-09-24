@@ -8,7 +8,7 @@ import { TarjetaProducto } from './halloween/TarjetaProducto';
 import { CLASES_FUENTES } from './halloween/tipografia';
 import { AvisoDesactualizado } from '@/componentes/AvisoDesactualizado';
 import { useClienteActual } from '@/componentes/ClienteContext';
-import { formatearPrecio } from '@/logica/precio';
+import { formatearPrecio, textoEnvio } from '@/logica/precio';
 import { precioDesde } from '@/logica/variantes';
 import { enlaceWhatsApp } from '@/logica/whatsapp';
 import type { Carta as CartaDatos, Categoria, ConfigPedido, Item } from '@/logica/tipos';
@@ -225,16 +225,9 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
           {configPedido.zonasEnvio.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2.5 mt-6">
               {configPedido.zonasEnvio.map((z) =>
-                z.precio > 0 ? (
-                  <div
-                    key={z.nombre}
-                    className="flex items-center gap-2 rounded-full px-4 py-2.5 text-[14px] font-medium"
-                    style={{ background: 'var(--h-lila)', color: 'var(--h-tinta)' }}
-                  >
-                    <span>{z.nombre}</span>
-                    <span className="font-bold">{formatearPrecio(z.precio)}</span>
-                  </div>
-                ) : (
+                // el envío sin cargo es el argumento de venta, así que va
+                // destacado; el resto de las zonas informan nomás
+                z.precio === 0 ? (
                   <div
                     key={z.nombre}
                     className="flex items-center gap-2 rounded-full px-4 py-2.5 text-[14px] font-medium"
@@ -244,6 +237,15 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                       Envío gratis
                     </span>
                     <span>en {z.nombre}</span>
+                  </div>
+                ) : (
+                  <div
+                    key={z.nombre}
+                    className="flex items-center gap-2 rounded-full px-4 py-2.5 text-[14px] font-medium"
+                    style={{ background: 'var(--h-lila)', color: 'var(--h-tinta)' }}
+                  >
+                    <span>{z.nombre}</span>
+                    <span className="font-bold">{textoEnvio(z.precio)}</span>
                   </div>
                 ),
               )}
@@ -421,14 +423,15 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                 <span
                   key={z.nombre}
                   className="block mt-1.5 text-[13px] font-medium tracking-[0.08em]"
-                  style={{ color: z.precio > 0 ? 'var(--h-crema)' : 'var(--h-lila-medio)' }}
+                  style={{ color: z.precio === 0 ? 'var(--h-lila-medio)' : 'var(--h-crema)' }}
                 >
-                  {z.precio > 0 ? (
-                    <>
-                      {z.nombre} · <span style={{ color: 'var(--h-naranja)' }}>{formatearPrecio(z.precio)}</span>
-                    </>
-                  ) : (
+                  {z.precio === 0 ? (
                     <>en {z.nombre}</>
+                  ) : (
+                    <>
+                      {z.nombre} ·{' '}
+                      <span style={{ color: 'var(--h-naranja)' }}>{textoEnvio(z.precio)}</span>
+                    </>
                   )}
                 </span>
               ))}

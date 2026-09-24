@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useHojaPedido } from '@/componentes/pedido/useHojaPedido';
 import { nombreDeLinea } from '@/logica/pedido';
-import { formatearPrecio } from '@/logica/precio';
+import { formatearPrecio, textoEnvio } from '@/logica/precio';
 import { ETIQUETA_MEDIO, ETIQUETA_MODALIDAD, MAX_TEXTO } from '@/logica/whatsapp';
 import type { ConfigPedido, Item } from '@/logica/tipos';
 
@@ -147,6 +147,43 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                 </fieldset>
               )}
 
+              {/* La zona va en el PRIMER paso y no junto a los datos: es lo
+                  único que todavía puede mover el total, y un total que cambia
+                  después de que la persona lo dio por bueno es la sorpresa que
+                  hace abandonar el pedido. */}
+              {modalidad === 'delivery' && configPedido.zonasEnvio.length > 0 && (
+                <fieldset className="mb-4">
+                  <legend className={ROTULO} style={{ color: 'var(--h-tinta-suave)' }}>
+                    ¿A dónde lo mandamos?
+                  </legend>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {configPedido.zonasEnvio.map((z) => {
+                      const costo = textoEnvio(z.precio);
+                      // "A convenir (a convenir)" no le dice nada a nadie: el
+                      // costo se agrega entre paréntesis sólo cuando el nombre
+                      // de la zona no lo dice ya
+                      const repite = z.nombre.toLowerCase().includes(costo.toLowerCase());
+                      return (
+                        <button
+                          key={z.nombre}
+                          type="button"
+                          onClick={() => setZona(z)}
+                          aria-pressed={zona?.nombre === z.nombre}
+                          className="rounded-full border-2 px-4 py-2 text-[14px] font-semibold"
+                          style={{
+                            borderColor: 'var(--h-tinta)',
+                            background: zona?.nombre === z.nombre ? 'var(--h-tinta)' : 'transparent',
+                            color: zona?.nombre === z.nombre ? 'var(--h-crema)' : 'var(--h-tinta)',
+                          }}
+                        >
+                          {repite ? z.nombre : `${z.nombre} (${costo})`}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              )}
+
               <div className="flex flex-col gap-2.5">
                 {pedidas.map((l) => (
                   <div
@@ -271,32 +308,6 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                 )}
               </label>
 
-              {modalidad === 'delivery' && configPedido.zonasEnvio.length > 0 && (
-                <fieldset className="mt-4">
-                  <legend className={ROTULO} style={{ color: 'var(--h-tinta-suave)' }}>
-                    Zona de envío
-                  </legend>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {configPedido.zonasEnvio.map((z) => (
-                      <button
-                        key={z.nombre}
-                        type="button"
-                        onClick={() => setZona(z)}
-                        aria-pressed={zona?.nombre === z.nombre}
-                        className="rounded-full border-2 px-4 py-2 text-[14px] font-semibold"
-                        style={{
-                          borderColor: 'var(--h-tinta)',
-                          background: zona?.nombre === z.nombre ? 'var(--h-tinta)' : 'transparent',
-                          color: zona?.nombre === z.nombre ? 'var(--h-crema)' : 'var(--h-tinta)',
-                        }}
-                      >
-                        {z.nombre} · {z.precio > 0 ? formatearPrecio(z.precio) : 'sin cargo'}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
-              )}
-
               {configPedido.mediosDePago.length > 0 && (
                 <fieldset className="mt-4">
                   <legend className={ROTULO} style={{ color: 'var(--h-tinta-suave)' }}>
@@ -372,12 +383,10 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
               <span className="font-bold">−{formatearPrecio(cuenta.descuentoRetiro)}</span>
             </div>
           )}
-          {cuenta.envio > 0 && (
+          {zona && (
             <div className="flex items-baseline justify-between text-[14px]">
-              <span style={{ color: 'var(--h-tinta-suave)' }}>
-                Envío{zona ? ` · ${zona.nombre}` : ''}
-              </span>
-              <span className="font-bold">{formatearPrecio(cuenta.envio)}</span>
+              <span style={{ color: 'var(--h-tinta-suave)' }}>Envío · {zona.nombre}</span>
+              <span className="font-bold">{textoEnvio(zona.precio)}</span>
             </div>
           )}
 
@@ -387,9 +396,21 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
             </span>
             <span className="text-[22px] font-bold">
               {cuenta.total > 0 ? formatearPrecio(cuenta.total) : '—'}
-              {cuenta.hayLineasSinPrecio && ' +'}
+              {(cuenta.hayLineasSinPrecio || zona?.precio === null) && ' +'}
             </span>
           </div>
+
+          {zona?.precio === null && (
+            <p className="-mt-1.5 text-[12.5px]" style={{ color: 'var(--h-tinta-suave)' }}>
+              El envío a esa zona se acuerda por WhatsApp y no está sumado acá.
+            </p>
+          )}
+
+          {zona?.precio === null && (
+            <p className="-mt-1 text-[12.5px]" style={{ color: 'var(--h-tinta-suave)' }}>
+              El envío a esa zona se acuerda por WhatsApp y no está sumado acá.
+            </p>
+          )}
 
           {paso === 'pedido' ? (
             <>

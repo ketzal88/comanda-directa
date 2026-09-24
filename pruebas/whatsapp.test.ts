@@ -115,3 +115,39 @@ describe('enlaceWhatsApp', () => {
     expect(link).toBe('https://wa.me/5491122223333?text=hola%20mundo');
   });
 });
+
+describe('zona de envío en el mensaje', () => {
+  const pedido = agregar(PEDIDO_VACIO, lineaDeItem(item)!);
+  const base = { nombre: 'Ana', modalidad: 'delivery' as const, direccion: 'Av. Siempreviva 742' };
+
+  it('una zona con precio se suma al total y sale con el monto', () => {
+    const mensaje = armarMensaje(pedido, { ...base, zona: { nombre: 'Nordelta', precio: 5000 } }, 'Local');
+    expect(mensaje).toContain('Envío: Nordelta — $5.000');
+    expect(mensaje).toContain('*Total: $13.900*');
+  });
+
+  it('una zona en 0 dice "sin cargo" y no cambia el total', () => {
+    const mensaje = armarMensaje(pedido, { ...base, zona: { nombre: 'Villanueva', precio: 0 } }, 'Local');
+    expect(mensaje).toContain('Envío: Villanueva — sin cargo');
+    expect(mensaje).toContain('*Total: $8.900*');
+  });
+
+  it('una zona a convenir sale SIN monto y lo aclara en el total', () => {
+    // sin número, el local sabe que falta cotizarlo; y el comprador no puede
+    // leer el total como final
+    const mensaje = armarMensaje(pedido, { ...base, zona: { nombre: 'A convenir', precio: null } }, 'Local');
+    expect(mensaje).toContain('Envío: A convenir');
+    expect(mensaje).not.toContain('sin cargo');
+    expect(mensaje).toContain('*Total: $8.900 + envío a convenir*');
+  });
+
+  it('la zona no viaja cuando no es un envío', () => {
+    const mensaje = armarMensaje(
+      pedido,
+      { nombre: 'Ana', modalidad: 'retiro', zona: { nombre: 'Nordelta', precio: 5000 } },
+      'Local',
+    );
+    expect(mensaje).not.toContain('Envío');
+    expect(mensaje).toContain('*Total: $8.900*');
+  });
+});
