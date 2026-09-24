@@ -1,0 +1,28 @@
+{
+  // Los tres repos en el panel de Source Control, abras como abras el proyecto.
+  //
+  // `comanda-directa.code-workspace` ya los lista como carpetas del workspace,
+  // pero eso sólo aplica si abrís ESE archivo. Abriendo la carpeta pelada —que
+  // es lo que pasa la mayoría de las veces— el editor ve un solo repo, y los
+  // commits sin pushear de presencia-carta y sagrado-sushi-carta no aparecen
+  // en ningún lado. Así ya quedó uno sin pushear.
+  //
+  // `git.scanRepositories` es explícito y no depende de la detección
+  // automática, que además se saltea las carpetas que el repo padre tiene en
+  // su `.gitignore` — y estas dos están ahí a propósito (son repos propios,
+  // no carpetas de este).
+  "git.scanRepositories": ["presencia-carta", "sagrado-sushi-carta"],
+  "git.autoRepositoryDetection": true,
+  "git.repositoryScanMaxDepth": 2,
+  "git.openRepositoryInParentFolders": "always",
+
+  // Son repos independientes: sincronizar sin querer el equivocado es el
+  // error que este proyecto ya se comió una vez.
+  "git.confirmSync": true,
+  "git.postCommitCommand": "none",
+
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.next": true
+  }
+}

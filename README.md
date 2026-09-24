@@ -104,6 +104,19 @@ la lista sin tocar nada.
 Claude no lo corre: `pre-push-guard.py` lo bloquea igual que a un `git push`.
 Un atajo que el agente pueda usar no es un atajo, es el agujero de la regla.
 
+### Verlos en el panel del editor
+
+Los tres aparecen en Source Control abras la carpeta o el
+`comanda-directa.code-workspace`. El workspace los lista como raíces, y
+`.vscode/settings.json` declara `git.scanRepositories` con los dos anidados
+para cuando se abre la carpeta pelada: la detección automática del editor se
+saltea las carpetas que el repo padre tiene en su `.gitignore`, y
+`presencia-carta/` y `sagrado-sushi-carta/` están ahí a propósito.
+
+Si el panel dice "no changes ahead of origin/main", puede ser cierto: quiere
+decir que ese repo ya está al día. Para ver los tres de una sin depender del
+editor, `npm run pushear -- --ver`.
+
 ## El panel: lo que el cliente cambia solo
 
 Cada cliente entra a `/<slug>/panel` con su clave (`clientes.clave_panel_hash`,

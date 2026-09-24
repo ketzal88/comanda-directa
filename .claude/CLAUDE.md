@@ -89,11 +89,13 @@ Reglas para operarlos desde acá:
   se nombra en la línea de cierre, con el repo y el número, y se aclara de
   quién es el trabajo si no es tuyo. Sin eso, "commiteado" y "pusheado"
   parecen la misma palabra y no lo son.
-- **Abrí `comanda-directa.code-workspace`, no la carpeta.** El workspace tiene
-  los tres repos como raíces, así que el panel de Source Control del editor
-  muestra los tres por separado, cada uno con sus cambios y su push. Abriendo
-  la carpeta pelada se ve solo el motor, porque los otros dos están en el
-  `.gitignore` de acá.
+- **Los tres aparecen en el Source Control del editor**, se abra la carpeta o
+  el `.code-workspace`. El workspace los lista como raíces; `.vscode/settings.json`
+  agrega `git.scanRepositories` con los dos anidados, que es lo que los hace
+  aparecer también al abrir la carpeta pelada (la detección automática se
+  saltea lo que está en el `.gitignore` del repo padre, y estos dos están ahí
+  a propósito). Si aun así no se ven, el estado real no depende del editor:
+  `npm run` + el script de push con `-- --ver` los lista los tres.
 - **Los `forbiddenCommands` sí salen del `stack.json` de la raíz**: son del
   entorno (PowerShell vs Bash), no del repo.
 
