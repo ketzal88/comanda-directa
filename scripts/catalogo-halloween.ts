@@ -25,13 +25,26 @@ export const NOMBRE_HALLOWEEN = 'Halloween';
 export const FUENTE =
   'mayoristas.merakys.com.ar — selección comercial de Halloween, precios de venta en ARS';
 
-/** Negro de noche, naranja calabaza. El acento pinta los precios, el índice
- *  activo y el botón de enviar (ver `[cliente]/layout.tsx`). */
+/** La plantilla que elige `[cliente]/page.tsx` por `clientes.plantilla`. */
+export const PLANTILLA_HALLOWEEN = 'halloween';
+
+/** Papel crema, violeta y naranja calabaza: los colores del flyer con el que
+ *  el cliente sale a vender por WhatsApp, para que quien llega desde ese
+ *  flyer reconozca la carta como la misma campaña.
+ *
+ *  Es un tema CLARO. El primer intento fue negro de noche, que es lo que uno
+ *  dibuja cuando piensa "Halloween", pero contra un fondo negro las fotos
+ *  del mayorista —recortadas sobre blanco— quedaban como ochenta recuadros
+ *  brillantes. Sobre crema apoyan.
+ *
+ *  La plantilla trae su propia paleta ampliada (`globals.css`, bloque
+ *  `.halloween`); estos cuatro son los que usa el MOTOR: la hoja del pedido
+ *  y la barra inferior, que son comunes a todos los clientes. */
 export const TEMA_HALLOWEEN: Tema = {
-  colorFondo: '#120f1a',
-  colorTexto: '#f5f0ea',
-  colorTextoSuave: '#9b8fa8',
-  colorAcento: '#ff7518',
+  colorFondo: '#fdf6e9',
+  colorTexto: '#3b1f5c',
+  colorTextoSuave: '#8a6fb0',
+  colorAcento: '#f5761a',
 };
 
 export const CONFIG_PEDIDO_HALLOWEEN: ConfigPedido = {
@@ -269,3 +282,99 @@ export const CATALOGO_HALLOWEEN: Carta = {
     cubiertoPorPersona: 0,
   },
 };
+
+/** La página del mayorista de cada producto, por id. Sirve para UNA cosa:
+ *  bajar la foto (`scripts/fotos-halloween.ts`). No se inserta en la base ni
+ *  se muestra en la carta — la carta la ve el comprador final y estos links
+ *  son del proveedor. */
+export const FUENTES: Record<string, string> = {
+  'set-diablita': 'set-diablita',
+  'tutu-spooky': 'tutu-spooky-negro',
+  'set-brujita-rosa': 'set-brujita-chispeante-rosa',
+  'set-brujito-negro': 'set-brujito-hechicera-negro',
+  'payaso-nina': 'disfraz-payaso-nina-talle-m-7-9-anos',
+  'pesadilla-nino': 'disfraz-pesadilla-nino-talle-m-7-9-anos',
+  'vampira-nina': 'disfraz-vampira-nina-talle-m-7-9-anos',
+  'parca-nino': 'disfraz-la-parca-nino-talle-m-7-9-anos',
+  'esqueleto-nina': 'disfraz-esqueleto-nina-talle-s-5-6-anos',
+  'esqueleto-nino': 'disfraz-esqueleto-nino-talle-xs-2-4-anos',
+  'dino-nino': 'disfraz-dino-nino-talle-s-5-6-anos',
+
+  'capa-reversible': 'capa-disfraz-reversible-negro-rojo-80-cm',
+  'capa-dark-larga': 'capa-dark-larga',
+  'capa-dorada': 'capa-disfraz-dorada-130-cm',
+  'ninja-otaku': 'disfraz-ninja-otaku-talle-l',
+  'ninja-otaku-mujer': 'disfraz-ninja-otaku-mujer-talle-m',
+  medusa: 'disfraz-medusa-talle-l',
+  preso: 'disfraz-preso-talle-m',
+  'payaso-malvado': 'disfraz-payaso-malvado-talle-l-m',
+  'pesadilla-hombre': 'disfraz-pesadilla-hombre-talle-l',
+  thriller: 'disfraz-thriller-talle-l-m',
+  'la-mascara': 'disfraz-la-mascara-talle-l',
+  'inflable-dino-adulto': 'disfraz-inflable-dinosaurio-adulto',
+
+  'escoba-caminante': 'escoba-caminante',
+  'bruja-en-caja': 'bruja-en-caja',
+  'guardian-fantasmal': 'guardian-fantasmal',
+  'payasin-macabro': 'payasin-macabro',
+  'extractor-de-almas': 'extractor-de-almas',
+  'bruja-misteriosa': 'bruja-misteriosa',
+  'portador-oscuridad': 'portador-de-la-oscuridad',
+  'recolector-almas': 'recolector-de-almas-desgraciadas',
+  'guardian-cementerio': 'guardian-macabro-del-cementerio',
+  'inflable-bosque': 'inflable-bosque-encantado',
+  'inflable-rip': 'inflable-amigos-r-i-p',
+  'inflable-castillo': 'inflable-castillo-halloween',
+
+  'vincha-cuernos-led': 'vincha-cuernos-diablita-led',
+  'tatuajes-cortes': 'tatuajes-set-cortes-de-cara',
+  'tatuajes-heridas': 'tatuajes-set-heridas',
+  'lentes-sangrientos': 'lentes-sangrientos',
+  'guantes-esqueleto': 'guantes-esqueleto',
+  'sombrero-bruja-luna': 'sombrero-bruja-por-la-luna',
+  'medias-esqueleto': 'medias-esqueleto-7-8',
+  'sombrero-bruja-mistica': 'sombrero-bruja-mistica',
+  'medias-cicatriz': 'medias-cicatriz-7-8',
+  'mascara-purga-led': 'mascara-purga-led',
+  'poncho-bruja': 'poncho-bruja-con-telarana',
+  'mascara-joker-led': 'mascara-joker-led',
+
+  'plato-boo': 'plato-boo-x-6-unidades',
+  'vaso-calavera-mexicana': 'vaso-calavera-mexicana-x-6-unidades',
+  'servilletas-boo': 'servilletas-boo-x-20-unidades',
+  'plato-calabaza': 'plato-calabaza-x-6-unidades',
+  'guirnalda-miedo': 'guirnalda-miedo-300-cm',
+  'guirnalda-happy-halloween': 'guirnalda-happy-halloween-230-cm',
+  'globos-calabazas': 'set-globos-halloween-calabazas',
+  'bolsa-papel-boo': 'bolsa-de-papel-boo-x-8-unidades',
+  'copa-calavera': 'copa-calavera',
+  'banner-happy-halloween': 'banner-happy-halloween',
+  'balde-caramelera': 'balde-caramelera',
+  'cortina-halloween': 'cortina-halloween',
+
+  telarana: 'telarana-halloween',
+  'caldero-chico': 'caldero-de-bruja-chico',
+  'set-cucarachas': 'set-cucarachas-x-12-unidades',
+  'vela-led-mano': 'vela-led-mano-tenebrosa',
+  'set-murcielagos': 'set-murcielagos-x-4-unidades',
+  'mini-balde-fantasma': 'mini-balde-fantasma',
+  'mini-balde-gato': 'mini-balde-gato-negro',
+  'set-moscas': 'set-moscas-x-20-unidades',
+  'set-aranas': 'set-aranas',
+  'vela-led-ritual': 'vela-led-ritual',
+  'set-escorpiones': 'set-escorpiones-x-12-unidades',
+  'set-ciempies': 'set-ciempies-preventa',
+  'cerebro-con-luz': 'cerebro-con-luz-12x10-cm',
+  'mano-cortada': 'mano-cortada-sangrienta',
+  'caldero-grande': 'caldero-de-bruja-grande',
+  'cuchillo-sangriento': 'cuchillo-sangriento',
+  'colgante-san-la-muerte': 'colgante-san-la-muerte',
+  'lapida-embrujo': 'lapida-embrujo-de-la-muerte',
+  'arana-gigante': 'arana-gigante-roja-y-negra',
+  'tumba-maldita': 'tumba-maldita-muerte',
+  'colgante-altar': 'colgante-abandonada-en-el-altar',
+  'colgante-viuda-negra': 'colgante-viuda-negra-llorona',
+};
+
+export const URL_PRODUCTO = (slug: string) =>
+  `https://mayoristas.merakys.com.ar/producto/${slug}/`;

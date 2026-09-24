@@ -5,6 +5,7 @@ import {
   CATALOGO_HALLOWEEN,
   CONFIG_PEDIDO_HALLOWEEN,
   NOMBRE_HALLOWEEN,
+  PLANTILLA_HALLOWEEN,
   SLUG_HALLOWEEN,
   TEMA_HALLOWEEN,
 } from './catalogo-halloween';
@@ -17,6 +18,11 @@ import {
  *  nuevo después de que el cliente editó precios en el panel pisa esas
  *  ediciones — para cambios chicos, el panel; este script es para la carga
  *  inicial y para rehacer la lista entera. No toca ningún otro cliente.
+ *
+ *  La EXCEPCIÓN son las fotos: se rescatan por nombre antes de borrar y se
+ *  vuelven a poner. Subirlas son 162 descargas y otros tantos uploads
+ *  (`fotos-halloween.ts`), y perderlas por corregir un precio en esta tabla
+ *  sería una trampa esperando a que alguien la pise.
  *
  *  La clave del panel NO vive en el repo: viene por entorno.
  *    CLAVE_PANEL=... npm run seed:halloween
@@ -48,7 +54,7 @@ function hash(texto: string): string {
 
 const campos = {
   nombre: NOMBRE_HALLOWEEN,
-  plantilla: 'clasica',
+  plantilla: PLANTILLA_HALLOWEEN,
   tema: TEMA_HALLOWEEN,
   notas: CATALOGO_HALLOWEEN.config.notas,
   cubierto_por_persona: CATALOGO_HALLOWEEN.config.cubiertoPorPersona,
@@ -72,9 +78,20 @@ async function main() {
 
   let clienteId = existente?.id as string | undefined;
 
+  // nombre del producto -> foto ya subida, para no perderlas en el borrado
+  const fotos = new Map<string, string>();
+
   if (clienteId) {
     const { error } = await db.from('clientes').update(campos).eq('id', clienteId);
     if (error) throw error;
+
+    const { data: previos } = await db
+      .from('items')
+      .select('nombre,foto_url')
+      .eq('cliente_id', clienteId)
+      .not('foto_url', 'is', null);
+    for (const p of previos ?? []) fotos.set(p.nombre, p.foto_url);
+
     // Arranca de cero: los ítems cuelgan de las categorías por FK, así que
     // se borran primero.
     await db.from('items').delete().eq('cliente_id', clienteId);
@@ -124,16 +141,20 @@ async function main() {
       piezas: item.piezas ?? null,
       etiquetas: item.etiquetas,
       descripcion: item.descripcion ?? null,
-      foto_url: item.fotoUrl ?? null,
+      foto_url: item.fotoUrl ?? fotos.get(item.nombre) ?? null,
     };
   });
 
   const { error: eItems } = await db.from('items').insert(filas);
   if (eItems) throw eItems;
 
+  const conFoto = filas.filter((f) => f.foto_url).length;
   console.log(
-    `Listo: /${SLUG_HALLOWEEN} — ${CATALOGO_HALLOWEEN.categorias.length} categorías, ${filas.length} productos.`,
+    `Listo: /${SLUG_HALLOWEEN} — ${CATALOGO_HALLOWEEN.categorias.length} categorías, ${filas.length} productos, ${conFoto} con foto.`,
   );
+  if (conFoto < filas.length) {
+    console.log(`Faltan ${filas.length - conFoto} fotos: npm run fotos:halloween -- --faltantes`);
+  }
   console.log(`Panel en /${SLUG_HALLOWEEN}/panel con la clave que pasaste en CLAVE_PANEL.`);
 }
 

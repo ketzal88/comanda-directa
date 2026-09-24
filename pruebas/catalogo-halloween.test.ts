@@ -9,6 +9,7 @@ import { agregar, lineaDeItem } from '../src/logica/pedido';
 import { MAX_ETIQUETA_VARIANTE, MAX_VARIANTES } from '../src/logica/validar-item';
 import { armarMensaje, enlaceWhatsApp } from '../src/logica/whatsapp';
 import { variantesDe } from '../src/logica/variantes';
+import { fotoGrande } from '../src/componentes/carta/halloween/fotos';
 
 /** El catálogo se carga una sola vez con `scripts/seed-halloween.ts`: si algo
  *  está mal escrito, se descubre con el cliente adentro del panel. Estas
@@ -122,5 +123,28 @@ describe('pedido de Halloween por WhatsApp', () => {
   it('los disfraces con un solo talle igual lo ofrecen como variante', () => {
     const medusa = buscar('medusa');
     expect(variantesDe(medusa)).toEqual([{ etiqueta: 'Talle L', precio: 28000 }]);
+  });
+});
+
+describe('fotos de la plantilla', () => {
+  const base = 'https://x.supabase.co/storage/v1/object/public/fotos/halloween';
+
+  it('la grande se deduce de la mini', () => {
+    expect(fotoGrande(`${base}/medusa.webp`)).toBe(`${base}/medusa@900.webp`);
+  });
+
+  it('una foto que no sigue el convenio se devuelve tal cual', () => {
+    // el panel deja pegar cualquier URL https: agrandarla mal es feo,
+    // pedir un archivo que no existe es una foto rota
+    expect(fotoGrande('https://otro.sitio/foto.jpg')).toBe('https://otro.sitio/foto.jpg');
+    expect(fotoGrande(undefined)).toBeUndefined();
+  });
+
+  it('todos los productos tienen una foto esperada en el bucket', () => {
+    // el nombre del archivo sale del id del catálogo (scripts/fotos-halloween.ts):
+    // un id con un carácter raro sería una URL que no se puede pedir
+    for (const item of items) {
+      expect(item.id, `${item.nombre}: el id va en la URL de la foto`).toMatch(/^[a-z0-9-]+$/);
+    }
   });
 });

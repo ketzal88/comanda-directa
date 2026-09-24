@@ -98,3 +98,160 @@
 body {
   background: var(--color-fondo);
 }
+
+/* ── Plantilla "halloween" ────────────────────────────────────────────────
+   Identidad propia de la campaña de temporada, tomada del flyer que el
+   cliente manda por WhatsApp: papel crema, violeta y naranja calabaza.
+
+   Por qué colores propios y no las cuatro variables del tema: el tema tiene
+   cuatro colores porque un restaurante tiene cuatro. Esta plantilla necesita
+   media docena más (dos violetas, dos naranjas, lila, menta) que no son del
+   cliente sino DE LA PLANTILLA — el mismo motivo por el que `clientes.tema`
+   no las tiene. El tema del cliente sí se setea en juego con estos, porque
+   la hoja del pedido y la barra inferior son del motor y lo usan.
+
+   Todo lo de acá vive bajo `.halloween`: la plantilla Clásica no se entera. */
+.halloween {
+  --h-crema: #fdf6e9;
+  --h-papel: #ffffff;
+  --h-violeta: #3b1f5c;
+  --h-violeta-medio: #6b3fa0;
+  --h-lila: #c9b3e8;
+  --h-lila-suave: #efe6fa;
+  --h-naranja: #f5761a;
+  --h-naranja-claro: #fdbe6e;
+  --h-menta: #a8d8c4;
+  --h-sombra: 0 2px 0 rgb(59 31 92 / 0.12), 0 8px 20px -10px rgb(59 31 92 / 0.35);
+
+  background: var(--h-crema);
+  color: var(--h-violeta);
+}
+
+/* Papel crema con una trama de puntos muy tenue: sin esto el fondo plano
+   compite con las fotos, que también son crema. */
+.halloween-fondo {
+  background-image: radial-gradient(rgb(107 63 160 / 0.07) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* El título de categoría sobre una pincelada, como en el flyer. El trazo es
+   un pseudo-elemento y no una imagen: escala con el texto en cualquier
+   idioma y no suma un request. */
+.halloween-pincelada {
+  position: relative;
+  display: inline-block;
+  padding: 2px 16px 4px;
+  color: var(--h-papel);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  /* `isolation` y no sólo `position: relative`: el trazo va en un ::before
+     con z-index negativo, y sin un contexto de apilamiento propio ese -1 lo
+     manda detrás del fondo de la página — el título quedaba en blanco sobre
+     crema, o sea invisible. */
+  isolation: isolate;
+}
+.halloween-pincelada::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--h-violeta-medio);
+  border-radius: 40% 60% 55% 45% / 60% 50% 50% 40%;
+  transform: rotate(-1.2deg);
+  z-index: -1;
+}
+.halloween-pincelada-naranja::before { background: var(--h-naranja); }
+.halloween-pincelada-menta::before { background: #4e8f76; }
+
+/* La tarjeta de producto. El borde inferior más grueso le da el apoyo de
+   sticker que tiene el flyer. */
+.halloween-tarjeta {
+  background: var(--h-papel);
+  border: 2px solid var(--h-violeta);
+  border-bottom-width: 5px;
+  border-radius: 18px;
+  box-shadow: var(--h-sombra);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.halloween-tarjeta:active { transform: translateY(2px) scale(0.985); }
+@media (hover: hover) {
+  .halloween-tarjeta:hover {
+    transform: translateY(-3px) rotate(-0.4deg);
+    box-shadow: 0 5px 0 rgb(59 31 92 / 0.14), 0 16px 28px -12px rgb(59 31 92 / 0.45);
+  }
+}
+
+.halloween-chip {
+  border-radius: 999px;
+  border: 2px solid var(--h-violeta);
+  background: var(--h-lila-suave);
+  color: var(--h-violeta);
+  font-weight: 700;
+}
+.halloween-chip[aria-pressed='true'],
+.halloween-chip[aria-current='true'] {
+  background: var(--h-naranja);
+  border-color: var(--h-violeta);
+  color: #fff;
+}
+
+.halloween-boton {
+  background: var(--h-naranja);
+  color: #fff;
+  border: 2px solid var(--h-violeta);
+  border-bottom-width: 4px;
+  border-radius: 999px;
+  font-weight: 800;
+  transition: transform 120ms ease;
+}
+.halloween-boton:active { transform: translateY(2px); border-bottom-width: 2px; }
+
+/* ── Movimiento ──────────────────────────────────────────────────────────
+   Todo lo de abajo es decorativo. Se apaga entero con `prefers-reduced-
+   motion`: un catálogo de 81 productos con cosas moviéndose en cada scroll
+   es exactamente el caso que esa preferencia existe para resolver. */
+@keyframes h-vuelo {
+  from { transform: translateX(-12vw) translateY(0) rotate(-6deg); }
+  50%  { transform: translateX(45vw) translateY(-14px) rotate(4deg); }
+  to   { transform: translateX(112vw) translateY(4px) rotate(-3deg); }
+}
+@keyframes h-aleteo {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.55); }
+}
+@keyframes h-flotar {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+@keyframes h-colgar {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(9px) rotate(2deg); }
+}
+@keyframes h-aparecer {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes h-titilar {
+  0%, 100% { opacity: 1; }
+  42%      { opacity: 0.72; }
+  47%      { opacity: 1; }
+  62%      { opacity: 0.8; }
+}
+@keyframes h-modal {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+.h-vuela  { animation: h-vuelo 26s linear infinite; }
+.h-aletea { animation: h-aleteo 340ms ease-in-out infinite; transform-origin: center; }
+.h-flota  { animation: h-flotar 4.5s ease-in-out infinite; }
+.h-cuelga { animation: h-colgar 5.5s ease-in-out infinite; transform-origin: top center; }
+.h-titila { animation: h-titilar 5s ease-in-out infinite; }
+.h-entra  { animation: h-aparecer 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.h-modal-entra { animation: h-modal 220ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .h-vuela, .h-aletea, .h-flota, .h-cuelga, .h-titila, .h-entra, .h-modal-entra {
+    animation: none !important;
+  }
+  .halloween-tarjeta { transition: none; }
+}

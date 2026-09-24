@@ -40,6 +40,8 @@ pruebas encima) y un script que los inserta.
 
 ```bash
 CLAVE_PANEL=loquesea npm run seed:halloween    # crea/recarga /halloween
+npm run fotos:halloween                        # baja, normaliza y sube las fotos
+npm run fotos:halloween -- --faltantes         # sólo las que quedaron sin foto
 ```
 
 - `scripts/catalogo-halloween.ts` — categorías, productos, tema y config de
@@ -51,9 +53,18 @@ CLAVE_PANEL=loquesea npm run seed:halloween    # crea/recarga /halloween
 - `pruebas/catalogo-halloween.test.ts` — corre sobre los mismos datos:
   precios enteros, nombres sin repetir, talles dentro de lo que acepta el
   panel, y que el talle elegido llegue al mensaje de WhatsApp.
+- `scripts/fotos-halloween.ts` — baja la foto de cada producto de la página
+  del proveedor, la deja cuadrada y liviana (360px para la grilla, 900px para
+  la ficha) y la sube a **Supabase Storage**, bucket `fotos` (público). No van
+  a `public/` del repo a propósito: son de un cliente y el repo es el motor de
+  todos.
 - La clave del panel viaja por entorno (`CLAVE_PANEL`), no por el repo.
 
-Para el cliente siguiente, copiar los dos archivos y cambiar los datos.
+El seed **conserva las fotos** al volver a correrse (las rescata por nombre
+antes de borrar), así que corregir un precio en la tabla no cuesta 162
+descargas.
+
+Para el cliente siguiente, copiar los archivos y cambiar los datos.
 
 ## Poner en marcha Supabase (una sola vez para todo el motor)
 
@@ -93,7 +104,7 @@ clientes a la vez.
 | slug | qué es | modalidades | notas |
 | --- | --- | --- | --- |
 | `demo` | carta de muestra para probar el motor | salón, retiro, delivery | `npm run seed:demo` |
-| `halloween` | catálogo de temporada de cotillón y disfraces | retiro, delivery | sin nombre comercial todavía; sin comandas ni link de pago |
+| `halloween` | catálogo de temporada de cotillón y disfraces | retiro, delivery | plantilla `halloween`, 81 productos con foto; sin nombre comercial todavía, sin comandas ni link de pago |
 
 `halloween` es el primero que no es un restaurante, y por eso vale anotar qué
 alcanzó con lo que ya había: apagar `salon` y dejar `cubiertoPorPersona` en 0
@@ -103,12 +114,29 @@ despacho y tiene que viajar en el mensaje de WhatsApp.
 
 ## Plantillas
 
-Hoy hay una sola, "Clásica" (`src/componentes/carta/Carta.tsx`), puerto
-directo de `CartaSushi.tsx`. El campo `clientes.plantilla` ya existe para
-elegir entre variantes visuales: sumar una nueva es agregar un componente
-hermano y un `switch` en `[cliente]/page.tsx` que elija según ese campo. Las
-4-5 plantillas prometidas quedan para una próxima sesión — no bloquea dar de
-alta un cliente hoy, todos arrancan con la Clásica.
+`clientes.plantilla` elige la variante visual; el `switch` está en
+`[cliente]/page.tsx` y un valor desconocido cae en la Clásica, para que un
+typo en la base no deje a un cliente sin carta.
+
+| plantilla | componente | para qué |
+| --- | --- | --- |
+| `clasica` (por defecto) | `carta/Carta.tsx` | carta de restaurante: lista de platos, precio a la derecha |
+| `halloween` | `carta/CartaHalloween.tsx` | catálogo con foto: grilla de dos columnas y ficha de producto |
+
+Las dos comparten todo el motor de abajo (`componentes/pedido/`): el pedido,
+la hoja, el total y el mensaje de WhatsApp son los mismos.
+
+La diferencia entre las dos no es de colores, es de cómo se lee. Una carta de
+restaurante se recorre entera y el nombre del plato alcanza para decidir. Un
+catálogo de cotillón se mira por la foto: nadie compra una "Bruja Misteriosa"
+de $64.800 por el nombre, y el talle hay que poder elegirlo viendo la prenda.
+Por eso `halloween` tiene grilla, ficha en modal y las fotos normalizadas de
+`fotos-halloween.ts`, y la Clásica sigue siendo una lista.
+
+Sumar una plantilla nueva es un componente hermano más una línea en ese
+`switch`. Su paleta ampliada vive en `globals.css` bajo una clase propia
+(`.halloween`): los cuatro colores de `clientes.tema` son los que usa el
+motor compartido, no los que necesita un diseño.
 
 ## Lo que falta (a propósito, no es un olvido)
 
@@ -119,9 +147,11 @@ alta un cliente hoy, todos arrancan con la Clásica.
   reportes de ventas.
 - **Reservas** (el otro producto, de `presencia-carta`): no es parte de
   "Comanda Directa", es un producto aparte.
-- **Fotos de producto**: `fotoUrl` acepta una URL https pegada a mano; no hay
-  todavía una pantalla de subida de imágenes (Storage) como en
-  `sagrado-sushi-carta/src/datos/panel-fotos.ts`.
+- **Fotos de producto desde el panel**: `fotoUrl` acepta una URL https pegada
+  a mano, y `scripts/fotos-halloween.ts` sube en lote a Supabase Storage, pero
+  no hay todavía una pantalla de subida como en
+  `sagrado-sushi-carta/src/datos/panel-fotos.ts`. Hoy el cliente no puede
+  cambiar una foto solo.
 - **Subcategorías** (agrupar dentro de una categoría): el modelo las soporta,
   el panel de categorías no tiene UI para cargarlas todavía.
 - **QR**: no hay script de generación en este repo todavía (sí en los otros

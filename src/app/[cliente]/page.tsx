@@ -1,4 +1,5 @@
 import { Carta } from '@/componentes/carta/Carta';
+import { CartaHalloween } from '@/componentes/carta/CartaHalloween';
 import { leerCarta, leerCliente } from '@/datos/carta-repo';
 import { haySupabaseConfigurado } from '@/datos/supabase-servidor';
 import { CARTA_MUESTRA, CONFIG_PEDIDO_MUESTRA } from '@/fixtures/carta-muestra';
@@ -25,5 +26,19 @@ export default async function PaginaCarta({ params }: Props) {
   if (!cliente) return null;
 
   const carta = await leerCarta(cliente);
-  return <Carta carta={carta} configPedido={configPedidoDe(cliente)} logoUrl={cliente.tema.logoUrl} />;
+  const props = {
+    carta,
+    configPedido: configPedidoDe(cliente),
+    ...(cliente.tema.logoUrl ? { logoUrl: cliente.tema.logoUrl } : {}),
+  };
+
+  // El campo `clientes.plantilla` elige la variante visual (ver README >
+  // "Plantillas"). Un valor desconocido cae en la Clásica a propósito: un
+  // typo en la base no puede dejar a un cliente sin carta.
+  switch (cliente.plantilla) {
+    case 'halloween':
+      return <CartaHalloween {...props} />;
+    default:
+      return <Carta {...props} />;
+  }
 }

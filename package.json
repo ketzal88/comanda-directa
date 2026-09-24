@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "seed:demo": "tsx --require ./scripts/cargar-env.cjs scripts/seed-demo.ts",
-    "seed:halloween": "tsx --require ./scripts/cargar-env.cjs scripts/seed-halloween.ts"
+    "seed:halloween": "tsx --require ./scripts/cargar-env.cjs scripts/seed-halloween.ts",
+    "fotos:halloween": "tsx --require ./scripts/cargar-env.cjs scripts/fotos-halloween.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

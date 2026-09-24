@@ -3,6 +3,7 @@ import { ProveedorCliente } from '@/componentes/ClienteContext';
 import { leerCliente } from '@/datos/carta-repo';
 import { haySupabaseConfigurado } from '@/datos/supabase-servidor';
 import { TEMA_DEFECTO } from '@/logica/tipos';
+import type { Tema } from '@/logica/tipos';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,11 +21,12 @@ export default async function LayoutCliente({ children, params }: Props) {
     // pasar con el tema por defecto y sin datos de cliente — la página de
     // cada ruta decide qué mostrar (ver [cliente]/page.tsx).
     return (
-      <div style={temaComoVariables(TEMA_DEFECTO)}>
+      <>
+        <TemaDelCliente tema={TEMA_DEFECTO} />
         <ProveedorCliente slug={slug} nombre={slug}>
           {children}
         </ProveedorCliente>
-      </div>
+      </>
     );
   }
 
@@ -32,25 +34,41 @@ export default async function LayoutCliente({ children, params }: Props) {
   if (!cliente) notFound();
 
   return (
-    <div style={temaComoVariables(cliente.tema)}>
+    <>
+      <TemaDelCliente tema={cliente.tema} />
       <ProveedorCliente slug={cliente.slug} nombre={cliente.nombre}>
         {children}
       </ProveedorCliente>
-    </div>
+    </>
   );
 }
 
-function temaComoVariables(tema: {
-  colorFondo: string;
-  colorTexto: string;
-  colorTextoSuave: string;
-  colorAcento: string;
-}): React.CSSProperties {
-  return {
-    ['--color-fondo' as string]: tema.colorFondo,
-    ['--color-texto' as string]: tema.colorTexto,
-    ['--color-texto-suave' as string]: tema.colorTextoSuave,
-    ['--color-acento' as string]: tema.colorAcento,
-    minHeight: '100dvh',
-  };
+/** Pinta el tema del cliente en `:root` y no en un `<div>` envolvente.
+ *
+ *  La diferencia no es de estilo. `globals.css` tiene `body { background:
+ *  var(--color-fondo) }`, y `body` está POR ENCIMA de cualquier div: con las
+ *  variables en el div, `body` resolvía contra el `:root` de `globals.css`
+ *  —el gris por defecto— mientras la carta usaba el color del cliente. El
+ *  resultado eran dos fondos distintos en la misma pantalla, y se veía como
+ *  bandas en el índice pegajoso y en la barra del pedido.
+ *
+ *  Es un `<style>` y no un atributo en `<html>` porque este layout está
+ *  anidado adentro del layout raíz y no puede tocar esa etiqueta. Se
+ *  renderiza en el servidor, una sola vez por request, y cada request sirve
+ *  a un solo cliente: no hay dos temas compitiendo en la misma página. */
+function TemaDelCliente({ tema }: { tema: Tema }) {
+  const css = `:root{--color-fondo:${color(tema.colorFondo, TEMA_DEFECTO.colorFondo)};--color-texto:${color(tema.colorTexto, TEMA_DEFECTO.colorTexto)};--color-texto-suave:${color(tema.colorTextoSuave, TEMA_DEFECTO.colorTextoSuave)};--color-acento:${color(tema.colorAcento, TEMA_DEFECTO.colorAcento)}}`;
+  return <style dangerouslySetInnerHTML={{ __html: css }} />;
+}
+
+/** El color tal como se puede meter adentro de un `<style>`, o el de por
+ *  defecto. Hoy `clientes.tema` sólo se escribe a mano o por script, pero
+ *  esto se interpola en una etiqueta `<style>`: un valor con `}</style>` se
+ *  escaparía del bloque y podría inyectar HTML en la página del cliente. Se
+ *  valida en vez de confiar, porque el día que el panel deje editar los
+ *  colores nadie se va a acordar de volver acá. */
+function color(crudo: string | undefined, porDefecto: string): string {
+  return typeof crudo === 'string' && /^#[0-9a-f]{3,8}$/i.test(crudo.trim())
+    ? crudo.trim()
+    : porDefecto;
 }
