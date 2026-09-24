@@ -26,6 +26,26 @@ export const contentType = 'image/png';
 
 type Props = { params: Promise<{ cliente: string }> };
 
+const MAX_FOTO_BYTES = 8 * 1024 * 1024;
+
+/** Si la foto vive en el Storage de nuestro propio Supabase.
+ *
+ *  `items.foto_url` la escribe cada cliente desde su panel: es texto de un
+ *  tercero que después termina en un `fetch` hecho por nuestro servidor. Sin
+ *  este filtro, un cliente puede apuntar la foto de un producto a una IP
+ *  interna del entorno donde corre esto y usar la vista previa como sonda
+ *  (pedirla es gratis: la pide cualquier scraper). Hoy las 81 fotos que
+ *  existen están todas en este host, así que no recorta nada real. */
+function esFotoNuestra(url: string): boolean {
+  try {
+    const foto = new URL(url);
+    const storage = new URL(process.env.SUPABASE_URL ?? '');
+    return foto.protocol === 'https:' && foto.hostname === storage.hostname;
+  } catch {
+    return false;
+  }
+}
+
 /** La foto, convertida a PNG y embebida.
  *
  *  `satori` —el motor que dibuja esta imagen— NO entiende WebP, y las fotos
@@ -38,11 +58,17 @@ type Props = { params: Promise<{ cliente: string }> };
  *  falla devuelve null y la tarjeta se dibuja sin foto, que es mejor que una
  *  vista previa rota. */
 async function comoPng(url: string | undefined): Promise<string | null> {
-  if (!url) return null;
+  if (!url || !esFotoNuestra(url)) return null;
   try {
-    const res = await fetch(url);
+    // `redirect: 'manual'` para que un 302 no nos saque del host ya validado
+    // (un 3xx llega acá con `ok` en false y la foto se descarta). El timeout
+    // y el tope de tamaño son para que una foto colgada o enorme no se lleve
+    // puesta la generación de la vista previa.
+    const res = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(6000) });
     if (!res.ok) return null;
-    const png = await sharp(Buffer.from(await res.arrayBuffer()))
+    const bytes = Buffer.from(await res.arrayBuffer());
+    if (bytes.byteLength > MAX_FOTO_BYTES) return null;
+    const png = await sharp(bytes)
       .resize(320, 196, { fit: 'contain', background: '#ffffff' })
       .png()
       .toBuffer();
