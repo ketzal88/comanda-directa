@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ProveedorCliente } from '@/componentes/ClienteContext';
 import { leerCliente } from '@/datos/carta-repo';
@@ -8,6 +9,33 @@ import type { Tema } from '@/logica/tipos';
 export const dynamic = 'force-dynamic';
 
 type Props = { children: React.ReactNode; params: Promise<{ cliente: string }> };
+
+/** El título de la pestaña y la vista previa al compartir el link.
+ *
+ *  Sin esto quedaba el del layout raíz, o sea que la carta de un cliente se
+ *  compartía por WhatsApp con el nombre de NUESTRO producto: el comprador
+ *  recibía "Comanda Directa" en vez de "Piedro Shop". El nombre del motor es
+ *  asunto nuestro, no de la marca que el comensal tiene que reconocer.
+ *
+ *  El ícono sale del logo del cliente si lo cargó; si no, hereda el de
+ *  `app/icon.svg`, que es la marca del producto — mejor eso que la hoja en
+ *  blanco del navegador.
+ *
+ *  `leerCliente` está cacheado con `cache()` de React y el layout ya lo pide
+ *  abajo: esto no suma una consulta más. */
+export async function generateMetadata({ params }: { params: Props['params'] }): Promise<Metadata> {
+  const { cliente: slug } = await params;
+  if (!haySupabaseConfigurado()) return {};
+
+  const cliente = await leerCliente(slug);
+  if (!cliente) return {};
+
+  return {
+    title: cliente.nombre,
+    description: `Catálogo de ${cliente.nombre}. Pedidos por WhatsApp.`,
+    ...(cliente.tema.logoUrl ? { icons: { icon: cliente.tema.logoUrl } } : {}),
+  };
+}
 
 /** Resuelve el cliente por slug y pinta su tema como variables CSS antes de
  *  renderizar nada de la carta o el panel: es lo único que necesitan los
