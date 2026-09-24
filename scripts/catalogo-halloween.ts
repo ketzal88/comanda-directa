@@ -16,8 +16,17 @@ import type { Carta, ConfigPedido, Item, Tema } from '@/logica/tipos';
  *    y `cubiertoPorPersona` queda en 0 (la pantalla lo oculta sola).
  */
 
-export const SLUG_HALLOWEEN = 'halloween';
+export const SLUG_HALLOWEEN = 'piedro-shop';
 export const NOMBRE_HALLOWEEN = 'Piedro Shop';
+
+/** La carpeta del bucket `fotos` donde ya están subidas las 162 imágenes.
+ *
+ *  Queda en 'halloween' aunque el cliente ahora sea `piedro-shop`: las URLs
+ *  guardadas en `items.foto_url` apuntan ahí, y renombrar la carpeta las
+ *  rompería todas hasta volver a correr el script. Es un nombre de carpeta
+ *  que no ve nadie; el costo de "arreglarlo" es 162 descargas y un rato con
+ *  la carta sin fotos. */
+export const CARPETA_FOTOS = 'halloween';
 
 /** De dónde salieron los productos y los precios, por si hay que rehacer la
  *  lista o buscar las fotos. NO se inserta en la base ni se muestra: son

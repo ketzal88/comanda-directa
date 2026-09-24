@@ -1,7 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
 import WebSocket from 'ws';
-import { CATALOGO_HALLOWEEN, FUENTES, SLUG_HALLOWEEN, URL_PRODUCTO } from './catalogo-halloween';
+import {
+  CARPETA_FOTOS,
+  CATALOGO_HALLOWEEN,
+  FUENTES,
+  SLUG_HALLOWEEN,
+  URL_PRODUCTO,
+} from './catalogo-halloween';
 
 /** Baja la foto de cada producto de la página del mayorista, la normaliza y
  *  la sube a Supabase Storage; después deja la URL pública en `items.foto_url`.
@@ -165,7 +171,7 @@ async function main() {
 
       for (const { lado, calidad, sufijo } of MEDIDAS) {
         const webp = await normalizar(original, lado, calidad);
-        const ruta = `${SLUG_HALLOWEEN}/${idCatalogo}${sufijo}.webp`;
+        const ruta = `${CARPETA_FOTOS}/${idCatalogo}${sufijo}.webp`;
 
         const { error: eSubida } = await db.storage
           .from(BUCKET)

@@ -35,11 +35,11 @@ con su propia clave de panel y sus propias categorías/ítems (`cliente_id`).
 
 Cargar ochenta productos a mano en el panel es una tarde y un par de precios
 mal tipeados. Cuando el cliente ya mandó la lista, conviene el camino de
-`halloween`: los datos en un módulo de `scripts/` (revisable en el diff, con
+Piedro Shop: los datos en un módulo de `scripts/` (revisable en el diff, con
 pruebas encima) y un script que los inserta.
 
 ```bash
-CLAVE_PANEL=loquesea npm run seed:halloween    # crea/recarga /halloween
+CLAVE_PANEL=loquesea npm run seed:halloween    # crea/recarga /piedro-shop
 npm run fotos:halloween                        # baja, normaliza y sube las fotos
 npm run fotos:halloween -- --faltantes         # sólo las que quedaron sin foto
 ```
@@ -128,9 +128,18 @@ clientes a la vez.
 | slug | qué es | modalidades | notas |
 | --- | --- | --- | --- |
 | `demo` | carta de muestra para probar el motor | salón, retiro, delivery | `npm run seed:demo` |
-| `halloween` | catálogo de temporada de cotillón y disfraces | retiro, delivery | plantilla `halloween`, 81 productos con foto; sin nombre comercial todavía, sin comandas ni link de pago |
+| `piedro-shop` | Piedro Shop, catálogo de temporada de cotillón y disfraces | sólo delivery | plantilla `halloween`, 81 productos con foto; sin comandas ni link de pago |
 
-`halloween` es el primero que no es un restaurante, y por eso vale anotar qué
+Piedro Shop se publica en **hace-tu-pedido.site/piedro-shop**. Nació como
+`/halloween` y ese link ya estaba circulando, así que el slug viejo queda
+desviado desde `next.config.ts` (ver `SLUGS_RENOMBRADOS`): renombrar sin dejar
+el desvío es romperle el link a quien está por comprar.
+
+Ojo con el slug: es la URL, no la marca. `clientes.nombre` es lo que se ve en
+la carta y en el mensaje de WhatsApp, y los dos se cambian por separado.
+
+Piedro Shop es el primer cliente que no es un restaurante, y por eso vale
+anotar qué
 alcanzó con lo que ya había: apagar `salon` y dejar `cubiertoPorPersona` en 0
 saca de la pantalla todo lo gastronómico, y `variantes` —pensadas para "5 pz"
 / "10 pz" de sushi— sirven igual para el talle de un disfraz, que es dato de
