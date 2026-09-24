@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { HojaPedido } from '@/componentes/pedido/HojaPedido';
+import { HojaPedidoHalloween } from './HojaPedidoHalloween';
 import { usePedido } from '@/componentes/pedido/usePedido';
 import { useClienteActual } from '@/componentes/ClienteContext';
 import { formatearPrecio } from '@/logica/precio';
@@ -14,12 +14,9 @@ type Props = { items: Item[]; configPedido: ConfigPedido };
  *  de WhatsApp a la derecha.
  *
  *  Es una copia visual de `pedido/BarraPedido.tsx`, no un reemplazo: abre la
- *  MISMA `HojaPedido` del motor, que es la que pregunta retiro o envío,
- *  nombre, teléfono y forma de pago, y la que arma el mensaje. Lo único
- *  propio de la plantilla es el botón que la abre.
- *
- *  El `cubiertoPorPersona` no se pasa: este cliente no es gastronómico y no
- *  cobra cubierto (ver `catalogo-halloween.ts`). */
+ *  hoja del pedido con el diseño de la campaña, que a su vez corre sobre
+ *  `useHojaPedido()` — el mismo hook que la Clásica. Las validaciones, el
+ *  total con envío y el mensaje de WhatsApp son los del motor. */
 export function BarraPedidoHalloween({ items, configPedido }: Props) {
   const { slug } = useClienteActual();
   const { pedido, total } = usePedido(slug);
@@ -65,9 +62,8 @@ export function BarraPedidoHalloween({ items, configPedido }: Props) {
       </div>
 
       {abierta && (
-        <HojaPedido
+        <HojaPedidoHalloween
           items={items}
-          cubiertoPorPersona={0}
           configPedido={configPedido}
           onCerrar={() => setAbierta(false)}
         />

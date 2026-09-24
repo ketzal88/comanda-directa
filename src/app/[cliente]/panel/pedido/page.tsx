@@ -15,7 +15,7 @@ export default async function PaginaPedido({ params }: { params: Promise<{ clien
   if (!(await esPanelAutorizado(slug, cliente.claveHash))) return <PanelLogin slug={slug} />;
 
   return (
-    <PanelShell slug={slug}>
+    <PanelShell slug={slug} nombre={cliente.nombre}>
       <PanelPedido
         slug={slug}
         configPedido={configPedidoDe(cliente)}

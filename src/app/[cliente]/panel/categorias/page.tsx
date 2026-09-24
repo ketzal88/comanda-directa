@@ -17,7 +17,7 @@ export default async function PaginaCategorias({ params }: { params: Promise<{ c
   const categorias = await listarCategorias(cliente.id);
 
   return (
-    <PanelShell slug={slug}>
+    <PanelShell slug={slug} nombre={cliente.nombre}>
       <PanelCategorias slug={slug} categorias={categorias} />
     </PanelShell>
   );

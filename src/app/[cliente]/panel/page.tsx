@@ -21,7 +21,7 @@ export default async function PaginaPanel({ params }: { params: Promise<{ client
   ]);
 
   return (
-    <PanelShell slug={slug}>
+    <PanelShell slug={slug} nombre={cliente.nombre}>
       <PanelItems slug={slug} items={items} categorias={categorias} />
     </PanelShell>
   );

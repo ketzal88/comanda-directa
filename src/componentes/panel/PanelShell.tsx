@@ -9,7 +9,18 @@ const CLASE_LINK = 'text-sm font-medium hover:underline underline-offset-4';
 /** Layout común del panel: nav simple + salir. Deliberadamente neutro (no
  *  usa el tema del cliente): tiene que leerse bien pase lo que pase con los
  *  colores que ese restaurante haya elegido para su carta. */
-export function PanelShell({ slug, children }: { slug: string; children: React.ReactNode }) {
+export function PanelShell({
+  slug,
+  nombre,
+  children,
+}: {
+  slug: string;
+  /** El nombre comercial del cliente. El slug es la URL, no la marca: un
+   *  panel que dice "halloween" cuando el local se llama "Piedro Shop" hace
+   *  dudar de si se entró al lugar correcto. */
+  nombre?: string;
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const base = `/${slug}/panel`;
@@ -27,7 +38,7 @@ export function PanelShell({ slug, children }: { slug: string; children: React.R
       <header className="border-b border-white/10">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-5 px-5 py-4">
           <span className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
-            Panel · {slug}
+            Panel · {nombre || slug}
           </span>
           <nav className="flex flex-wrap gap-4">
             <Link href={base} className={`${CLASE_LINK} ${activo(base) ? 'text-orange-400' : ''}`}>

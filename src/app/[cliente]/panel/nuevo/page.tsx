@@ -17,7 +17,7 @@ export default async function PaginaNuevoItem({ params }: { params: Promise<{ cl
   const categorias = await listarCategorias(cliente.id);
 
   return (
-    <PanelShell slug={slug}>
+    <PanelShell slug={slug} nombre={cliente.nombre}>
       <h1 className="text-2xl font-semibold">Nuevo ítem</h1>
       <div className="mt-6 max-w-xl">
         <FormItem slug={slug} categorias={categorias} />

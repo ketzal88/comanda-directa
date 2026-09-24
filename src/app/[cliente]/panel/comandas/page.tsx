@@ -13,7 +13,7 @@ export default async function PaginaComandas({ params }: { params: Promise<{ cli
   if (!(await esPanelAutorizado(slug, cliente.claveHash))) return <PanelLogin slug={slug} />;
 
   return (
-    <PanelShell slug={slug}>
+    <PanelShell slug={slug} nombre={cliente.nombre}>
       <h1 className="text-2xl font-semibold">Imprimir las comandas</h1>
       <p className="mt-3 max-w-xl text-sm text-neutral-300">
         Un botón dentro de WhatsApp Web que imprime la comanda de cocina (y el ticket del cadete, en

@@ -14,7 +14,7 @@ export default async function PaginaImportar({ params }: { params: Promise<{ cli
   if (!(await esPanelAutorizado(slug, cliente.claveHash))) return <PanelLogin slug={slug} />;
 
   return (
-    <PanelShell slug={slug}>
+    <PanelShell slug={slug} nombre={cliente.nombre}>
       <PanelImportar slug={slug} />
     </PanelShell>
   );

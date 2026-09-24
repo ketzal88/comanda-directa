@@ -66,6 +66,30 @@ descargas.
 
 Para el cliente siguiente, copiar los archivos y cambiar los datos.
 
+## El panel: lo que el cliente cambia solo
+
+Cada cliente entra a `/<slug>/panel` con su clave (`clientes.clave_panel_hash`,
+sha256). Todo lo de ahí se ve en la carta al instante: no hay build ni deploy
+en el medio, la carta lee de Supabase en cada request.
+
+| pestaña | para qué |
+| --- | --- |
+| **Ítems** | agregar, editar, marcar sin stock y sacar productos |
+| **Categorías** | crear, renombrar y reordenar las secciones |
+| **Importar** | cargar una carta entera desde un CSV |
+| **Pedido** | número de WhatsApp, modalidades abiertas, medios de pago y zonas de envío |
+| **Comandas** | sólo sirve con `extension-comandas/` instalada |
+
+"Sin stock" y "Sacar" no son lo mismo, y la diferencia importa: **sin stock**
+deja el producto a la vista, tachado y sin poder agregarse —el que lo estaba
+buscando entiende que existe y volvió a agotarse—; **sacar** lo esconde
+(borrado suave, `activo = false`) y se puede restaurar desde el desplegable
+del final.
+
+El panel es deliberadamente neutro (fondo oscuro, no usa el tema del cliente):
+tiene que leerse bien sea cual sea la paleta que ese cliente eligió para su
+carta.
+
 ## Poner en marcha Supabase (una sola vez para todo el motor)
 
 1. Crear un proyecto de Supabase (plan gratuito alcanza para arrancar).

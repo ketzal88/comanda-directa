@@ -22,7 +22,7 @@ export default async function PaginaEditarItem({
   if (!item) notFound();
 
   return (
-    <PanelShell slug={slug}>
+    <PanelShell slug={slug} nombre={cliente.nombre}>
       <h1 className="text-2xl font-semibold">Editar ítem</h1>
       <div className="mt-6 max-w-xl">
         <FormItem slug={slug} categorias={categorias} item={item} />

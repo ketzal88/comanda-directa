@@ -20,6 +20,7 @@ export function FormItem({ slug, categorias, item }: Props) {
   const [nombre, setNombre] = useState(item?.nombre ?? '');
   const [categoriaId, setCategoriaId] = useState(item?.categoriaId ?? categorias[0]?.id ?? '');
   const [descripcion, setDescripcion] = useState(item?.descripcion ?? '');
+  const [fotoUrl, setFotoUrl] = useState(item?.fotoUrl ?? '');
   const [precio, setPrecio] = useState(item?.precio ?? 0);
   const [usaMedidas, setUsaMedidas] = useState((item?.variantes?.length ?? 0) > 0);
   const [variantes, setVariantes] = useState<Variante[]>(item?.variantes ?? []);
@@ -49,6 +50,8 @@ export function FormItem({ slug, categorias, item }: Props) {
       nombre,
       categoriaId,
       descripcion: descripcion || null,
+      // null y no '' para borrarla: así lo espera `validarCambiosItem`
+      fotoUrl: fotoUrl.trim() || null,
       precio: usaMedidas ? 0 : precio,
       variantes: usaMedidas ? variantes.filter((v) => v.etiqueta.trim()) : [],
       piezas: piezas === '' ? null : Number(piezas),
@@ -100,6 +103,33 @@ export function FormItem({ slug, categorias, item }: Props) {
           className={CLASE_CAMPO}
         />
       </label>
+
+      <label className={CLASE_LABEL}>
+        Foto (opcional)
+        <input
+          value={fotoUrl}
+          onChange={(e) => setFotoUrl(e.target.value)}
+          placeholder="https://…"
+          inputMode="url"
+          className={CLASE_CAMPO}
+        />
+        <span className="mt-1 block text-xs font-normal text-neutral-500">
+          Pegá la dirección de una imagen. Tiene que empezar con https. Un producto sin foto se
+          muestra igual, con un dibujo en su lugar.
+        </span>
+      </label>
+
+      {fotoUrl.trim().startsWith('https://') && (
+        <div>
+          <span className="block text-sm font-medium text-neutral-300">Así se va a ver</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={fotoUrl.trim()}
+            alt=""
+            className="mt-1.5 h-28 w-28 rounded-lg border border-white/15 bg-white object-contain"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-5">
         <label className={CLASE_LABEL}>

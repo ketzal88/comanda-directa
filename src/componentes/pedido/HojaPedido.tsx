@@ -1,37 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { usePedido } from './usePedido';
-import { useClienteActual } from '@/componentes/ClienteContext';
-import { generarCodigo } from '@/logica/codigo-pedido';
-import { calcularCuenta } from '@/logica/cuenta';
-import {
-  CUBIERTO,
-  claveLinea,
-  lineasDeCuenta,
-  lineasPedidas,
-  nombreDeLinea,
-  resumenTexto,
-  revisarPedido,
-} from '@/logica/pedido';
+import { useEffect, useRef } from 'react';
+import { useHojaPedido } from './useHojaPedido';
+import { CUBIERTO, claveLinea, nombreDeLinea } from '@/logica/pedido';
 import { formatearPrecio } from '@/logica/precio';
-import {
-  ETIQUETA_MEDIO,
-  ETIQUETA_MODALIDAD,
-  MAX_TEXTO,
-  armarMensaje,
-  enlaceWhatsApp,
-  validarDatos,
-} from '@/logica/whatsapp';
-import {
-  MODALIDADES,
-  type ConfigPedido,
-  type Item,
-  type MedioDePago,
-  type Modalidad,
-  type ZonaEnvio,
-} from '@/logica/tipos';
-import type { DatosComensal } from '@/logica/whatsapp';
+import { ETIQUETA_MEDIO, ETIQUETA_MODALIDAD, MAX_TEXTO } from '@/logica/whatsapp';
+import type { ConfigPedido, Item } from '@/logica/tipos';
 
 type Props = {
   items: Item[];
@@ -50,32 +24,41 @@ const CLASE_CAMPO =
  *  modalidad va en el primer paso porque cambia el total (el cubierto existe
  *  en el salón y no en un delivery). */
 export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }: Props) {
-  const { slug, nombre: nombreLocal } = useClienteActual();
-  const { pedido, cambiarCantidad, quitar, vaciar, agregarCubierto, sacarCubierto, cantidadDe } =
-    usePedido(slug);
-
-  const habilitadas = MODALIDADES.filter((m) => configPedido.modalidades.includes(m));
-  const [paso, setPaso] = useState<'pedido' | 'datos'>('pedido');
-  const [modalidad, setModalidad] = useState<Modalidad | null>(
-    habilitadas.length === 1 ? habilitadas[0] : null,
-  );
-  const [nombre, setNombre] = useState('');
-  const [mesa, setMesa] = useState('');
-  const [direccion, setDireccion] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [notas, setNotas] = useState('');
-  const [medioDePago, setMedioDePago] = useState<MedioDePago | null>(
-    configPedido.mediosDePago.length === 1 ? configPedido.mediosDePago[0] : null,
-  );
-  const [zona, setZona] = useState<ZonaEnvio | null>(
-    configPedido.zonasEnvio.length === 1 ? configPedido.zonasEnvio[0] : null,
-  );
-  const [mostrarErrores, setMostrarErrores] = useState(false);
-  const [enviado, setEnviado] = useState(false);
-  const [codigo, setCodigo] = useState(() => generarCodigo());
-  const [confirmandoVaciar, setConfirmandoVaciar] = useState(false);
-  const [copiado, setCopiado] = useState(false);
   const hoja = useRef<HTMLDivElement>(null);
+  const {
+    habilitadas,
+    paso,
+    setPaso,
+    modalidad,
+    elegirModalidad,
+    campos: { nombre, setNombre, mesa, setMesa, direccion, setDireccion, telefono, setTelefono, notas, setNotas },
+    medioDePago,
+    setMedioDePago,
+    zona,
+    setZona,
+    mostrarErrores,
+    enviado,
+    confirmandoVaciar,
+    setConfirmandoVaciar,
+    copiado,
+    copiar,
+    avisos,
+    ofreceCubierto,
+    cubiertos,
+    pedidas,
+    cuenta,
+    errores,
+    errorDe,
+    mensaje,
+    enlace,
+    puedeEnviar,
+    alEnviar,
+    continuar,
+    cambiarCantidad,
+    quitar,
+    vaciar,
+    agregarCubierto,
+  } = useHojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar });
 
   useEffect(() => {
     const alTeclear = (e: KeyboardEvent) => {
@@ -90,55 +73,6 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
     };
   }, [onCerrar]);
 
-  useEffect(() => {
-    if (!pedido.lineas.length) onCerrar();
-  }, [pedido.lineas.length, onCerrar]);
-
-  const elegirModalidad = (m: Modalidad) => {
-    setModalidad(m);
-    setMostrarErrores(false);
-    if (m !== 'salon') sacarCubierto();
-  };
-
-  const avisos = revisarPedido(pedido, items, {
-    cubiertoPorPersona,
-    ...(modalidad ? { modalidad } : {}),
-  });
-
-  const ofreceCubierto = modalidad === 'salon' && cubiertoPorPersona > 0;
-  const cubiertos = cantidadDe(CUBIERTO);
-  const pedidas = lineasPedidas(pedido);
-
-  const cuenta = calcularCuenta({
-    lineas: lineasDeCuenta(pedido),
-    modalidad,
-    descuentoRetiro: configPedido.descuentoRetiro,
-    descuentoManual: { tipo: 'ninguno' },
-    envio: modalidad === 'delivery' ? (zona?.precio ?? 0) : 0,
-  });
-
-  const datos: DatosComensal = {
-    nombre,
-    modalidad: modalidad ?? 'retiro',
-    mesa,
-    direccion,
-    telefono,
-    notas,
-    medioDePago,
-    zona,
-  };
-  const errores = modalidad ? validarDatos(datos, habilitadas) : [];
-  const errorDe = (campo: keyof DatosComensal) => errores.find((e) => e.campo === campo)?.mensaje;
-
-  const mensaje = armarMensaje(pedido, datos, nombreLocal, {
-    cubiertoPorPersona,
-    cabecera: configPedido.cabecera,
-    descuentoRetiro: configPedido.descuentoRetiro,
-    codigo,
-  });
-  const enlace = enlaceWhatsApp(configPedido.whatsapp, mensaje);
-  const puedeEnviar = Boolean(enlace) && habilitadas.length > 0;
-
   // La propina se aclara solo donde hay mesa que atender: un cliente que
   // vende para llevar (o que no es gastronómico) no tiene por qué explicarle
   // al comprador que el total no la incluye.
@@ -151,28 +85,6 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
   ]
     .filter(Boolean)
     .join(' ');
-
-  const copiar = async () => {
-    try {
-      await navigator.clipboard.writeText(resumenTexto(pedido, cuenta, nombreLocal));
-      setCopiado(true);
-    } catch {
-      /* sin permiso de portapapeles no pasa nada: la lista está en pantalla */
-    }
-  };
-
-  const alEnviar = (e: React.MouseEvent) => {
-    if (errores.length || !enlace) {
-      e.preventDefault();
-      setMostrarErrores(true);
-      return;
-    }
-    // No hay historial server-side todavía (queda para una próxima etapa):
-    // el pedido sale por WhatsApp igual, el código solo ayuda a nombrarlo de
-    // palabra si hay que buscarlo en el chat.
-    setEnviado(true);
-    setCodigo(generarCodigo());
-  };
 
   return (
     <div className="fixed inset-0 z-30" role="presentation" onClick={onCerrar}>
@@ -348,7 +260,7 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
               <>
                 <button
                   type="button"
-                  onClick={() => (modalidad ? setPaso('datos') : setMostrarErrores(true))}
+                  onClick={continuar}
                   className={`mt-7 ${CLASE_PRIMARIO}`}
                 >
                   Continuar
