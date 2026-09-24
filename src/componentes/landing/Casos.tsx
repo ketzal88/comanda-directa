@@ -1,13 +1,17 @@
-/** El caso de Piedro Shop: el catálogo que está funcionando hoy.
+/** Los casos reales: uno destacado y dos más abajo.
  *
- *  Va con link y no con capturas, y ese es el punto: cualquiera puede abrirlo,
- *  cargar algo y llegar hasta el botón de WhatsApp. Una captura demuestra que
- *  existió una pantalla; un link demuestra que el sistema está andando.
+ *  Todos van con link y no con capturas, y ese es el punto: cualquiera puede
+ *  abrirlos y usarlos. Una captura demuestra que existió una pantalla; un link
+ *  demuestra que está andando.
  *
- *  Lo que se dice acá son datos verificables del catálogo (cuántos productos,
- *  cuántas categorías, que hay talles y zonas de envío). No hay números de
- *  venta: no los tenemos, y un "aumentó un 40%" inventado se cae en la primera
- *  pregunta de la reunión. */
+ *  Lo que se dice de cada uno son datos verificables (qué vende, qué incluye
+ *  la carta, si toma pedidos). NO hay números de venta: no los tenemos, y un
+ *  "aumentó un 40%" inventado se cae en la primera pregunta de la reunión.
+ *
+ *  Presencia va marcado como "solo carta". Es un restaurante real con la carta
+ *  digital andando, pero NO toma pedidos por WhatsApp: meterlo sin esa
+ *  aclaración en una landing que vende justamente eso sería vender algo que
+ *  ese caso no prueba. */
 
 const CATALOGO = '/piedro-shop';
 
@@ -27,7 +31,30 @@ const DETALLES = [
   'Envío por zona: sin cargo, con precio o a convenir',
 ];
 
-export function CasoPiedroShop() {
+/** Los otros dos, en fichas chicas. Cada uno con lo que de verdad hace. */
+const OTROS = [
+  {
+    nombre: 'Sagrado Sushi',
+    rubro: 'Restaurante · Buenos Aires',
+    texto:
+      'La carta por QR en la mesa y para llevar. El pedido llega armado al WhatsApp del local y sale impreso en la comanda de cocina.',
+    marca: 'Carta y pedidos',
+    // TODO: cambiar por https://carta.sagradosushi.com cuando el dominio
+    // resuelva — hoy da ENOTFOUND y un link roto en la landing es peor que
+    // uno feo.
+    href: 'https://sagrado-sushi-carta.vercel.app',
+  },
+  {
+    nombre: 'Presencia',
+    rubro: 'Restaurante · Recoleta',
+    texto:
+      'Cinco cartas en un solo QR: à la carte, almuerzo, vinos, cócteles y el café. Sin pedido online, es el caso de carta digital sola.',
+    marca: 'Solo carta',
+    href: 'https://carta.presenciarecoleta.com',
+  },
+];
+
+export function Casos() {
   return (
     <section id="muestra" className="mx-auto max-w-6xl px-4 pb-11 sm:px-8 sm:pb-16">
       <div
@@ -135,6 +162,38 @@ export function CasoPiedroShop() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-5 grid gap-5 sm:grid-cols-2">
+        {OTROS.map((o) => (
+          <a
+            key={o.nombre}
+            href={o.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col rounded-[28px] p-7 no-underline transition-transform hover:-translate-y-0.5"
+            style={{
+              background: 'var(--l-neutro-100)',
+              border: '1px solid var(--l-linea)',
+              color: 'var(--l-tinta)',
+            }}
+          >
+            <span
+              className="mb-3 w-max rounded-full px-3 py-1 text-[12px] font-bold"
+              style={{ background: 'var(--l-terracota-200)', color: 'var(--l-terracota-800)' }}
+            >
+              {o.marca}
+            </span>
+            <h3 className="m-0 text-[22px]">{o.nombre}</h3>
+            <div className="mb-2.5 mt-0.5 text-[13px] font-semibold" style={{ color: 'var(--l-tinta-suave)' }}>
+              {o.rubro}
+            </div>
+            <p className="m-0 mb-4 text-[15px]">{o.texto}</p>
+            <span className="mt-auto text-[15px] font-bold" style={{ color: 'var(--l-terracota-700)' }}>
+              Ver la carta →
+            </span>
+          </a>
+        ))}
       </div>
     </section>
   );

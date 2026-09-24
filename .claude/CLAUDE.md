@@ -64,8 +64,16 @@ Reglas para operarlos desde acá:
   (`vitest run`), `smoke` (`playwright test`), `qr`. Sagrado suma
   `empaquetar-extension` y lo corre en `prebuild`.
 - **Push: operator-only en los tres.** `pre-push-guard.py` bloquea también
-  `git -C <repo> push` y `cd <repo> && git push`, no sólo el `git push` pelado.
-  Cerrá con "committed: `<sha>` — N commit(s) listos para pushear".
+  `git -C <repo> push`, `cd <repo> && git push` y el helper del operador (ver
+  abajo), no sólo el `git push` pelado. Cerrá con "committed: `<sha>` —
+  N commit(s) listos para pushear".
+- **El operador pushea los tres con un solo comando**, `scripts/pushear.mjs`
+  (`npm run` + el nombre del script). Recorre la raíz y cada subcarpeta con
+  `.git`, muestra qué tiene cada una y pushea las que están adelante; con
+  `-- --ver` sólo muestra. Existe porque "el push es del operador" no debería
+  significar "abrir cada repo en su propia ventana del editor y acordarse de
+  los tres": un commit de sagrado-sushi ya quedó sin pushear por eso. Vos no
+  lo corrés — el guard lo bloquea igual que a un `git push`.
 - **El scan de secretos corre en el repo del commit**, resuelto desde el
   comando (`secret-scan-guard.py` + `git_target_dir.py`).
 - **Cada gate corre contra el `stack.json` del repo destino.** Un

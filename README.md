@@ -88,6 +88,22 @@ que el sistema existe es la sección de **Piedro Shop**, que linkea al catálogo
 real y navegable. Ahí no hay números de venta a propósito: no los tenemos, y
 un porcentaje inventado se cae en la primera pregunta de la reunión.
 
+## Pushear los tres repos de una
+
+```bash
+npm run pushear           # pushea los repos que estén adelante
+npm run pushear -- --ver  # sólo muestra el estado, no pushea
+```
+
+Son tres repos git independientes en el mismo árbol y el push es del
+operador, pero eso no debería significar abrir cada uno en su propia ventana
+del editor y acordarse de los tres. El script los descubre solos (la raíz más
+toda subcarpeta con `.git`), así que el día que se sume un cliente aparece en
+la lista sin tocar nada.
+
+Claude no lo corre: `pre-push-guard.py` lo bloquea igual que a un `git push`.
+Un atajo que el agente pueda usar no es un atajo, es el agujero de la regla.
+
 ## El panel: lo que el cliente cambia solo
 
 Cada cliente entra a `/<slug>/panel` con su clave (`clientes.clave_panel_hash`,

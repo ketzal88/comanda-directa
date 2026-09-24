@@ -28,6 +28,18 @@ CI_PATHS_IGNORE = [
     r"^\.gitattributes$",
 ]
 
+# El helper del operador (`npm run pushear`) pushea los tres repos de una, o
+# sea que es un `git push` con otro nombre y le corresponde la misma regla.
+#
+# Matchea la INVOCACION y no la palabra suelta: con "pushear" pelado, escribir
+# documentacion que nombre el comando quedaba bloqueado, y un guard que
+# molesta escribiendo un README es un guard que alguien va a querer apagar.
+#
+# Sin \b a proposito: un \b mal escrito se vuelve el caracter backspace (0x08)
+# y el patron deja de matchear EN SILENCIO — que es lo unico que un guard no
+# puede hacer. Ya paso una vez.
+PUSHEAR_RE = re.compile(r"(npm|pnpm|yarn)\s+(run\s+)?pushear|node\s+\S*pushear")
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 READ_CONFIG = os.path.join(SCRIPT_DIR, "read-config.py")
 
@@ -89,7 +101,11 @@ def main():
     # subcomando() en vez de un regex sobre "git push": tambien matchea
     # `git -C presencia-carta push` y `cd sagrado-sushi-carta && git push`,
     # que con el regex viejo se salteaban el gate entero.
-    if subcomando(push_cmd) != "push":
+    #
+    # PUSHEAR_RE cubre el helper del operador (`npm run pushear`, que pushea
+    # los tres repos de una). Sin esto seria el bypass mas facil de todos:
+    # un comando que pushea y no dice "git".
+    if subcomando(push_cmd) != "push" and not PUSHEAR_RE.search(push_cmd):
         return 0
 
     # A que repo apunta este push: la raiz, presencia-carta o sagrado-sushi-carta.

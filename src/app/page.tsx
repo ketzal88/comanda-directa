@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { CasoPiedroShop } from '@/componentes/landing/CasoPiedroShop';
+import { Casos } from '@/componentes/landing/Casos';
 import { Logo, MaquetaEncabezado, Tilde } from '@/componentes/landing/Maqueta';
 import { CLASES_FUENTES } from '@/componentes/landing/tipografia';
 import { enlaceWhatsApp } from '@/logica/whatsapp';
@@ -375,7 +375,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <CasoPiedroShop />
+      <Casos />
 
       <section id="funciones" className="mx-auto max-w-6xl px-4 pb-12 sm:px-8 sm:pb-16">
         <h2 className="m-0 mb-3 text-[clamp(30px,5vw,44px)]">Qué incluye</h2>
@@ -496,20 +496,26 @@ export default function Landing() {
           {PREGUNTAS.map((p) => (
             <details
               key={p.q}
-              className="rounded-[16px] px-6 py-5"
-              style={{ background: 'var(--l-neutro-100)' }}
+              className="rounded-[16px] px-5 py-4 sm:px-6 sm:py-5"
+              style={{ background: 'var(--l-neutro-100)', border: '1px solid var(--l-linea)' }}
             >
-              <summary className="titulo flex items-center justify-between gap-5 text-[clamp(16px,2.2vw,19px)]">
+              {/* La pregunta va en la tipografía de TEXTO, no en la de títulos:
+                  Caprasimo es una display con mucha personalidad y a tamaño de
+                  párrafo, cinco preguntas seguidas se leen como cinco carteles.
+                  El título de la sección sí la usa, que es donde luce. */}
+              <summary className="flex items-center justify-between gap-4 text-[16px] font-semibold sm:text-[17px]">
                 {p.q}
                 <span
-                  className="landing-mas font-semibold"
-                  style={{ fontFamily: 'var(--l-fuente-texto)', color: 'var(--l-terracota-700)' }}
+                  className="landing-mas grid h-7 w-7 shrink-0 place-items-center rounded-full text-[18px] leading-none"
+                  style={{ background: 'var(--l-terracota-200)', color: 'var(--l-terracota-800)' }}
                   aria-hidden="true"
                 >
-                  ＋
+                  +
                 </span>
               </summary>
-              <p className="mt-3.5 mb-0 max-w-[62ch] text-[16px]">{p.a}</p>
+              <p className="mt-3 mb-0 max-w-[62ch] text-[15.5px] leading-[1.55]" style={{ color: 'var(--l-tinta-suave)' }}>
+                {p.a}
+              </p>
             </details>
           ))}
         </div>
