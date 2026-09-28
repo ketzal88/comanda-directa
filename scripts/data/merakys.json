@@ -1,0 +1,950 @@
+[
+  {
+    "nombre": "Esqueleto Fénix Maldito (para colgar)",
+    "precio": 8790,
+    "slug": "esqueleto-fenix-maldito",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Calavera Momia Envuelta",
+    "precio": 13200,
+    "slug": "calavera-momia-envuelta",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Creepy Merlina para Colgar",
+    "precio": 13500,
+    "slug": "creepy-merlina-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Payaso Creepy Red",
+    "precio": 13950,
+    "slug": "colgante-payaso-creepy-red",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Fantasma Diabólico",
+    "precio": 15500,
+    "slug": "colgante-fantasma-diabolico",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Novia Embrujada",
+    "precio": 15900,
+    "slug": "colgante-novia-embrujada",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Tenebroso",
+    "precio": 16040,
+    "slug": "colgante-tenebroso",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Fantasma Cambiante (para colgar)",
+    "precio": 17300,
+    "slug": "fantasma-cambiante",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Libro de Hechizos",
+    "precio": 17900,
+    "slug": "libro-de-hechizos",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Ángel Caído (para colgar)",
+    "precio": 18100,
+    "slug": "angel-caido-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Viuda Negra Llorona",
+    "precio": 19200,
+    "slug": "colgante-viuda-negra-llorona",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Pesadilla Negro para Colgar",
+    "precio": 19660,
+    "slug": "colgante-pesadilla-negro-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Pesadilla Blanco",
+    "precio": 19700,
+    "slug": "colgante-pesadilla-blanco",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Huevo Atrapado (para colgar)",
+    "precio": 19900,
+    "slug": "huevo-atrapado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Guardián de la Oscuridad (para colgar)",
+    "precio": 21200,
+    "slug": "guardian-de-la-oscuridad",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Demonio del Inframundo",
+    "precio": 21200,
+    "slug": "colgante-demonio-del-inframundo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Timbre Embrujado (para colgar)",
+    "precio": 22500,
+    "slug": "timbre-embrujado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Mano Monstruosa",
+    "precio": 23500,
+    "slug": "mano-monstruosa",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Niña Pesadilla",
+    "precio": 24900,
+    "slug": "colgante-nina-pesadilla",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Hechicera Siniestra",
+    "precio": 24900,
+    "slug": "colgante-hechicera-siniestra",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Fantasma de la Oscuridad",
+    "precio": 24900,
+    "slug": "colgante-fantasma-de-la-oscuridad",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Bienvenidos al Infierno",
+    "precio": 25900,
+    "slug": "colgante-bienvenidos-al-infierno",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Payasín",
+    "precio": 26370,
+    "slug": "colgante-payasin",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Mano Caminante Largo",
+    "precio": 26390,
+    "slug": "mano-caminante-largo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Escoba Caminante",
+    "precio": 27900,
+    "slug": "escoba-caminante-luz-sonido-y-movimiento",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Payaso Dulcero",
+    "precio": 27900,
+    "slug": "payaso-dulcero",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Deco Cabrito del Inframundo (para colgar)",
+    "precio": 27900,
+    "slug": "deco-cabrito-del-inframundo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Pirata Penitenciado (para colgar)",
+    "precio": 28500,
+    "slug": "pirata-penitenciado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Payaso Encarcelado (para colgar)",
+    "precio": 28500,
+    "slug": "payaso-encarcelado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Demonio Encarcelado (para colgar)",
+    "precio": 28500,
+    "slug": "demonio-encarcelado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Cráneo con Ojos Fantasmales",
+    "precio": 28950,
+    "slug": "craneo-con-ojos-fantasmales",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Bienvenidos a Su Muerte",
+    "precio": 29500,
+    "slug": "bienvenidos-a-su-muerte",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Payaso sin Alma",
+    "precio": 30500,
+    "slug": "colgante-payaso-sin-alma",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Payaso Aterrorizado",
+    "precio": 30500,
+    "slug": "colgante-payaso-aterrorizado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Guardián del Diablo",
+    "precio": 30500,
+    "slug": "colgante-guardian-del-diablo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Suspiro del Terror",
+    "precio": 31550,
+    "slug": "colgante-suspiro-del-terror",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Pierna Amputada",
+    "precio": 31900,
+    "slug": "pierna-amputada-luz-sonido-y-se-mueve",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Payaso Fuego",
+    "precio": 31900,
+    "slug": "colgante-payaso-fuego",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Caja Eléctrica Alto Voltaje",
+    "precio": 32500,
+    "slug": "caja-electrica-alto-voltaje",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Fantasma Aterrorizado",
+    "precio": 32590,
+    "slug": "colgante-fantasma-aterrorizado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Novia Rencorosa",
+    "precio": 32590,
+    "slug": "colgante-novia-rencorosa",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Carcajada Siniestra",
+    "precio": 33700,
+    "slug": "carcajada-siniestra",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Brujita Macabra",
+    "precio": 34200,
+    "slug": "colgante-brujita-macabra",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Fantasma en Jaula",
+    "precio": 34900,
+    "slug": "fantasma-en-jaula",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Esqueleto Día de los Muertos (para colgar)",
+    "precio": 35200,
+    "slug": "esqueleto-dia-de-los-muertos",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Susurros Nocturnos (para colgar)",
+    "precio": 36200,
+    "slug": "susurros-nocturnos",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Lobo del Inframundo",
+    "precio": 36200,
+    "slug": "colgante-lobo-del-inframundo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Escoba Skull Embrujada",
+    "precio": 37200,
+    "slug": "escoba-skull-embrujada",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Fantasma Susto",
+    "precio": 37200,
+    "slug": "colgante-fantasma-susto",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Bruja del Destino",
+    "precio": 39300,
+    "slug": "colgante-bruja-del-destino",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Bruja en Caja",
+    "precio": 39820,
+    "slug": "bruja-en-caja-luz-sonido-y-movimiento",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Payaso Escalofriante (para colgar)",
+    "precio": 40300,
+    "slug": "payaso-escalofriante",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Patas de Bruja en Caldero",
+    "precio": 41300,
+    "slug": "patas-de-bruja-en-caldero-luz-sonido-y-mueve-piernas",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Carnicero Embrujado",
+    "precio": 41370,
+    "slug": "colgante-carnicero-embrujado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Guardián Fantasmal",
+    "precio": 42500,
+    "slug": "guardian-fantasmal",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Cabeza Maiden Portagolosinas",
+    "precio": 43960,
+    "slug": "cabeza-maiden-portagolosinas",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Cráneo Aterrador",
+    "precio": 44500,
+    "slug": "craneo-aterrador",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Atrapado en la Telaraña",
+    "precio": 45500,
+    "slug": "atrapado-en-la-telarana-preventa",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Plantas Carnívoras",
+    "precio": 46500,
+    "slug": "plantas-carnivoras",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Arrastrada",
+    "precio": 46500,
+    "slug": "arrastrada-luz-y-se-mueve",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Bruja Oscura para Colgar",
+    "precio": 46500,
+    "slug": "bruja-oscura-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Fantasma Sacude Cabeza",
+    "precio": 46500,
+    "slug": "fantasma-sacude-cabeza",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Aliento Fantasmal",
+    "precio": 46900,
+    "slug": "colgante-aliento-fantasmal",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Risa del Mal",
+    "precio": 47570,
+    "slug": "risa-del-mal",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Calabaza Malvada",
+    "precio": 49130,
+    "slug": "inflable-calabaza-malvada-2",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Animatronic Momia Kid",
+    "precio": 49200,
+    "slug": "animatronic-momia-kid",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Lápida Despertar de los Muertos",
+    "precio": 49500,
+    "slug": "lapida-despertar-de-los-muertos",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Momia en Ataúd",
+    "precio": 49500,
+    "slug": "momia-en-ataud",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Brujita Tenebrosa para Colgar",
+    "precio": 49500,
+    "slug": "brujita-tenebrosa-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Payasín Macabro",
+    "precio": 49700,
+    "slug": "payasin-macabro",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Niño Maldito de Negro",
+    "precio": 50900,
+    "slug": "nino-maldito-de-negro",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Espantavidas",
+    "precio": 51700,
+    "slug": "espantavidas",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Extractor de Almas",
+    "precio": 52750,
+    "slug": "extractor-de-almas",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Girador Luz Macabra para Colgar",
+    "precio": 53900,
+    "slug": "girador-luz-macabra-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Fantasma en la Ventana",
+    "precio": 54050,
+    "slug": "inflable-fantasma-en-la-ventana",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Medio Diablo",
+    "precio": 54300,
+    "slug": "medio-diablo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Bruja Misteriosa",
+    "precio": 55300,
+    "slug": "bruja-misteriosa",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Fantasma Susto",
+    "precio": 56890,
+    "slug": "inflable-fantasma-susto",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Draculín",
+    "precio": 56890,
+    "slug": "inflable-draculin",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Momia Ok",
+    "precio": 56890,
+    "slug": "inflable-momia-ok",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Brujita con Escoba",
+    "precio": 56890,
+    "slug": "inflable-brujita-con-escoba",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Esqueleto Fantasma",
+    "precio": 56890,
+    "slug": "inflable-esqueleto-fantasma",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Lápida Movediza Rip",
+    "precio": 56900,
+    "slug": "lapida-movediza-rip",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Alma Encapsulada para Colgar",
+    "precio": 56900,
+    "slug": "alma-encapsulada-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Media Momia",
+    "precio": 61900,
+    "slug": "media-momia-preventa",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Dama del Columpio Oscuro para Colgar",
+    "precio": 62900,
+    "slug": "colgante-dama-del-columpio-oscuro-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Muerte Alada del Olvido",
+    "precio": 62900,
+    "slug": "muerte-alada-del-olvido",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Bruja Fatal para Colgar",
+    "precio": 63900,
+    "slug": "bruja-fatal-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Bruja de Pie con Escoba",
+    "precio": 64500,
+    "slug": "bruja-de-pie-con-escoba-preventa",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "El Niño Perdido con Piloto",
+    "precio": 64900,
+    "slug": "el-nino-perdido-con-piloto",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Cuadro Embrujado",
+    "precio": 65200,
+    "slug": "cuadro-embrujado-luz-sonido-y-movimiento",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Ángel Maldito para Colgar",
+    "precio": 67200,
+    "slug": "colgante-angel-maldito-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Colgante Secuestra Almas Blanco para Colgar",
+    "precio": 67200,
+    "slug": "colgante-secuestra-almas-blanco-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Payaso en la Ventana",
+    "precio": 67230,
+    "slug": "inflable-payaso-en-la-ventana",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Bruja Voladora",
+    "precio": 67230,
+    "slug": "inflable-bruja-voladora-2",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Espectro del Horror",
+    "precio": 67500,
+    "slug": "espectro-del-horror",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Bruja con Bandeja para Golosinas",
+    "precio": 71890,
+    "slug": "bruja-c-bandeja-para-golosinas",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Columpio del Espiritu para Colgar",
+    "precio": 71900,
+    "slug": "columpio-del-espiritu-para-colgar",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Zombie en la Ventana",
+    "precio": 72400,
+    "slug": "inflable-zombie-en-la-ventana",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Payaso Bebé Maldito",
+    "precio": 73500,
+    "slug": "payaso-bebe-maldito",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Ángel Endemoniado",
+    "precio": 79700,
+    "slug": "angel-endemoniado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Resplandor Zombie",
+    "precio": 80700,
+    "slug": "resplandor-zombie",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Calabaza Brillante con Luz",
+    "precio": 87900,
+    "slug": "calabaza-brillante-preventa",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Espectro Terror",
+    "precio": 87920,
+    "slug": "inflable-espectro-terror-2",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Portador de la Oscuridad",
+    "precio": 92900,
+    "slug": "portador-de-la-oscuridad",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Reflejo Macabro",
+    "precio": 92900,
+    "slug": "reflejo-macabro",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Sombra de los Males",
+    "precio": 92900,
+    "slug": "sombra-de-los-males",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Fantasma que Tiembla con Luz y Sonido",
+    "precio": 92900,
+    "slug": "fantasma-que-tiembla-preventa",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Bitelyus",
+    "precio": 93090,
+    "slug": "inflable-bitelyus",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Payaso del Susto Inesperado",
+    "precio": 97200,
+    "slug": "payaso-del-susto-inesperado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Payaso Sangriento",
+    "precio": 97230,
+    "slug": "payaso-sangriento",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Cadena Perpetua",
+    "precio": 97900,
+    "slug": "cadena-perpetua-luz-sonido-y-movimiento",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Representante del Diablo",
+    "precio": 97900,
+    "slug": "representante-del-diablo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Tumba Embrujada",
+    "precio": 98260,
+    "slug": "inflable-tumba-embrujada-2",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Bruja Pócimas",
+    "precio": 98260,
+    "slug": "inflable-bruja-pocimas-2",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Mitad de Zombie Destartalado",
+    "precio": 102390,
+    "slug": "mitad-de-zombie-destartalado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Recolector de Almas Desgraciadas",
+    "precio": 102500,
+    "slug": "recolector-de-almas-desgraciadas",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Mucama Infernal",
+    "precio": 103500,
+    "slug": "mucama-infernal",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Zombie Aliento de Tumba",
+    "precio": 103500,
+    "slug": "zombie-aliento-de-tumba",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Fantasma en Llamas",
+    "precio": 108090,
+    "slug": "inflable-fantasma-en-llamas",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Bruja Danzante con Sonido y Movimiento",
+    "precio": 108590,
+    "slug": "bruja-danzante-preventa",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Guardián Macabro del Cementerio",
+    "precio": 118900,
+    "slug": "guardian-macabro-del-cementerio",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Giro del Payaso Maldito",
+    "precio": 118900,
+    "slug": "giro-del-payaso-maldito",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Parca Bailarina",
+    "precio": 121500,
+    "slug": "parca-bailarina-luz-sonido-y-movimiento",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Dragón del Inframundo",
+    "precio": 127500,
+    "slug": "dragon-del-inframundo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Hombre del Tronco Siniestro",
+    "precio": 131350,
+    "slug": "hombre-del-tronco-siniestro",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Payaso del Abismo",
+    "precio": 136500,
+    "slug": "payaso-del-abismo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Magia Negra",
+    "precio": 137550,
+    "slug": "magia-negra",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable la Parca Macabra",
+    "precio": 139630,
+    "slug": "inflable-la-parca-macabra",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Demonio de la Motosierra",
+    "precio": 147900,
+    "slug": "demonio-de-la-motosierra",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Bosque Encantado",
+    "precio": 149980,
+    "slug": "inflable-bosque-encantado",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Ataúd del Más Allá",
+    "precio": 155150,
+    "slug": "ataud-del-mas-alla",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Amigos R.i.p",
+    "precio": 155150,
+    "slug": "inflable-amigos-r-i-p-2",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Muerto Vivo",
+    "precio": 155500,
+    "slug": "muerto-vivo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Payaso Maldito",
+    "precio": 170660,
+    "slug": "inflable-payaso-maldito",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Brujas con Caldero",
+    "precio": 174800,
+    "slug": "inflable-brujas-con-caldero",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Arco de la Muerte",
+    "precio": 175830,
+    "slug": "inflable-arco-de-la-muerte",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Hombrecillo Verde",
+    "precio": 186180,
+    "slug": "inflable-hombrecillo-verde",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Inflable Frankie Vive",
+    "precio": 201690,
+    "slug": "inflable-frankie-vive-2",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Animatronic Samara",
+    "precio": 206860,
+    "slug": "animatronic-samara",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Anabelle",
+    "precio": 206860,
+    "slug": "animatronic-anabelle",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Castillo Halloween",
+    "precio": 227550,
+    "slug": "inflable-castillo-halloween-2",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Payaso Creciente de las Sombras",
+    "precio": 253400,
+    "slug": "payaso-creciente-de-las-sombras-250x160x20-cm-4-pilas-aa-no-incluidasefecto-luz-led-sonido-y-movimiento",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Inflable Carruaje del Inframundo",
+    "precio": 325800,
+    "slug": "inflable-carruaje-del-inframundo",
+    "categoria": "deco-inflables-gigantes"
+  },
+  {
+    "nombre": "Animatronic Decapitada",
+    "precio": 398200,
+    "slug": "animatronic-decapitada",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Espantapájaros",
+    "precio": 439570,
+    "slug": "animatronic-espantapajaros",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Hombre Lobo",
+    "precio": 465500,
+    "slug": "animatronic-hombre-lobo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Motosierra",
+    "precio": 553500,
+    "slug": "animatronic-motosierra",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Hechicera Zombie",
+    "precio": 646500,
+    "slug": "animatronic-hechicera-zombie",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Doctor Peste",
+    "precio": 800500,
+    "slug": "animatronic-doctor-peste",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Zombie Fracturado",
+    "precio": 827430,
+    "slug": "animatronic-zombie-fracturado",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Payaso Come Niños",
+    "precio": 827430,
+    "slug": "animatronic-payaso-come-ninos",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic la Muerte 300 cm",
+    "precio": 879000,
+    "slug": "animatronic-la-muerte-300cm",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Bruja del Bosque 304,8 cm",
+    "precio": 879000,
+    "slug": "animatronic-bruja-del-bosque-3048-cm",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Skeleton",
+    "precio": 1034280,
+    "slug": "animatronic-skeleton",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Demonio del Inframundo",
+    "precio": 1034280,
+    "slug": "animatronic-demonio-del-inframundo",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Lobisón",
+    "precio": 1292850,
+    "slug": "animatronic-lobison",
+    "categoria": "animatronics"
+  },
+  {
+    "nombre": "Animatronic Cabalgata de la Muerte",
+    "precio": 1448000,
+    "slug": "animatronic-cabalgata-de-la-muerte",
+    "categoria": "animatronics"
+  }
+]

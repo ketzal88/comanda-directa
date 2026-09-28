@@ -44,10 +44,27 @@ Piedro Shop: los datos en un módulo de `scripts/` (revisable en el diff, con
 pruebas encima) y un script que los inserta.
 
 ```bash
+npx tsx scripts/traer-merakys.ts animatronics deco-inflables-gigantes
 CLAVE_PANEL=loquesea npm run seed:halloween    # crea/recarga /piedro-shop
 npm run fotos:halloween                        # baja, normaliza y sube las fotos
 npm run fotos:halloween -- --faltantes         # sólo las que quedaron sin foto
 ```
+
+### Los precios del mayorista
+
+Las dos categorías grandes (133 animatrónicos y 25 inflables) no están
+escritas a mano: `traer-merakys.ts` lee la categoría entera del sitio del
+proveedor —nombre, precio y link de cada producto— y la deja en
+`scripts/data/merakys.json`. `catalogo-halloween.ts` le aplica `MARGEN` y
+redondea a los $100.
+
+Repreciar todo es **un número**: se corre el scraper de nuevo (por si el
+proveedor movió la lista), se toca `MARGEN` y se vuelve a sembrar. Con 158
+precios copiados a mano eso habría sido reescribir el archivo entero.
+
+Ojo con el doble margen: los disfraces y el cotillón de la lista original ya
+venían con su precio de venta calculado (~17%). `MARGEN` se aplica SÓLO a lo
+que sale del JSON del mayorista.
 
 - `scripts/catalogo-halloween.ts` — categorías, productos, tema y config de
   pedido. No entra en el bundle: es dato de alta, no código servido.
@@ -179,7 +196,7 @@ clientes a la vez.
 | slug | qué es | modalidades | notas |
 | --- | --- | --- | --- |
 | `demo` | carta de muestra para probar el motor | salón, retiro, delivery | `npm run seed:demo` |
-| `piedro-shop` | Piedro Shop, catálogo de temporada de cotillón y disfraces | sólo delivery | plantilla `halloween`, 81 productos con foto; sin comandas ni link de pago |
+| `piedro-shop` | Piedro Shop, catálogo de temporada de cotillón y disfraces | sólo delivery | plantilla `halloween`, 226 productos con foto; sin comandas ni link de pago |
 
 Piedro Shop se publica en **hace-tu-pedido.site/piedro-shop**. Nació como
 `/halloween` y ese link ya estaba circulando, así que el slug viejo queda

@@ -1,4 +1,42 @@
+import MERAKYS from './data/merakys.json';
 import type { Carta, ConfigPedido, Item, Tema } from '@/logica/tipos';
+
+type ProductoMayorista = { nombre: string; precio: number; slug: string; categoria: string };
+
+/** Lo que se le suma al precio del mayorista para llegar al de venta.
+ *
+ *  Está acá, una sola vez, y NO pegado a cada producto: son 158 precios que el
+ *  proveedor mueve, y con el margen repartido por la tabla cambiarlo sería
+ *  reescribir el archivo entero y rezar. Para repreciar todo: se corre
+ *  `traer-merakys.ts` de nuevo y se toca este número.
+ *
+ *  Los disfraces y el cotillón de más abajo vienen con el precio de venta ya
+ *  calculado de la lista original (traían ~17%): a esos este margen NO se les
+ *  aplica, para no cobrarlo dos veces. */
+export const MARGEN = 0.3;
+
+/** El precio de venta, redondeado a los $100 más cercanos.
+ *
+ *  Redondear no es cosmética: `27.900 × 1,30` da `36.270`, y una carta llena
+ *  de precios con dos dígitos sueltos se lee como una planilla exportada, no
+ *  como una lista de precios. */
+function conMargen(precioMayorista: number): number {
+  return Math.round((precioMayorista * (1 + MARGEN)) / 100) * 100;
+}
+
+/** El id del ítem sale del slug del mayorista: ya es único, ya está en
+ *  minúsculas con guiones, y es el mismo que usa `fotos-halloween.ts` para ir
+ *  a buscar la foto. */
+function idDeSlug(slug: string): string {
+  return slug;
+}
+
+/** El mayorista escribe "R.i.p" y "Animatronic Lobisón". Se corrigen las
+ *  siglas que quedaron a medio capitalizar y nada más: el nombre es dato del
+ *  proveedor, no se reescribe a gusto. */
+function nombreLegible(nombre: string): string {
+  return nombre.replace(/\bR\.i\.p\.?/gi, 'R.I.P.').trim();
+}
 
 /** Catálogo de temporada de Halloween: disfraces, cotillón y decoración.
  *  Es la carga inicial de un cliente del motor (`scripts/seed-halloween.ts`),
@@ -196,20 +234,27 @@ const ADULTO = categoria('adulto', [
   },
 ]);
 
-const WOW = categoria('wow', [
-  { id: 'escoba-caminante', nombre: 'Escoba Caminante', precio: 32700 },
-  { id: 'bruja-en-caja', nombre: 'Bruja en Caja', precio: 46600 },
-  { id: 'guardian-fantasmal', nombre: 'Guardián Fantasmal', precio: 49800 },
-  { id: 'payasin-macabro', nombre: 'Payasín Macabro', precio: 58200 },
-  { id: 'extractor-de-almas', nombre: 'Extractor de Almas', precio: 61800 },
-  { id: 'bruja-misteriosa', nombre: 'Bruja Misteriosa', precio: 64800 },
-  { id: 'portador-oscuridad', nombre: 'Portador de la Oscuridad', precio: 108700 },
-  { id: 'recolector-almas', nombre: 'Recolector de Almas Desgraciadas', precio: 120000 },
-  { id: 'guardian-cementerio', nombre: 'Guardián Macabro del Cementerio', precio: 139200 },
-  { id: 'inflable-bosque', nombre: 'Inflable Bosque Encantado', precio: 175500 },
-  { id: 'inflable-rip', nombre: 'Inflable Amigos R.I.P.', precio: 181600 },
-  { id: 'inflable-castillo', nombre: 'Inflable Castillo Halloween', precio: 266300 },
-]);
+/** Los animatrónicos y los inflables gigantes NO se escriben a mano: son 158
+ *  productos y el mayorista les cambia el precio. Salen de
+ *  `scripts/data/merakys.json`, que arma `traer-merakys.ts` leyendo la
+ *  categoría entera del sitio del proveedor.
+ *
+ *  Actualizar precios es volver a correr ese script y mirar el diff del JSON:
+ *  el margen se aplica acá, en un solo lugar, y no queda pegado a 158 números
+ *  copiados. */
+function delMayorista(categoriaId: string, categoriaMerakys: string): Item[] {
+  const filas = (MERAKYS as ProductoMayorista[])
+    .filter((p) => p.categoria === categoriaMerakys)
+    // de menor a mayor: los primeros doce son los que se ven sin desplegar la
+    // sección, y arrancar por un animatrónico de un millón ochocientos espanta
+    .sort((a, b) => a.precio - b.precio)
+    .map((p) => ({ id: idDeSlug(p.slug), nombre: nombreLegible(p.nombre), precio: conMargen(p.precio) }));
+
+  return categoria(categoriaId, filas);
+}
+
+const ANIMATRONICOS = delMayorista('animatronicos', 'animatronics');
+const INFLABLES = delMayorista('inflables', 'deco-inflables-gigantes');
 
 const ACCESORIOS = categoria('accesorios', [
   { id: 'vincha-cuernos-led', nombre: 'Vincha Cuernos Diablita LED', precio: 800 },
@@ -277,7 +322,6 @@ const DECORACION = categoria('decoracion', [
   { id: 'arana-gigante', nombre: 'Araña Gigante Roja y Negra', precio: 12000 },
   { id: 'tumba-maldita', nombre: 'Tumba Maldita Muerte', precio: 16300 },
   { id: 'colgante-altar', nombre: 'Colgante Abandonada en el Altar', precio: 22500 },
-  { id: 'colgante-viuda-negra', nombre: 'Colgante Viuda Negra Llorona', precio: 22500 },
 ]);
 
 /** La lista original repetía dos productos en dos categorías cada uno
@@ -289,12 +333,21 @@ export const CATALOGO_HALLOWEEN: Carta = {
   categorias: [
     { id: 'infantiles', nombre: 'DISFRACES INFANTILES', nombreEn: '', orden: 1, subcategorias: [] },
     { id: 'adulto', nombre: 'DISFRACES ADULTO', nombreEn: '', orden: 2, subcategorias: [] },
-    { id: 'wow', nombre: 'HALLOWEEN WOW', nombreEn: '', orden: 3, subcategorias: [] },
-    { id: 'accesorios', nombre: 'ACCESORIOS', nombreEn: '', orden: 4, subcategorias: [] },
-    { id: 'trick-or-treat', nombre: 'TRICK OR TREAT', nombreEn: '', orden: 5, subcategorias: [] },
-    { id: 'decoracion', nombre: 'DECORACIÓN', nombreEn: '', orden: 6, subcategorias: [] },
+    { id: 'animatronicos', nombre: 'ANIMATRÓNICOS', nombreEn: '', orden: 3, subcategorias: [] },
+    { id: 'inflables', nombre: 'INFLABLES GIGANTES', nombreEn: '', orden: 4, subcategorias: [] },
+    { id: 'accesorios', nombre: 'ACCESORIOS', nombreEn: '', orden: 5, subcategorias: [] },
+    { id: 'trick-or-treat', nombre: 'TRICK OR TREAT', nombreEn: '', orden: 6, subcategorias: [] },
+    { id: 'decoracion', nombre: 'DECORACIÓN', nombreEn: '', orden: 7, subcategorias: [] },
   ],
-  items: [...INFANTILES, ...ADULTO, ...WOW, ...ACCESORIOS, ...TRICK_OR_TREAT, ...DECORACION],
+  items: [
+    ...INFANTILES,
+    ...ADULTO,
+    ...ANIMATRONICOS,
+    ...INFLABLES,
+    ...ACCESORIOS,
+    ...TRICK_OR_TREAT,
+    ...DECORACION,
+  ],
   config: {
     // El orden importa: la plantilla pinta la primera con la letra
     // manuscrita del diseño y las siguientes como letra chica del pie.
@@ -311,6 +364,8 @@ export const CATALOGO_HALLOWEEN: Carta = {
  *  se muestra en la carta — la carta la ve el comprador final y estos links
  *  son del proveedor. */
 export const FUENTES: Record<string, string> = {
+  // Los animatrónicos y los inflables traen su slug del propio JSON: no hace
+  // falta escribirlos: `fuentesDelMayorista()` los agrega al final.
   'set-diablita': 'set-diablita',
   'tutu-spooky': 'tutu-spooky-negro',
   'set-brujita-rosa': 'set-brujita-chispeante-rosa',
@@ -335,19 +390,6 @@ export const FUENTES: Record<string, string> = {
   thriller: 'disfraz-thriller-talle-l-m',
   'la-mascara': 'disfraz-la-mascara-talle-l',
   'inflable-dino-adulto': 'disfraz-inflable-dinosaurio-adulto',
-
-  'escoba-caminante': 'escoba-caminante',
-  'bruja-en-caja': 'bruja-en-caja',
-  'guardian-fantasmal': 'guardian-fantasmal',
-  'payasin-macabro': 'payasin-macabro',
-  'extractor-de-almas': 'extractor-de-almas',
-  'bruja-misteriosa': 'bruja-misteriosa',
-  'portador-oscuridad': 'portador-de-la-oscuridad',
-  'recolector-almas': 'recolector-de-almas-desgraciadas',
-  'guardian-cementerio': 'guardian-macabro-del-cementerio',
-  'inflable-bosque': 'inflable-bosque-encantado',
-  'inflable-rip': 'inflable-amigos-r-i-p',
-  'inflable-castillo': 'inflable-castillo-halloween',
 
   'vincha-cuernos-led': 'vincha-cuernos-diablita-led',
   'tatuajes-cortes': 'tatuajes-set-cortes-de-cara',
@@ -398,6 +440,9 @@ export const FUENTES: Record<string, string> = {
   'colgante-altar': 'colgante-abandonada-en-el-altar',
   'colgante-viuda-negra': 'colgante-viuda-negra-llorona',
 };
+
+/** Los 158 del mayorista se agregan solos: su id ES su slug. */
+for (const p of MERAKYS as ProductoMayorista[]) FUENTES[idDeSlug(p.slug)] = p.slug;
 
 export const URL_PRODUCTO = (slug: string) =>
   `https://mayoristas.merakys.com.ar/producto/${slug}/`;

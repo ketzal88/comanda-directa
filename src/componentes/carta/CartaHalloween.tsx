@@ -20,6 +20,11 @@ type Props = {
   desactualizada?: boolean;
 };
 
+/** Cuántos productos se ven antes de tocar "ver más". Doce son seis filas de
+ *  dos en un teléfono: alcanza para entender qué hay en la sección sin que
+ *  una categoría larga tape a las que siguen. */
+const TOPE_SIN_DESPLEGAR = 12;
+
 /** Color de fondo del cartel de cada categoría, rotando. */
 const COLORES = ['var(--h-lila)', 'var(--h-durazno)', 'var(--h-menta)'];
 
@@ -37,7 +42,14 @@ const ADORNO_CATEGORIA: Record<string, { icono: string; bajada: string }> = {
     bajada: 'Para los más chicos: brujitas, vampiros, esqueletos y más ♥',
   },
   'DISFRACES ADULTO': { icono: '🧛', bajada: 'Para los grandes que se animan a todo.' },
-  'HALLOWEEN WOW': { icono: '💀', bajada: 'Animatrónicos e inflables que dan miedo en serio.' },
+  ANIMATRÓNICOS: {
+    icono: '💀',
+    bajada: 'Se mueven, hablan y tienen luz. Lo que hace que la casa sea LA casa del barrio.',
+  },
+  'INFLABLES GIGANTES': {
+    icono: '🎈',
+    bajada: 'Para el jardín o la entrada: se inflan solos y se ven desde la vereda.',
+  },
   ACCESORIOS: { icono: '🎩', bajada: 'Sombreros, máscaras, tatuajes, medias y mucho más.' },
   'TRICK OR TREAT': { icono: '🍬', bajada: 'Platos, vasos, guirnaldas y golosineros para la fiesta.' },
   DECORACIÓN: {
@@ -474,9 +486,18 @@ function SeccionCategoria({
   inclinacion: string;
   onAbrir: (item: Item) => void;
 }) {
+  const [desplegada, setDesplegada] = useState(false);
+
   const adorno = ADORNO_CATEGORIA[categoria.nombre];
   const conPrecio = items.map(precioDesde).filter((p) => p > 0);
   const desde = conPrecio.length ? Math.min(...conPrecio) : 0;
+
+  // Con 133 animatrónicos en una sola grilla, quien entró a mirar tres
+  // disfraces se come cuarenta pantallas de scroll para llegar a la sección
+  // siguiente. Se muestran los primeros y el resto se despliega: el que vino
+  // a comprar un animatrónico toca el botón, el que no, sigue de largo.
+  const visibles = desplegada ? items : items.slice(0, TOPE_SIN_DESPLEGAR);
+  const ocultos = items.length - visibles.length;
 
   return (
     <section
@@ -519,10 +540,22 @@ function SeccionCategoria({
       )}
 
       <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(150px,1fr))]">
-        {items.map((item) => (
+        {visibles.map((item) => (
           <TarjetaProducto key={item.id} item={item} onAbrir={onAbrir} />
         ))}
       </div>
+
+      {(ocultos > 0 || desplegada) && (
+        <button
+          type="button"
+          onClick={() => setDesplegada((v) => !v)}
+          aria-expanded={desplegada}
+          className="mt-4 w-full rounded-full border-2 py-3 text-[15px] font-semibold"
+          style={{ borderColor: 'var(--h-tinta)', color: 'var(--h-tinta)' }}
+        >
+          {desplegada ? 'Ver menos' : `Ver los ${items.length} →`}
+        </button>
+      )}
     </section>
   );
 }
