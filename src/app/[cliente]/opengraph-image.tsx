@@ -28,6 +28,12 @@ type Props = { params: Promise<{ cliente: string }> };
 
 const MAX_FOTO_BYTES = 8 * 1024 * 1024;
 
+/** Cuántas tarjetas entran en la vista previa, y cuántos productos se miran
+ *  para llenarlas (ver el filtro de abajo: no toda foto cargada sigue
+ *  existiendo en Storage). */
+const TARJETAS = 3;
+const CANDIDATOS = 8;
+
 /** Si la foto vive en el Storage de nuestro propio Supabase.
  *
  *  `items.foto_url` la escribe cada cliente desde su panel: es texto de un
@@ -55,8 +61,8 @@ function esFotoNuestra(url: string): boolean {
  *  Se convierte acá y no se guarda un tercer archivo por producto en Storage:
  *  serían 81 archivos más para algo que se genera cada tanto, cuando un
  *  scraper pide la vista previa, y que después queda cacheado. Si alguna
- *  falla devuelve null y la tarjeta se dibuja sin foto, que es mejor que una
- *  vista previa rota. */
+ *  falla devuelve null y el producto queda afuera de la vista previa: entra el
+ *  siguiente candidato, que es mejor que un recuadro en blanco. */
 async function comoPng(url: string | undefined): Promise<string | null> {
   if (!url || !esFotoNuestra(url)) return null;
   try {
@@ -91,12 +97,18 @@ export default async function Imagen({ params }: Props) {
 
   // Tres productos con foto y precio: son los que hacen que la vista previa
   // muestre lo que se vende y no una marca abstracta.
-  const elegidos = (carta?.items ?? [])
+  //
+  // Se miran MÁS candidatos de los que entran y se queda con los que de verdad
+  // trajeron la foto: un `foto_url` cargado no garantiza que el archivo siga en
+  // Storage, y una tarjeta con el recuadro en blanco es peor que una tarjeta
+  // menos.
+  const candidatos = (carta?.items ?? [])
     .filter((i) => i.activo && !i.agotado && i.fotoUrl && precioDesde(i) > 0)
-    .slice(0, 3);
-  const destacados = await Promise.all(
-    elegidos.map(async (item) => ({ item, png: await comoPng(item.fotoUrl) })),
+    .slice(0, CANDIDATOS);
+  const convertidos = await Promise.all(
+    candidatos.map(async (item) => ({ item, png: await comoPng(item.fotoUrl) })),
   );
+  const destacados = convertidos.filter((d) => d.png !== null).slice(0, TARJETAS);
 
   const cantidad = (carta?.items ?? []).filter((i) => i.activo).length;
 
@@ -135,12 +147,8 @@ export default async function Imagen({ params }: Props) {
                   overflow: 'hidden',
                 }}
               >
-                {png ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={png} alt="" width={320} height={196} style={{ background: '#fff' }} />
-                ) : (
-                  <div style={{ display: 'flex', width: 320, height: 196, background: '#fff' }} />
-                )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={png ?? ''} alt="" width={320} height={196} style={{ background: '#fff' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', padding: '12px 16px 16px' }}>
                   <div style={{ fontSize: 22, color: '#2a1b45', lineHeight: 1.2 }}>
                     {item.nombre.length > 34 ? `${item.nombre.slice(0, 33)}…` : item.nombre}
