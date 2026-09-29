@@ -162,6 +162,23 @@ function renglonDelTelefono(pedido: PedidoParseado): string[] {
   return pedido.telefono ? [parrafo(`Tel: ${pedido.telefono}`)] : [];
 }
 
+/** La dirección, solo cuando el pedido la trae (es decir, en delivery).
+ *
+ *  Va en la MISMA comanda que la cocina, y no en un papel aparte: las dos
+ *  copias son idénticas justamente para que cualquiera de las dos sirva para
+ *  cualquier cosa — la que quede en la cocina y la que se vaya con el cadete
+ *  dicen todo. Que un pedido de retiro no la tenga no es una rama: no hay
+ *  dirección que imprimir. */
+function renglonDeLaDireccion(pedido: PedidoParseado): string[] {
+  return pedido.direccion ? [parrafo(`Dirección: ${pedido.direccion}`)] : [];
+}
+
+/** La zona del envío. Va aunque no tenga cargo: es lo que le dice al cadete a
+ *  dónde va el viaje, y el cargo (o el "sin cargo") ya sale en el desglose. */
+function renglonDeLaZona(cobro: Cobro): string[] {
+  return cobro.envio ? [parrafo(`Zona: ${cobro.envio.zona}`)] : [];
+}
+
 /** "HH:MM" a mano, sin `Intl`: la comanda es de la cocina, no de una pantalla
  *  que tenga que respetar el idioma de quien la mira. */
 function formatearHora(fecha: Date): string {
@@ -170,20 +187,30 @@ function formatearHora(fecha: Date): string {
   return `${horas}:${minutos}`;
 }
 
-/** El HTML (con su propio `<style>`, listo para imprimirse solo o junto a
- *  otro ticket) de la comanda de cocina. Siempre incluye la línea de
- *  modalidad/mesa tal cual vino en el mensaje — nunca la dirección.
+/** El HTML (con su propio `<style>`, listo para imprimirse solo o junto a otra
+ *  copia) de la comanda del pedido. Una sola, completa, para todas las
+ *  modalidades.
+ *
+ *  Antes eran dos papeles distintos: COCINA (con hora e ítems, nunca la
+ *  dirección) y DELIVERY (con dirección y "Total a cobrar", solo en delivery).
+ *  El local pidió que salgan siempre DOS copias idénticas con todo, en
+ *  cualquier modalidad, así que el papel es uno solo: el que queda en la
+ *  cocina y el que se lleva el cadete (o se grapa a la bolsa del retiro) son el
+ *  mismo documento. Dos papeles con la mitad del pedido cada uno era lo que
+ *  obligaba a mirar el otro para responderle al comensal.
  *
  *  `ahora` es la hora de IMPRESIÓN, no la del mensaje de WhatsApp: es la que
  *  la cocina necesita para saber hace cuánto salió el pedido, y se recibe
  *  como parámetro (en vez de leer `new Date()` acá adentro) para que los
  *  tests puedan fijarla. */
-export function armarTicketCocina(pedido: PedidoParseado, cobro: Cobro, ahora = new Date()): string {
+export function armarComanda(pedido: PedidoParseado, cobro: Cobro, ahora = new Date()): string {
   const desglose = renglonesDelDesglose(cobro);
   const filas = [
     parrafo(pedido.lineaContacto),
     parrafo(pedido.nombre),
+    ...renglonDeLaDireccion(pedido),
     ...renglonDelTelefono(pedido),
+    ...renglonDeLaZona(cobro),
     parrafo(`Hora: ${formatearHora(ahora)}`),
     '<hr>',
     ...cobro.lineas.map((linea) => parrafo(renglonDeLinea(linea), 'item')),
@@ -195,32 +222,5 @@ export function armarTicketCocina(pedido: PedidoParseado, cobro: Cobro, ahora = 
     filas.push(parrafo(`Aclaraciones: ${pedido.aclaraciones}`));
   }
 
-  return `<style>${ESTILO_80MM}</style><section class="ticket"><h1>COCINA</h1>${filas.join('')}</section>`;
-}
-
-/** El HTML del ticket para el cadete: nombre, dirección, teléfono, modalidad,
- *  zona, cómo paga, el resumen de lo pedido y el total a cobrar.
- *
- *  El teléfono va arriba, pegado a la dirección: es el papel que el cadete
- *  lleva en la mano, y es el que resuelve el timbre que nadie atiende.
- *
- *  Lleva el mismo detalle de items que la comanda de cocina: el cadete también
- *  tiene que poder decirle al comensal qué le está entregando, sin necesidad
- *  del otro papel. Se llama solo cuando `pedido.modalidad === 'delivery'`. */
-export function armarTicketDelivery(pedido: PedidoParseado, cobro: Cobro): string {
-  const filas = [
-    parrafo(pedido.nombre),
-    parrafo(pedido.direccion ?? ''),
-    ...renglonDelTelefono(pedido),
-    '<hr>',
-    parrafo(pedido.lineaContacto),
-    // la zona va aunque no tenga cargo: es lo que le dice al cadete a dónde va
-    ...(cobro.envio ? [parrafo(`Zona: ${cobro.envio.zona}`)] : []),
-    ...renglonDelPago(cobro),
-    '<hr>',
-    ...cobro.lineas.map((linea) => parrafo(renglonDeLinea(linea), 'item')),
-    parrafo(renglonDelTotal(cobro.cuenta, 'Total a cobrar'), 'total'),
-  ];
-
-  return `<style>${ESTILO_80MM}</style><section class="ticket"><h1>DELIVERY</h1>${filas.join('')}</section>`;
+  return `<style>${ESTILO_80MM}</style><section class="ticket"><h1>COMANDA</h1>${filas.join('')}</section>`;
 }

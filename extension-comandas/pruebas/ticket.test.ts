@@ -4,7 +4,7 @@ import { formatearPrecio } from '../../src/logica/precio';
 import type { Descuento } from '../../src/logica/tipos';
 import { textoSinImporte } from '../src/parser';
 import type { PedidoParseado } from '../src/parser';
-import { armarTicketCocina, armarTicketDelivery } from '../src/ticket';
+import { armarComanda } from '../src/ticket';
 import type { Cobro } from '../src/ticket';
 
 const SIN_DESCUENTO: Descuento = { tipo: 'ninguno' };
@@ -88,9 +88,9 @@ function cobroDe(
   return { cuenta, lineas, medioDePago, envio, descuentoManual, descuentoRetiro, bonificadas };
 }
 
-describe('armarTicketCocina', () => {
+describe('armarComanda', () => {
   it('incluye modalidad/mesa, nombre, items, total y aclaraciones', () => {
-    const html = armarTicketCocina(pedidoDelivery, cobroDe(pedidoDelivery));
+    const html = armarComanda(pedidoDelivery, cobroDe(pedidoDelivery));
 
     expect(html).toContain('Delivery');
     expect(html).toContain('Pedro');
@@ -99,19 +99,27 @@ describe('armarTicketCocina', () => {
     expect(html).toContain('Sin wasabi');
   });
 
-  it('nunca incluye la dirección', () => {
-    const html = armarTicketCocina(pedidoDelivery, cobroDe(pedidoDelivery));
-    expect(html).not.toContain('Av. Siempre Viva 742');
+  // el motivo del cambio: antes eran dos papeles distintos y la dirección salía
+  // solo en el del cadete. Ahora salen dos copias idénticas y completas, así que
+  // cualquiera de las dos tiene que servir para llevar el pedido
+  it('incluye la dirección cuando el pedido la trae', () => {
+    const html = armarComanda(pedidoDelivery, cobroDe(pedidoDelivery));
+    expect(html).toContain('Dirección: Av. Siempre Viva 742');
+  });
+
+  it('sin dirección no deja un renglón colgado', () => {
+    const html = armarComanda(pedidoRetiro, cobroDe(pedidoRetiro));
+    expect(html).not.toContain('Dirección');
   });
 
   it('sin aclaraciones, no muestra esa línea', () => {
-    const html = armarTicketCocina(pedidoSalon, cobroDe(pedidoSalon));
+    const html = armarComanda(pedidoSalon, cobroDe(pedidoSalon));
     expect(html).not.toContain('Aclaraciones');
   });
 
   it('escapa HTML en campos de texto libre', () => {
     const pedido: PedidoParseado = { ...pedidoSalon, nombre: '<script>Ana</script>' };
-    const html = armarTicketCocina(pedido, cobroDe(pedido));
+    const html = armarComanda(pedido, cobroDe(pedido));
     expect(html).not.toContain('<script>Ana</script>');
     expect(html).toContain('&lt;script&gt;');
   });
@@ -121,7 +129,7 @@ describe('armarTicketCocina', () => {
       descuentoManual: { tipo: 'monto', valor: 1_000 },
       envio: { zona: 'Zona 2', precio: 3_000 },
     });
-    const html = armarTicketCocina(pedidoDelivery, cobro);
+    const html = armarComanda(pedidoDelivery, cobro);
 
     expect(html).toContain('Subtotal');
     expect(html).toContain('Descuento');
@@ -133,7 +141,7 @@ describe('armarTicketCocina', () => {
 
   it('el descuento por retiro tiene su propio renglón, con la zona del envío al lado del suyo', () => {
     const cobro = cobroDe(pedidoRetiro, { descuentoRetiro: { tipo: 'monto', valor: 1_240 } });
-    const html = armarTicketCocina(pedidoRetiro, cobro);
+    const html = armarComanda(pedidoRetiro, cobro);
 
     expect(html).toContain('Descuento por retiro');
     expect(html).toContain(formatearPrecio(1_240));
@@ -141,7 +149,7 @@ describe('armarTicketCocina', () => {
   });
 
   it('sin descuento ni envío no muestra esos renglones', () => {
-    const html = armarTicketCocina(pedidoSalon, cobroDe(pedidoSalon));
+    const html = armarComanda(pedidoSalon, cobroDe(pedidoSalon));
     expect(html).not.toContain('Descuento');
     expect(html).not.toContain('Envío');
   });
@@ -155,7 +163,7 @@ describe('armarTicketCocina', () => {
       ],
     };
     const cobro = cobroDe(pedido);
-    const html = armarTicketCocina(pedido, cobro);
+    const html = armarComanda(pedido, cobro);
 
     expect(html).toMatch(/a confirmar/);
     expect(html).toContain(`(parcial ${formatearPrecio(12_400)})`);
@@ -168,7 +176,7 @@ describe('armarTicketCocina', () => {
       ...pedidoSalon,
       items: [{ texto: '1 × Sake de la casa — a confirmar', importe: null }],
     };
-    const html = armarTicketCocina(pedido, cobroDe(pedido));
+    const html = armarComanda(pedido, cobroDe(pedido));
 
     expect(html).toContain('Total: a confirmar');
     expect(html).not.toContain('parcial');
@@ -177,7 +185,7 @@ describe('armarTicketCocina', () => {
 
   it('un renglón bonificado sale en $0 y el total baja', () => {
     const cobro = cobroDe(pedidoSalon, { bonificadas: [1] });
-    const html = armarTicketCocina(pedidoSalon, cobro);
+    const html = armarComanda(pedidoSalon, cobro);
 
     expect(html).toContain('1 × Sashimi de salmón — $0');
     // el otro renglón sigue con su importe, y el total es solo ese
@@ -190,7 +198,7 @@ describe('armarTicketCocina', () => {
     // es un cero exacto y decidido por el local, no un dato que falta: decir
     // "a confirmar" mandaría a preguntar un precio que ya está resuelto
     const cobro = cobroDe(pedidoSalon, { bonificadas: [0, 1] });
-    const html = armarTicketCocina(pedidoSalon, cobro);
+    const html = armarComanda(pedidoSalon, cobro);
 
     expect(cobro.cuenta.total).toBe(0);
     expect(html).toContain('Total: sin cargo');
@@ -198,35 +206,35 @@ describe('armarTicketCocina', () => {
   });
 
   it('muestra el medio de pago cuando el mensaje lo trajo', () => {
-    const html = armarTicketCocina(pedidoRetiro, cobroDe(pedidoRetiro));
+    const html = armarComanda(pedidoRetiro, cobroDe(pedidoRetiro));
     expect(html).toContain('Pago:');
     expect(html).toContain('Transferencia');
   });
 
   it('sin medio de pago no deja un "Pago:" colgado', () => {
-    const html = armarTicketCocina(pedidoSalon, cobroDe(pedidoSalon));
+    const html = armarComanda(pedidoSalon, cobroDe(pedidoSalon));
     expect(html).not.toContain('Pago:');
   });
 
   it('el teléfono sale en la comanda cuando el pedido lo trae', () => {
-    const html = armarTicketCocina(pedidoDelivery, cobroDe(pedidoDelivery));
+    const html = armarComanda(pedidoDelivery, cobroDe(pedidoDelivery));
     expect(html).toContain('Tel: +5491100000000');
   });
 
   it('sin teléfono no deja un "Tel:" colgado', () => {
-    const html = armarTicketCocina(pedidoSalon, cobroDe(pedidoSalon));
+    const html = armarComanda(pedidoSalon, cobroDe(pedidoSalon));
     expect(html).not.toContain('Tel:');
   });
 
   it('muestra la hora de impresión', () => {
-    const html = armarTicketCocina(pedidoSalon, cobroDe(pedidoSalon), new Date(2026, 7, 27, 9, 5));
+    const html = armarComanda(pedidoSalon, cobroDe(pedidoSalon), new Date(2026, 7, 27, 9, 5));
     expect(html).toContain('Hora: 09:05');
   });
 });
 
-describe('armarTicketDelivery', () => {
+describe('armarComanda con los datos que antes iban en el ticket del cadete', () => {
   it('incluye nombre, dirección, modalidad y total', () => {
-    const html = armarTicketDelivery(pedidoDelivery, cobroDe(pedidoDelivery));
+    const html = armarComanda(pedidoDelivery, cobroDe(pedidoDelivery));
 
     expect(html).toContain('Pedro');
     expect(html).toContain('Av. Siempre Viva 742');
@@ -234,28 +242,23 @@ describe('armarTicketDelivery', () => {
     expect(html).toContain('$18.600');
   });
 
-  it('incluye el resumen de lo pedido, igual que la comanda de cocina', () => {
-    const html = armarTicketDelivery(pedidoDelivery, cobroDe(pedidoDelivery));
-    expect(html).toContain('3 × Roll California — $18.600');
-  });
-
   // el motivo por el que el local lo pidió: el cadete toca el timbre y nadie
   // atiende, y hasta ahora el número no estaba en ningún papel
-  it('lleva el teléfono, arriba y junto a la dirección', () => {
-    const html = armarTicketDelivery(pedidoDelivery, cobroDe(pedidoDelivery));
+  it('lleva el teléfono arriba, junto a la dirección y antes del total', () => {
+    const html = armarComanda(pedidoDelivery, cobroDe(pedidoDelivery));
 
     expect(html).toContain('Tel: +5491100000000');
-    expect(html.indexOf('Tel:')).toBeLessThan(html.indexOf('Total a cobrar'));
+    expect(html.indexOf('Tel:')).toBeLessThan(html.indexOf('Total:'));
   });
 
-  it('el ticket del cadete muestra el total a cobrar con el envío incluido', () => {
+  it('muestra la zona y el total con el envío incluido', () => {
     const cobro = cobroDe(pedidoDelivery, { envio: { zona: 'Zona 2', precio: 3_000 } });
-    const html = armarTicketDelivery(pedidoDelivery, cobro);
+    const html = armarComanda(pedidoDelivery, cobro);
 
     expect(cobro.cuenta.total).toBe(21_600);
     expect(html).toContain(formatearPrecio(cobro.cuenta.total));
     // la zona: es lo que el cadete necesita para saber a dónde va el viaje
-    expect(html).toContain('Zona 2');
+    expect(html).toContain('Zona: Zona 2');
     // y cómo paga, para saber si tiene que cobrar
     expect(html).toContain('Efectivo');
   });

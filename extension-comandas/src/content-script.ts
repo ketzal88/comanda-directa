@@ -2,7 +2,7 @@ import { abrirFormularioDeCobro } from './formulario';
 import { MENSAJE_GUARDAR } from './guardar';
 import { parsearMensaje } from './parser';
 import { telefonoDelChat, textoDelMensaje } from './texto-mensaje';
-import { armarTicketCocina, armarTicketDelivery } from './ticket';
+import { armarComanda } from './ticket';
 import type { ResultadoDeGuardado, SolicitudDeGuardado } from './guardar';
 import type { PedidoParseado } from './parser';
 import type { Cobro } from './ticket';
@@ -42,7 +42,9 @@ const SELECTOR_FILA = '[data-testid^="conv-msg-"]';
 /** El encabezado fijo que pone `armarMensaje()`. Solo se usa como filtro
  *  previo barato del escaneo, nunca para decidir si el mensaje es válido:
  *  eso lo decide `parsearMensaje()`. */
-const ANCLA = 'Pedido — Sagrado Sushi';
+/** Lo mismo que el `PREFIJO_ANCLA` del parser: después del guión va el nombre
+ *  del local, y este build corre en todos los clientes del motor. */
+const ANCLA = 'Pedido — ';
 
 const CLASE_BOTON = 'comanda-cocina-boton';
 
@@ -102,14 +104,21 @@ function imprimir(html: string): void {
   ventana.print();
 }
 
-/** Arma el documento de la comanda (y el ticket del cadete, si es delivery) y
- *  lo manda a imprimir. Todo sincrónico: se llama desde el click del botón
- *  "Imprimir" del formulario. */
+/** Cuántas copias de la comanda salen por pedido. Dos, siempre y en todas las
+ *  modalidades: una queda en la cocina y la otra se va con el pedido (con el
+ *  cadete en delivery, grapada a la bolsa en retiro, en la mesa en salón). */
+const COPIAS = 2;
+
+/** Arma el documento con las copias de la comanda y lo manda a imprimir. Todo
+ *  sincrónico: se llama desde el click del botón "Imprimir" del formulario.
+ *
+ *  Las copias son IDÉNTICAS y se arman una sola vez: la hora de impresión sale
+ *  del mismo `new Date()` (`armarComanda` la resuelve al llamarse), así que dos
+ *  papeles del mismo pedido no pueden decir minutos distintos por haber caído
+ *  uno a cada lado del cambio de minuto. */
 function imprimirComanda(pedido: PedidoParseado, cobro: Cobro): void {
-  const secciones = [armarTicketCocina(pedido, cobro)];
-  if (pedido.modalidad === 'delivery') {
-    secciones.push(armarTicketDelivery(pedido, cobro));
-  }
+  const comanda = armarComanda(pedido, cobro);
+  const secciones = Array.from({ length: COPIAS }, () => comanda);
 
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Comanda</title></head><body>${secciones.join(
     '<div style="page-break-after: always"></div>',
