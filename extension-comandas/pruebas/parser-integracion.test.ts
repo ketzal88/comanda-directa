@@ -7,7 +7,7 @@ import { parsearMensaje } from '../src/parser';
 
 /** `armarMensaje()` devuelve el markdown CRUDO (así sale por wa.me): el
  *  encabezado y el total llevan asteriscos de negrita alrededor
- *  (`*Pedido — Sagrado Sushi*`, `*Total: $33.700*`). `parsearMensaje` espera
+ *  (`*Pedido — Piedro Shop*`, `*Total: $33.700*`). `parsearMensaje` espera
  *  el texto YA renderizado por WhatsApp Web, que es lo que
  *  `content-script.ts` lee de la página real — ahí WhatsApp convirtió el
  *  markdown en negrita visual y los asteriscos no quedan en el texto. Esta
@@ -16,6 +16,12 @@ import { parsearMensaje } from '../src/parser';
 function comoLoVeWhatsAppWeb(mensaje: string): string {
   return mensaje.replace(/\*(.+?)\*/g, '$1');
 }
+
+/** El nombre del local que va en el encabezado. Cualquiera sirve, y ese es
+ *  justo el punto: la extensión es un solo build para todos los clientes del
+ *  motor, así que el parser tiene que reconocer el pedido sin saber de quién
+ *  es el negocio. */
+const LOCAL = 'Piedro Shop';
 
 const pedidoDeMuestra: Pedido = {
   lineas: [
@@ -42,7 +48,7 @@ const TOTAL_DE_MUESTRA = 12400 * 2 + 8900 * 1;
 describe('parsearMensaje entiende lo que arma armarMensaje() de verdad', () => {
   it('salón — el caso real siempre trae mesa, porque validarDatos() la exige', () => {
     const datos: DatosComensal = { nombre: 'Ana', modalidad: 'salon', mesa: '5' };
-    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos)));
+    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos, LOCAL)));
 
     expect(resultado?.modalidad).toBe('salon');
     expect(resultado?.mesa).toBe('5');
@@ -54,7 +60,7 @@ describe('parsearMensaje entiende lo que arma armarMensaje() de verdad', () => {
 
   it('retiro', () => {
     const datos: DatosComensal = { nombre: 'Milena', modalidad: 'retiro' };
-    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos)));
+    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos, LOCAL)));
 
     expect(resultado?.modalidad).toBe('retiro');
     expect(resultado?.mesa).toBeNull();
@@ -68,7 +74,7 @@ describe('parsearMensaje entiende lo que arma armarMensaje() de verdad', () => {
       direccion: 'Av. Siempre Viva 742',
       notas: 'Sin wasabi',
     };
-    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos)));
+    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos, LOCAL)));
 
     expect(resultado?.modalidad).toBe('delivery');
     expect(resultado?.direccion).toBe('Av. Siempre Viva 742');
@@ -78,7 +84,7 @@ describe('parsearMensaje entiende lo que arma armarMensaje() de verdad', () => {
 
   it('con cabecera configurada en /panel/pedido, se ignora igual', () => {
     const datos: DatosComensal = { nombre: 'Milena', modalidad: 'retiro' };
-    const mensaje = armarMensaje(pedidoDeMuestra, datos, {
+    const mensaje = armarMensaje(pedidoDeMuestra, datos, LOCAL, {
       cabecera: 'Hola! Quiero hacer un pedido',
     });
     const resultado = parsearMensaje(comoLoVeWhatsAppWeb(mensaje));
@@ -97,7 +103,7 @@ describe('los campos de plata, contra el armarMensaje() real', () => {
       medioDePago: 'transferencia',
       zona: { nombre: 'Zona 2', precio: 3000 },
     };
-    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos)));
+    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos, LOCAL)));
 
     expect(resultado?.medioDePago).toBe('transferencia');
     expect(resultado?.envio).toEqual({ zona: 'Zona 2', precio: 3000 });
@@ -113,7 +119,7 @@ describe('los campos de plata, contra el armarMensaje() real', () => {
 
   it('el importe de cada línea sale igual al del pedido que lo generó', () => {
     const datos: DatosComensal = { nombre: 'Ana', modalidad: 'salon', mesa: '5' };
-    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos)));
+    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos, LOCAL)));
 
     expect(resultado?.items[0].importe).toBe(12400 * 2);
     expect(resultado?.items[1].importe).toBe(8900);
@@ -122,7 +128,7 @@ describe('los campos de plata, contra el armarMensaje() real', () => {
   it('retiro con descuento: el monto que viaja en el texto es el que lee la extensión', () => {
     // es lo que le permite calcular sin leer la config del panel
     const datos: DatosComensal = { nombre: 'Milena', modalidad: 'retiro', medioDePago: 'efectivo' };
-    const mensaje = armarMensaje(pedidoDeMuestra, datos, {
+    const mensaje = armarMensaje(pedidoDeMuestra, datos, LOCAL, {
       descuentoRetiro: { tipo: 'porcentaje', valor: 10 },
     });
     const resultado = parsearMensaje(comoLoVeWhatsAppWeb(mensaje));
@@ -141,7 +147,7 @@ describe('los campos de plata, contra el armarMensaje() real', () => {
       direccion: 'Av. Siempre Viva 742',
       zona: { nombre: 'Centro', precio: 0 },
     };
-    const mensaje = armarMensaje(pedidoDeMuestra, datos);
+    const mensaje = armarMensaje(pedidoDeMuestra, datos, LOCAL);
     const resultado = parsearMensaje(comoLoVeWhatsAppWeb(mensaje));
 
     expect(mensaje).not.toContain('$0');
@@ -156,7 +162,7 @@ describe('los campos de plata, contra el armarMensaje() real', () => {
     // botón de imprimir DESAPARECE para todos los pedidos. Nada más lo cubre:
     // este test corre contra el `armarMensaje()` real del sitio.
     const datos: DatosComensal = { nombre: 'Ana', modalidad: 'salon', mesa: '5' };
-    const mensaje = armarMensaje(pedidoDeMuestra, datos, { codigo: 'A7F3K2' });
+    const mensaje = armarMensaje(pedidoDeMuestra, datos, LOCAL, { codigo: 'A7F3K2' });
     const resultado = parsearMensaje(comoLoVeWhatsAppWeb(mensaje));
 
     expect(resultado).not.toBeNull();
@@ -176,7 +182,7 @@ describe('los campos de plata, contra el armarMensaje() real', () => {
       zona: { nombre: 'Zona 2', precio: 3000 },
       notas: 'Sin wasabi',
     };
-    const mensaje = armarMensaje(pedidoDeMuestra, datos, { codigo: 'B4M9XZ' });
+    const mensaje = armarMensaje(pedidoDeMuestra, datos, LOCAL, { codigo: 'B4M9XZ' });
     const resultado = parsearMensaje(comoLoVeWhatsAppWeb(mensaje));
 
     expect(resultado?.codigo).toBe('B4M9XZ');
@@ -194,7 +200,7 @@ describe('los campos de plata, contra el armarMensaje() real', () => {
 
   it('un mensaje sin ninguno de los campos nuevos, como los que ya están en el chat', () => {
     const datos: DatosComensal = { nombre: 'Ana', modalidad: 'salon', mesa: '5' };
-    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos)));
+    const resultado = parsearMensaje(comoLoVeWhatsAppWeb(armarMensaje(pedidoDeMuestra, datos, LOCAL)));
 
     expect(resultado?.medioDePago).toBeNull();
     expect(resultado?.envio).toBeNull();

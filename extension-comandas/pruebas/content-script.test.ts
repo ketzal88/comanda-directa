@@ -32,7 +32,7 @@ const enviados: unknown[] = [];
 beforeAll(async () => {
   // El mensaje tal como lo ve el content script en la página (WhatsApp ya
   // convirtió el markdown de wa.me en negrita, sin asteriscos).
-  const texto = armarMensaje(pedidoDeMuestra, datos).replace(/\*(.+?)\*/g, '$1');
+  const texto = armarMensaje(pedidoDeMuestra, datos, 'Piedro Shop').replace(/\*(.+?)\*/g, '$1');
   const mensaje = document.createElement('div');
   mensaje.setAttribute('data-pre-plain-text', '[12:00, 26/8/2026] Milena: ');
   mensaje.className = 'copyable-text';

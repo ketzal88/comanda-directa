@@ -62,7 +62,17 @@ export type PedidoParseado = {
   codigo: string | null;
 };
 
-const ANCLA = 'Pedido — Sagrado Sushi';
+/** Lo que marca que un mensaje de WhatsApp es un pedido de una carta nuestra.
+ *
+ *  Es un PREFIJO y no el encabezado entero porque después del guión va el
+ *  nombre del local, y este mismo build de la extensión corre en todos los
+ *  clientes del motor: con el nombre pegado acá (venía de cuando el único
+ *  cliente era Sagrado Sushi), la extensión no reconocía ni un pedido de
+ *  ningún otro y el botón de imprimir no aparecía nunca.
+ *
+ *  El bloque del encabezado es UNA línea entera, así que compararlo por
+ *  prefijo no se lo puede llevar por delante el nombre de un plato. */
+const PREFIJO_ANCLA = 'Pedido — ';
 const PREFIJO_DIRECCION = 'Dirección: ';
 const PREFIJO_TELEFONO = 'Teléfono: ';
 const PREFIJO_TOTAL = 'Total: ';
@@ -71,8 +81,8 @@ const PREFIJO_MESA = 'Mesa ';
 const PREFIJO_PAGO = 'Pago: ';
 const PREFIJO_ENVIO = 'Envío: ';
 const PREFIJO_DESCUENTO = 'Descuento: ';
-/** Con el numeral, no `Pedido ` a secas: sin el `#`, el ancla del mensaje
- *  ("Pedido — Sagrado Sushi") también empieza con ese prefijo. */
+/** Con el numeral, no `Pedido ` a secas: sin el `#`, el encabezado del mensaje
+ *  ("Pedido — <nombre del local>") también empieza con ese prefijo. */
 const PREFIJO_CODIGO = 'Pedido #';
 
 /** Lo que separa el texto de su plata, tanto en los ítems como en el envío y el
@@ -175,7 +185,7 @@ function reconocerEnvio(valor: string): EnvioParseado {
  *  chat del local no los traen y tienen que seguir imprimiéndose igual. */
 export function parsearMensaje(texto: string): PedidoParseado | null {
   const bloques = partirBloques(texto);
-  const indiceAncla = bloques.indexOf(ANCLA);
+  const indiceAncla = bloques.findIndex((bloque) => bloque.startsWith(PREFIJO_ANCLA));
   if (indiceAncla === -1) return null;
 
   const resto = bloques.slice(indiceAncla + 1);
