@@ -74,6 +74,12 @@ Reglas para operarlos desde acá:
   significar "abrir cada repo en su propia ventana del editor y acordarse de
   los tres": un commit de sagrado-sushi ya quedó sin pushear por eso. Vos no
   lo corrés — el guard lo bloquea igual que a un `git push`.
+- **Una rama nueva no se publica sola.** Sin upstream no hay a dónde pushear, y
+  elegir remoto y nombre es del operador: el script la lista aparte, con cuántos
+  commits tiene y el comando exacto, y la publica sólo con `-- --nueva`
+  (`origin`, mismo nombre de rama). El flag ES la decisión. Al cerrar el turno,
+  una rama así se nombra como lo que es: commiteada y **sin publicar**, que no
+  es lo mismo que "N commit(s) ahead of upstream".
 - **El scan de secretos corre en el repo del commit**, resuelto desde el
   comando (`secret-scan-guard.py` + `git_target_dir.py`).
 - **Cada gate corre contra el `stack.json` del repo destino.** Un

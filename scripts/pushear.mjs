@@ -18,6 +18,12 @@ import { join } from 'node:path';
  *
  *  Descubre los repos en vez de tenerlos escritos: el día que se sume un
  *  cliente más, aparece solo.
+ *
+ *  Una rama sin upstream (recién creada, todavía no publicada) NO se publica
+ *  sola: publicarla es una decisión (¿a qué remoto?, ¿con qué nombre?) y no
+ *  una consecuencia de haber commiteado. Pero tampoco se deja en un callejón:
+ *  se informa el comando exacto, y `--nueva` lo corre con el default obvio
+ *  (`origin`, mismo nombre de rama). Pasar el flag ES la decisión.
  */
 
 const RAIZ = process.cwd();
@@ -49,25 +55,36 @@ function estado(repo) {
   try {
     upstream = git(repo.ruta, 'rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}');
   } catch {
-    // rama sin upstream: `git push -u` lo resuelve, pero eso es una decisión
-    // del operador (¿a qué remoto?, ¿con qué nombre?) y no se toma sola
+    // rama sin upstream: ver el comentario de cabecera. Se cuenta igual, para
+    // poder decir cuánto trabajo hay ahí en vez de sólo "no se puede".
   }
   const adelante = upstream
     ? Number(git(repo.ruta, 'rev-list', '--count', `${upstream}..HEAD`))
-    : 0;
+    // sin upstream no hay contra qué comparar: se cuenta lo que no está en
+    // NINGÚN remoto, que es exactamente lo que se perdería si mañana se borra
+    // el working tree
+    // ojo con el orden: `--not` niega TODO lo que va detrás, así que `HEAD`
+    // tiene que ir ANTES. Con `--not --remotes HEAD` el conteo da siempre 0.
+    : Number(git(repo.ruta, 'rev-list', '--count', 'HEAD', '--not', '--remotes'));
   const sucio = git(repo.ruta, 'status', '--porcelain').split('\n').filter(Boolean).length;
   return { ...repo, rama, upstream, adelante, sucio };
 }
 
 function main() {
   const soloVer = process.argv.includes('--ver');
+  const publicarNuevas = process.argv.includes('--nueva');
   const estados = repos().map(estado);
 
   console.log('');
   for (const e of estados) {
     const etiqueta = e.nombre.padEnd(22);
     if (!e.upstream) {
-      console.log(`  ${etiqueta} ${e.rama} — sin upstream, no se puede pushear solo`);
+      const cuantos = e.adelante === 1 ? '1 commit' : `${e.adelante} commits`;
+      console.log(`  ${etiqueta} ${e.rama} — rama nueva, sin publicar (${cuantos})`);
+      if (!publicarNuevas) {
+        console.log(`  ${''.padEnd(22)} agregá --nueva para publicarla en origin`);
+        console.log(`  ${''.padEnd(22)} o a mano: git -C ${e.nombre} push -u origin ${e.rama}`);
+      }
     } else if (e.adelante === 0) {
       console.log(`  ${etiqueta} al día`);
     } else {
@@ -79,9 +96,16 @@ function main() {
   }
   console.log('');
 
-  const pendientes = estados.filter((e) => e.upstream && e.adelante > 0);
+  const pendientes = estados.filter((e) => e.adelante > 0 && (e.upstream || publicarNuevas));
   if (!pendientes.length) {
-    console.log('Nada para pushear.');
+    // "nada para pushear" sería mentira si hay una rama nueva esperando el
+    // flag: el trabajo está, lo que falta es la decisión de publicarla
+    const sinPublicar = estados.filter((e) => !e.upstream && e.adelante > 0);
+    console.log(
+      sinPublicar.length
+        ? `Nada para pushear. Queda ${sinPublicar.length} rama(s) sin publicar (ver arriba).`
+        : 'Nada para pushear.',
+    );
     return;
   }
   if (soloVer) {
@@ -91,10 +115,16 @@ function main() {
 
   let fallaron = 0;
   for (const e of pendientes) {
-    console.log(`→ ${e.nombre}: pusheando ${e.adelante} commit(s) a ${e.upstream}…`);
+    // una rama nueva se publica en `origin` con su mismo nombre y queda
+    // trackeando: la próxima corrida ya la ve como cualquier otra
+    const args = e.upstream
+      ? ['-C', e.ruta, 'push']
+      : ['-C', e.ruta, 'push', '-u', 'origin', e.rama];
+    const destino = e.upstream ?? `origin/${e.rama} (nueva)`;
+    console.log(`→ ${e.nombre}: subiendo ${e.adelante} commit(s) a ${destino}…`);
     try {
       // stdio heredado: si el remoto pide credenciales, que las pida acá
-      execFileSync('git', ['-C', e.ruta, 'push'], { stdio: 'inherit' });
+      execFileSync('git', args, { stdio: 'inherit' });
       console.log(`  ✓ ${e.nombre}`);
     } catch {
       fallaron++;
@@ -107,7 +137,7 @@ function main() {
     console.log(`Quedaron ${fallaron} repo(s) sin pushear.`);
     process.exitCode = 1;
   } else {
-    console.log('Los tres repos quedaron al día.');
+    console.log('Los repos quedaron al día.');
   }
 }
 
