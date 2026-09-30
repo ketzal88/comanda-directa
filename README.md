@@ -62,6 +62,12 @@ Repreciar todo es **un número**: se corre el scraper de nuevo (por si el
 proveedor movió la lista), se toca `MARGEN` y se vuelve a sembrar. Con 158
 precios copiados a mano eso habría sido reescribir el archivo entero.
 
+El resto del catálogo (combos, disfraces, accesorios, cotillón y decoración)
+sale de la planilla final del cliente, volcada a `scripts/data/piedro-planilla.json`.
+La carta muestra el precio con tarjeta (`COMISION_TARJETA`); los animatrónicos
+e inflables pasan por la misma cuenta. El 10% en efectivo lo anuncian las notas
+y lo ajusta el local: el motor todavía no descuenta por medio de pago.
+
 Ojo con el doble margen: los disfraces y el cotillón de la lista original ya
 venían con su precio de venta calculado (~17%). `MARGEN` se aplica SÓLO a lo
 que sale del JSON del mayorista.
@@ -196,7 +202,7 @@ clientes a la vez.
 | slug | qué es | modalidades | notas |
 | --- | --- | --- | --- |
 | `demo` | carta de muestra para probar el motor | salón, retiro, delivery | `npm run seed:demo` |
-| `piedro-shop` | Piedro Shop, catálogo de temporada de cotillón y disfraces | sólo delivery | plantilla `halloween`, 226 productos con foto; sin comandas ni link de pago |
+| `piedro-shop` | Piedro Shop, catálogo de temporada de cotillón y disfraces | sólo delivery | plantilla `halloween`, 242 productos (8 combos) a precio de tarjeta, 10% en efectivo; sin comandas ni link de pago |
 
 Piedro Shop se publica en **hace-tu-pedido.site/piedro-shop**. Nació como
 `/halloween` y ese link ya estaba circulando, así que el slug viejo queda

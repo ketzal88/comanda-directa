@@ -63,21 +63,18 @@ describe('catálogo de Halloween', () => {
     const conTalles = items.filter((i) => i.variantes.length > 0);
     expect(conTalles.every((i) => i.precio === 0)).toBe(true);
 
-    // La única excepción a "sin talles, precio cargado" es la cortina, que se
-    // cotiza por medida.
     const sinPrecio = items.filter((i) => !i.variantes.length && i.precio === 0);
-    expect(sinPrecio.map((i) => i.nombre)).toEqual(['Cortina Halloween']);
-    expect(sinPrecio[0].descripcion).toContain('900');
+    expect(sinPrecio.map((i) => i.nombre)).toEqual([]);
   });
 
-  it('numera los 226 productos corridos desde 1, agrupados por categoría', () => {
+  it('numera los 242 productos corridos desde 1, agrupados por categoría', () => {
     const numerados = renumerar(items, categorias);
-    expect(numerados).toHaveLength(226);
+    expect(numerados).toHaveLength(242);
     expect(numerados.map((i) => i.numero)).toEqual(numerados.map((_, i) => i + 1));
 
     const porCategoria = categorias.map((c) => items.filter((i) => i.categoriaId === c.id).length);
-    // infantiles, adulto, animatrónicos, inflables, accesorios, trick, decoración
-    expect(porCategoria).toEqual([11, 12, 133, 25, 12, 12, 21]);
+    // combos, infantiles, adulto, animatrónicos, inflables, accesorios, trick, decoración
+    expect(porCategoria).toEqual([8, 13, 10, 133, 25, 20, 17, 16]);
   });
 });
 
@@ -89,7 +86,7 @@ describe('pedido de Halloween por WhatsApp', () => {
   };
 
   it('el talle elegido viaja en el mensaje', () => {
-    const esqueleto = buscar('esqueleto-nino');
+    const esqueleto = buscar('disfraz-esqueleto-nino');
     const linea = lineaDeItem(esqueleto, 'S (5 a 6)');
     expect(linea).not.toBeNull();
 
@@ -102,18 +99,23 @@ describe('pedido de Halloween por WhatsApp', () => {
     );
 
     expect(mensaje).toContain('Disfraz Esqueleto Niño · S (5 a 6)');
-    expect(mensaje).toContain('Total: $20.500');
+    expect(mensaje).toContain('Total: $25.400');
     // Sin salón no hay mesa que nombrar.
     expect(mensaje).not.toContain('Mesa');
   });
 
-  it('la cortina sin precio deja el total a confirmar, con el parcial de lo demás', () => {
-    const cortina = lineaDeItem(buscar('cortina-halloween'));
-    const telarana = lineaDeItem(buscar('telarana'));
-    const pedido = agregar(agregar({ lineas: [] }, cortina!), telarana!);
+  it('los talles de la planilla se juntan en un producto, no en dos filas', () => {
+    const preso = buscar('disfraz-preso');
+    expect(variantesDe(preso).map((v) => v.etiqueta)).toEqual(['Talle M', 'Talle L']);
+  });
 
-    const mensaje = armarMensaje(pedido, { nombre: 'Ana', modalidad: 'retiro' }, NOMBRE_HALLOWEEN);
-    expect(mensaje).toContain('Total: a confirmar (parcial $800)');
+  it('cada combo dice qué trae y cuesta menos que armarlo suelto', () => {
+    const combos = items.filter((i) => i.categoriaId === 'combos');
+    for (const c of combos) expect(c.descripcion, c.nombre).toMatch(/^Incluye: /);
+    const basico = buscar('combo-combo-halloween-basico');
+    const suelto = ['telarana-halloween', 'set-murcielagos-x4', 'banner-sangriento-happy-halloween',
+      'vela-led-mano-tenebrosa', 'balde-caramelera-calabaza'].reduce((t, id) => t + buscar(id).precio, 0);
+    expect(basico.precio).toBeLessThan(suelto);
   });
 
   it('el enlace apunta al WhatsApp del cliente', () => {
@@ -122,8 +124,8 @@ describe('pedido de Halloween por WhatsApp', () => {
   });
 
   it('los disfraces con un solo talle igual lo ofrecen como variante', () => {
-    const medusa = buscar('medusa');
-    expect(variantesDe(medusa)).toEqual([{ etiqueta: 'Talle L', precio: 28000 }]);
+    const monja = buscar('disfraz-monja');
+    expect(variantesDe(monja)).toEqual([{ etiqueta: 'Talle M', precio: 32900 }]);
   });
 });
 

@@ -37,9 +37,12 @@ if (!url || !key) {
   process.exit(1);
 }
 
+// Sin CLAVE_PANEL, un cliente que ya existe conserva la suya: recargar el
+// catálogo no tiene por qué cambiarle la clave al cliente. Para el alta sí
+// hace falta (se valida en `main`).
 const clave = process.env.CLAVE_PANEL;
-if (!clave || clave.length < 8) {
-  console.error('Falta CLAVE_PANEL (mínimo 8 caracteres): es la clave con la que entra el cliente al panel.');
+if (clave !== undefined && clave.length < 8) {
+  console.error('CLAVE_PANEL tiene que tener al menos 8 caracteres.');
   process.exit(1);
 }
 
@@ -64,7 +67,7 @@ const campos = {
   medios_de_pago: CONFIG_PEDIDO_HALLOWEEN.mediosDePago,
   zonas_envio: CONFIG_PEDIDO_HALLOWEEN.zonasEnvio,
   descuento_retiro: CONFIG_PEDIDO_HALLOWEEN.descuentoRetiro,
-  clave_panel_hash: hash(clave),
+  ...(clave ? { clave_panel_hash: hash(clave) } : {}),
   activo: true,
 };
 
@@ -97,6 +100,7 @@ async function main() {
     await db.from('items').delete().eq('cliente_id', clienteId);
     await db.from('categorias').delete().eq('cliente_id', clienteId);
   } else {
+    if (!clave) throw new Error('Falta CLAVE_PANEL: es la clave con la que entra el cliente al panel.');
     const { data, error } = await db
       .from('clientes')
       .insert({ slug: SLUG_HALLOWEEN, ...campos })

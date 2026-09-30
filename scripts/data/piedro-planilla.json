@@ -1,0 +1,1125 @@
+{
+  "fuente": "Planilla \"Catálogo Halloween minorista\", hojas Catálogo y Combos (precios mayoristas del 24/09/2026)",
+  "productos": [
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Set Diablita",
+      "codigo": "DI036",
+      "efectivo": 12800,
+      "tarjeta": 14300,
+      "slug": "set-diablita",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Tutú Spooky Negro",
+      "codigo": "TUTNE",
+      "efectivo": 7400,
+      "tarjeta": 8300,
+      "slug": "tutu-spooky-negro",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Tutú Brujis Tricolor (talle único)",
+      "codigo": "AC536",
+      "efectivo": 6800,
+      "tarjeta": 7600,
+      "slug": "tutu-brujis-con-tul-tricolor-talle-infantil",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Tutú Brujita Bicolor Violeta y Negro (talle único)",
+      "codigo": "AC535",
+      "efectivo": 6400,
+      "tarjeta": 7200,
+      "slug": "tutu-brujita-bicolor-violetanegro",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Set Brujita Chispeante Rosa",
+      "codigo": "AC724",
+      "efectivo": 9400,
+      "tarjeta": 10500,
+      "slug": "set-brujita-chispeante-rosa",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Set Brujito Hechicera Negro",
+      "codigo": "AC722",
+      "efectivo": 9400,
+      "tarjeta": 10500,
+      "slug": "set-brujita-hechicera-negro",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz La Parca Niño Talle S (5-6 años)",
+      "codigo": "DI073S",
+      "efectivo": 20900,
+      "tarjeta": 23300,
+      "slug": "disfraz-la-parca-nino-talle-s-5-6-anos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Esqueleto Niña Talle S (5-6 años)",
+      "codigo": "DI072S",
+      "efectivo": 26300,
+      "tarjeta": 29300,
+      "slug": "disfraz-esqueleto-nina-talle-s-5-6-anos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Esqueleto Niña Talle M (7-9 años)",
+      "codigo": "DI072M",
+      "efectivo": 26300,
+      "tarjeta": 29300,
+      "slug": "disfraz-esqueleto-nina-talle-m-7-9-anos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Esqueleto Niño Talle S (5-6 años)",
+      "codigo": "DI070S",
+      "efectivo": 22800,
+      "tarjeta": 25400,
+      "slug": "disfraz-esqueleto-nino-talle-s-5-6-anos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Esqueleto Niño Talle M (7-9 años)",
+      "codigo": "DI070M",
+      "efectivo": 22800,
+      "tarjeta": 25400,
+      "slug": "disfraz-esqueleto-nino-talle-m-7-9-anos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Drácula Niño Talle S (5-6 años)",
+      "codigo": "DI067S",
+      "efectivo": 29300,
+      "tarjeta": 32600,
+      "slug": "disfraz-dracula-nino-talle-s-5-6-anos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Drácula Niño Talle M (7-9 años)",
+      "codigo": "DI067M",
+      "efectivo": 29300,
+      "tarjeta": 32600,
+      "slug": "disfraz-dracula-nino-talle-m-7-9-anos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Niña Gótica Talle S (5-6 años)",
+      "codigo": "DI068S",
+      "efectivo": 22800,
+      "tarjeta": 25400,
+      "slug": "disfraz-nina-gotica-talle-s-5-6-anos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Niña Gótica Talle M (7-9 años)",
+      "codigo": "DI068M",
+      "efectivo": 22800,
+      "tarjeta": 25400,
+      "slug": "disfraz-nina-gotica-talle-m-7-9-anos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Tutú Spooky Naranja",
+      "codigo": "TUTNANE",
+      "efectivo": 7400,
+      "tarjeta": 8300,
+      "slug": "tutu-spooly-naranja",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Tutú Spooky Violeta",
+      "codigo": "TUTVIO",
+      "efectivo": 7400,
+      "tarjeta": 8300,
+      "slug": "tutu-spooky-violeta",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Capa Reversible Negro/Rojo 80 cm",
+      "codigo": "AC702",
+      "efectivo": 10400,
+      "tarjeta": 11600,
+      "slug": "capa-disfraz-reversible-negro-rojo-con-capucha-80cm",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Capa Reversible Negro/Rojo 130 cm",
+      "codigo": "AC703",
+      "efectivo": 14200,
+      "tarjeta": 15800,
+      "slug": "capa-disfraz-reversible-negro-rojo-con-capucha-130cm",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Capa Dark Larga",
+      "codigo": "AC709",
+      "efectivo": 9400,
+      "tarjeta": 10500,
+      "slug": "capa-dark-larga",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Disfraz Preso Talle M",
+      "codigo": "DI016M",
+      "efectivo": 37000,
+      "tarjeta": 41200,
+      "slug": "disfraz-preso-talle-m",
+      "nota": null,
+      "stock": "A pedido"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Disfraz Payaso Malvado Talle L",
+      "codigo": "DI045L",
+      "efectivo": 38900,
+      "tarjeta": 43300,
+      "slug": "disfraz-payaso-malvado-talle-l",
+      "nota": null,
+      "stock": "A pedido"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Disfraz Thriller Talle L",
+      "codigo": "DI027L",
+      "efectivo": 40400,
+      "tarjeta": 44900,
+      "slug": "disfraz-thriller",
+      "nota": null,
+      "stock": "A pedido"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Disfraz La Máscara Talle L",
+      "codigo": "DI098L",
+      "efectivo": 46400,
+      "tarjeta": 51600,
+      "slug": "disfraz-la-mascara-talle-l",
+      "nota": null,
+      "stock": "A pedido"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Disfraz Preso Talle L",
+      "codigo": "DI016L",
+      "efectivo": 37000,
+      "tarjeta": 41200,
+      "slug": "disfraz-preso",
+      "nota": null,
+      "stock": "A pedido"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Disfraz Monja Talle M",
+      "codigo": "DI012M",
+      "efectivo": 29600,
+      "tarjeta": 32900,
+      "slug": "disfraz-monja-sexy-talle-m",
+      "nota": null,
+      "stock": "A pedido"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Disfraz Mucama Infernal Talle M",
+      "codigo": "DI029M",
+      "efectivo": 33700,
+      "tarjeta": 37500,
+      "slug": "disfraz-mucama-sexy-talle-m",
+      "nota": null,
+      "stock": "A pedido"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Capa Magia Dama (Hermione)",
+      "codigo": "DI094",
+      "efectivo": 30300,
+      "tarjeta": 33700,
+      "slug": "capa-magia-dama-hermione-talle-unico",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Capa Magia Hombre (Harry)",
+      "codigo": "DI095",
+      "efectivo": 30300,
+      "tarjeta": 33700,
+      "slug": "capa-magia-hombre-harry-talle-unico",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Vincha Cuernos Diablita LED",
+      "codigo": "XLVI01",
+      "efectivo": 1100,
+      "tarjeta": 1300,
+      "slug": "vincha-cuernos-diablita-led",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Careta Ghostface",
+      "codigo": "HD414",
+      "efectivo": 1200,
+      "tarjeta": 1400,
+      "slug": "mascara-careta-el-grito-ghostface",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Daga Retráctil",
+      "codigo": "GOAC45",
+      "efectivo": 1400,
+      "tarjeta": 1600,
+      "slug": "daga-retractil-x1",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Tatuajes Set Cortes de Cara",
+      "codigo": "COT032",
+      "efectivo": 1400,
+      "tarjeta": 1600,
+      "slug": "tatuajes-set-cortes-de-cara",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Nariz de Bruja con Verruga",
+      "codigo": "HD305",
+      "efectivo": 1800,
+      "tarjeta": 2000,
+      "slug": "nariz-de-bruja-de-latex-con-verruga",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Tatuajes Set Heridas",
+      "codigo": "COT029",
+      "efectivo": 2000,
+      "tarjeta": 2300,
+      "slug": "tatuajes-set-heridas",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Lentes Sangrientos",
+      "codigo": "LE26",
+      "efectivo": 2500,
+      "tarjeta": 2800,
+      "slug": "lentes-sangrientos-preventa",
+      "nota": "Preventa: confirmar fecha de entrega",
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Guantes Esqueleto",
+      "codigo": "HD410",
+      "efectivo": 3100,
+      "tarjeta": 3500,
+      "slug": "guantes-esqueleto-preventa",
+      "nota": "Preventa: confirmar fecha de entrega",
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Sombrero Bruja por la Luna",
+      "codigo": "GO171",
+      "efectivo": 3200,
+      "tarjeta": 3600,
+      "slug": "sombrero-bruja-por-la-luna-2",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Medias Esqueleto 7/8",
+      "codigo": "TM002",
+      "efectivo": 3800,
+      "tarjeta": 4300,
+      "slug": "medias-esqueleto-7-8",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Sombrero de Bruja Mística",
+      "codigo": "GO251",
+      "efectivo": 5800,
+      "tarjeta": 6500,
+      "slug": "sombrero-de-bruja-mistica",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Máscara Purga LED",
+      "codigo": "HD782",
+      "efectivo": 8900,
+      "tarjeta": 9900,
+      "slug": "mascara-purga-led",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Poncho de Bruja con Telaraña",
+      "codigo": "HD347",
+      "efectivo": 10300,
+      "tarjeta": 11500,
+      "slug": "poncho-de-bruja-con-telarana-150x150cm",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Máscara Joker LED",
+      "codigo": "HD780",
+      "efectivo": 10700,
+      "tarjeta": 11900,
+      "slug": "mascara-jocker-led",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Sombrero Bruja Berta",
+      "codigo": "GO013",
+      "efectivo": 1200,
+      "tarjeta": 1400,
+      "slug": "gorro-bruja-berta-transparente",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Máscara Payaso Cosido LED",
+      "codigo": "HD781",
+      "efectivo": 9900,
+      "tarjeta": 11000,
+      "slug": "mascara-payaso-cosido-iridiscente-led",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Tatuaje Temporal Boo (plancha x10)",
+      "codigo": "STT101",
+      "efectivo": 2300,
+      "tarjeta": 2600,
+      "slug": "tattoo-temporal-halloween-boo-set-x-10-planchas",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Medias Bucaneras Negras",
+      "codigo": "AC575",
+      "efectivo": 3800,
+      "tarjeta": 4300,
+      "slug": "medias-bucaneras-negras",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Medias Blancas con Moño Negro",
+      "codigo": "TM009",
+      "efectivo": 4600,
+      "tarjeta": 5200,
+      "slug": "medias-blancas-mono-negro-7-8",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Varita Hechizo Infinito",
+      "codigo": "AC736",
+      "efectivo": 4100,
+      "tarjeta": 4600,
+      "slug": "varita-magica-hechizo-infinito",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Balde Caramelera Calabaza",
+      "codigo": "HD010",
+      "efectivo": 3700,
+      "tarjeta": 4200,
+      "slug": "balde-caramelera-calabaza-naranja-porta-golosinas",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Mini Balde Calavera",
+      "codigo": "HD006",
+      "efectivo": 2500,
+      "tarjeta": 2800,
+      "slug": "mini-balde-calavera",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Mini Balde Fantasma",
+      "codigo": "HD007",
+      "efectivo": 2500,
+      "tarjeta": 2800,
+      "slug": "mini-balde-fantasma",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Mini Balde Gato Negro",
+      "codigo": "HD005",
+      "efectivo": 2500,
+      "tarjeta": 2800,
+      "slug": "mini-balde-gato-negro",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Bolsa de Papel Boo x8",
+      "codigo": "BAGHA",
+      "efectivo": 3200,
+      "tarjeta": 3600,
+      "slug": "bolsa-de-papel-boo",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Guirnalda Miedo 300 cm",
+      "codigo": "GUH15",
+      "efectivo": 2200,
+      "tarjeta": 2500,
+      "slug": "guirnalda-miedo",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Banner Sangriento Happy Halloween",
+      "codigo": "HD778",
+      "efectivo": 3300,
+      "tarjeta": 3700,
+      "slug": "banner-sangriento",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Set de Globos Halloween Calabazas",
+      "codigo": "HD776",
+      "efectivo": 3000,
+      "tarjeta": 3400,
+      "slug": "set-de-globos-halloween-calabazas",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Set de Globos Halloween Esqueletos",
+      "codigo": "HD777",
+      "efectivo": 3100,
+      "tarjeta": 3500,
+      "slug": "set-de-globos-halloween-esqueletos",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Copa Calavera",
+      "codigo": "HD341",
+      "efectivo": 3300,
+      "tarjeta": 3700,
+      "slug": "copa-calavera",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Plato Boo x6",
+      "codigo": "DPC020-2",
+      "efectivo": 1500,
+      "tarjeta": 1700,
+      "slug": "plato-boo-halloween",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Servilletas Boo x20",
+      "codigo": "DSECH020-2",
+      "efectivo": 1800,
+      "tarjeta": 2000,
+      "slug": "servilletas-boo-halloween",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Vaso Calavera Mexicana x6",
+      "codigo": "DVA103",
+      "efectivo": 1500,
+      "tarjeta": 1700,
+      "slug": "vaso-calavera-mexicana",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Sorbetes Boo x24",
+      "codigo": "DSPP020-2",
+      "efectivo": 2100,
+      "tarjeta": 2400,
+      "slug": "sorbetes-boo-halloween",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Mantel Calavera Mexicana",
+      "codigo": "DMA103",
+      "efectivo": 3000,
+      "tarjeta": 3400,
+      "slug": "mantel-plastico-calavera-mexicana",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Plato Calavera Mexicana x6",
+      "codigo": "DPC103",
+      "efectivo": 1700,
+      "tarjeta": 1900,
+      "slug": "plato-calavera-mexicana",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Servilletas Calavera Mexicana x20",
+      "codigo": "DSECH103-1",
+      "efectivo": 1800,
+      "tarjeta": 2000,
+      "slug": "servilleta-calavera-mexicana",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Telaraña Halloween",
+      "codigo": "HD001",
+      "efectivo": 900,
+      "tarjeta": 1000,
+      "slug": "telarana-halloween",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Vela LED Mano Tenebrosa",
+      "codigo": "HD521",
+      "efectivo": 2300,
+      "tarjeta": 2600,
+      "slug": "vela-led-mano-tenebrosa",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Set Murciélagos x4",
+      "codigo": "HD430",
+      "efectivo": 2400,
+      "tarjeta": 2700,
+      "slug": "set-murcielagos-preventa",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Set Ciempiés",
+      "codigo": "HD427",
+      "efectivo": 3400,
+      "tarjeta": 3800,
+      "slug": "set-ciempies-preventa",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Cerebro con Luz",
+      "codigo": "HD520",
+      "efectivo": 4000,
+      "tarjeta": 4500,
+      "slug": "cerebro-con-luz-12x10-cm",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Mano Cortada Sangrienta",
+      "codigo": "HD417",
+      "efectivo": 5100,
+      "tarjeta": 5700,
+      "slug": "mano-cortada-sangrienta",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Cintas de Advertencia Halloween (9 m)",
+      "codigo": "HD014-2",
+      "efectivo": 6500,
+      "tarjeta": 7300,
+      "slug": "cintas-de-advertencia-halloween",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Caldero de Bruja Grande",
+      "codigo": "HD008",
+      "efectivo": 7500,
+      "tarjeta": 8400,
+      "slug": "caldero-de-bruja-grande",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Cuchillo Sangriento",
+      "codigo": "GOAC40",
+      "efectivo": 9100,
+      "tarjeta": 10200,
+      "slug": "cuchillo-sangriento",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Lápida Embrujo de la Muerte",
+      "codigo": "HD618",
+      "efectivo": 13300,
+      "tarjeta": 14800,
+      "slug": "lapida-embrujo-de-la-muerte",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Araña Gigante Roja y Negra",
+      "codigo": "HD619",
+      "efectivo": 13300,
+      "tarjeta": 14800,
+      "slug": "arana-gigante-roja-y-negra",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Telaraña Gigante Blanca 2 m",
+      "codigo": "HD142",
+      "efectivo": 14700,
+      "tarjeta": 16400,
+      "slug": "telarana-gigante-blanca",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Tumba Maldita Muerte",
+      "codigo": "HD627",
+      "efectivo": 18100,
+      "tarjeta": 20200,
+      "slug": "tumba-maldita-muerte",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Colgante Abandonada en el Altar",
+      "codigo": "HD647",
+      "efectivo": 25000,
+      "tarjeta": 27800,
+      "slug": "colgante-abandonada-en-el-altar",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Colgante Viuda Negra Llorona",
+      "codigo": "HD646",
+      "efectivo": 25000,
+      "tarjeta": 27800,
+      "slug": "colgante-viuda-negra-llorona",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Set Cucarachas x10",
+      "codigo": "HD425",
+      "efectivo": 1700,
+      "tarjeta": 1900,
+      "slug": "set-cucarachas-preventa",
+      "nota": null,
+      "stock": "Stock"
+    },
+    {
+      "grupo": "Decoración",
+      "nombre": "Cortina Metalizada Negra",
+      "codigo": "GUCONG",
+      "efectivo": 900,
+      "tarjeta": 1000,
+      "slug": "cortina-eco-negra",
+      "nota": null,
+      "stock": "Stock"
+    }
+  ],
+  "combos": [
+    {
+      "nombre": "Combo Halloween Básico",
+      "efectivo": 11300,
+      "productos": [
+        {
+          "codigo": "HD001",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD430",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD778",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD521",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD010",
+          "cantidad": 1
+        }
+      ]
+    },
+    {
+      "nombre": "Casa Embrujada",
+      "efectivo": 38500,
+      "productos": [
+        {
+          "codigo": "HD001",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD430",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD427",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD521",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD619",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD778",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD014-2",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD008",
+          "cantidad": 1
+        },
+        {
+          "codigo": "BAGHA",
+          "cantidad": 1
+        }
+      ]
+    },
+    {
+      "nombre": "Salida de chicos (Trick or Treat)",
+      "efectivo": 8300,
+      "productos": [
+        {
+          "codigo": "HD010",
+          "cantidad": 1
+        },
+        {
+          "codigo": "XLVI01",
+          "cantidad": 1
+        },
+        {
+          "codigo": "COT029",
+          "cantidad": 1
+        },
+        {
+          "codigo": "LE26",
+          "cantidad": 1
+        }
+      ]
+    },
+    {
+      "nombre": "Look Esqueleto (chicos)",
+      "efectivo": 24000,
+      "productos": [
+        {
+          "codigo": "DI070S",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD006",
+          "cantidad": 1
+        },
+        {
+          "codigo": "COT032",
+          "cantidad": 1
+        }
+      ]
+    },
+    {
+      "nombre": "Look Brujita (talle único)",
+      "efectivo": 13400,
+      "productos": [
+        {
+          "codigo": "TUTNE",
+          "cantidad": 1
+        },
+        {
+          "codigo": "GO171",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD305",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD005",
+          "cantidad": 1
+        }
+      ]
+    },
+    {
+      "nombre": "Cumple de Halloween (12 chicos)",
+      "efectivo": 108100,
+      "productos": [
+        {
+          "codigo": "HD010",
+          "cantidad": 12
+        },
+        {
+          "codigo": "BAGHA",
+          "cantidad": 2
+        },
+        {
+          "codigo": "HD414",
+          "cantidad": 6
+        },
+        {
+          "codigo": "XLVI01",
+          "cantidad": 6
+        },
+        {
+          "codigo": "COT029",
+          "cantidad": 12
+        },
+        {
+          "codigo": "DPC020-2",
+          "cantidad": 2
+        },
+        {
+          "codigo": "DVA103",
+          "cantidad": 2
+        },
+        {
+          "codigo": "DSECH020-2",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD777",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD776",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD778",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD001",
+          "cantidad": 3
+        },
+        {
+          "codigo": "HD430",
+          "cantidad": 2
+        },
+        {
+          "codigo": "HD521",
+          "cantidad": 3
+        }
+      ]
+    },
+    {
+      "nombre": "Rincón de fotos",
+      "efectivo": 59400,
+      "productos": [
+        {
+          "codigo": "HD014-2",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD142",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD414",
+          "cantidad": 2
+        },
+        {
+          "codigo": "HD780",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD782",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD417",
+          "cantidad": 1
+        },
+        {
+          "codigo": "GOAC40",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD520",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD521",
+          "cantidad": 2
+        }
+      ]
+    },
+    {
+      "nombre": "Halloween completo (jardín + entrada + puerta)",
+      "efectivo": 87400,
+      "productos": [
+        {
+          "codigo": "HD619",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD142",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD014-2",
+          "cantidad": 3
+        },
+        {
+          "codigo": "HD001",
+          "cantidad": 4
+        },
+        {
+          "codigo": "HD430",
+          "cantidad": 3
+        },
+        {
+          "codigo": "HD521",
+          "cantidad": 4
+        },
+        {
+          "codigo": "HD008",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD417",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD520",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD427",
+          "cantidad": 1
+        },
+        {
+          "codigo": "BAGHA",
+          "cantidad": 2
+        },
+        {
+          "codigo": "HD778",
+          "cantidad": 1
+        }
+      ]
+    }
+  ]
+}
