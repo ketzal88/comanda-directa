@@ -151,3 +151,42 @@ describe('zona de envío en el mensaje', () => {
     expect(mensaje).toContain('*Total: $8.900*');
   });
 });
+
+describe('descuento por medio de pago', () => {
+  // $55.400 con tarjeta: 10% son $5.540, redondeado a $5.500 → $49.900
+  const disfraz: Item = { ...item, id: 'disfraz', nombre: 'Disfraz', precio: 55400 };
+  const pedido = agregar(PEDIDO_VACIO, lineaDeItem(disfraz)!);
+  const descuentosPago = {
+    efectivo: { tipo: 'porcentaje' as const, valor: 10 },
+    transferencia: { tipo: 'porcentaje' as const, valor: 10 },
+  };
+  const base = {
+    nombre: 'Ana',
+    modalidad: 'delivery' as const,
+    direccion: 'Calle 1',
+    zona: { nombre: 'Nordelta', precio: 0 },
+  };
+
+  it('en efectivo el total sale con el 10% y el descuento viaja en el mensaje', () => {
+    const msj = armarMensaje(pedido, { ...base, medioDePago: 'efectivo' }, 'Piedro Shop', { descuentosPago });
+    expect(msj).toContain('Descuento: efectivo 10% — $5.500');
+    expect(msj).toContain('*Total: $49.900*');
+  });
+
+  it('con tarjeta sale a precio de lista', () => {
+    const msj = armarMensaje(pedido, { ...base, medioDePago: 'tarjeta' }, 'Piedro Shop', { descuentosPago });
+    expect(msj).not.toContain('Descuento:');
+    expect(msj).toContain('Pago: tarjeta');
+    expect(msj).toContain('*Total: $55.400*');
+  });
+
+  it('la zona elegida llega en el mensaje', () => {
+    const msj = armarMensaje(pedido, { ...base, medioDePago: 'efectivo' }, 'Piedro Shop', { descuentosPago });
+    expect(msj).toContain('Envío: Nordelta — sin cargo');
+  });
+
+  it('con zonas cargadas, un delivery sin zona no se puede enviar', () => {
+    const errores = validarDatos({ ...base, zona: null }, ['delivery'], { hayZonas: true });
+    expect(errores.map((e) => e.campo)).toContain('zona');
+  });
+});

@@ -6,7 +6,7 @@ import { useClienteActual } from '@/componentes/ClienteContext';
 import { generarCodigo } from '@/logica/codigo-pedido';
 import { calcularCuenta } from '@/logica/cuenta';
 import { CUBIERTO, lineasDeCuenta, lineasPedidas, resumenTexto, revisarPedido } from '@/logica/pedido';
-import { armarMensaje, enlaceWhatsApp, validarDatos } from '@/logica/whatsapp';
+import { armarMensaje, descuentoDelMedio, enlaceWhatsApp, validarDatos } from '@/logica/whatsapp';
 import { MODALIDADES } from '@/logica/tipos';
 import type { ConfigPedido, Item, MedioDePago, Modalidad, ZonaEnvio } from '@/logica/tipos';
 import type { DatosComensal } from '@/logica/whatsapp';
@@ -81,6 +81,7 @@ export function useHojaPedido({ items, cubiertoPorPersona, configPedido, onCerra
     modalidad,
     descuentoRetiro: configPedido.descuentoRetiro,
     descuentoManual: { tipo: 'ninguno' },
+    descuentoPago: descuentoDelMedio(configPedido.descuentosPago, medioDePago),
     envio: modalidad === 'delivery' ? (zona?.precio ?? 0) : 0,
   });
 
@@ -94,13 +95,16 @@ export function useHojaPedido({ items, cubiertoPorPersona, configPedido, onCerra
     medioDePago,
     zona,
   };
-  const errores = modalidad ? validarDatos(datos, habilitadas) : [];
+  const errores = modalidad
+    ? validarDatos(datos, habilitadas, { hayZonas: configPedido.zonasEnvio.length > 0 })
+    : [];
   const errorDe = (campo: keyof DatosComensal) => errores.find((e) => e.campo === campo)?.mensaje;
 
   const mensaje = armarMensaje(pedido, datos, nombreLocal, {
     cubiertoPorPersona,
     cabecera: configPedido.cabecera,
     descuentoRetiro: configPedido.descuentoRetiro,
+    descuentosPago: configPedido.descuentosPago,
     codigo,
   });
   const enlace = enlaceWhatsApp(configPedido.whatsapp, mensaje);
@@ -129,6 +133,10 @@ export function useHojaPedido({ items, cubiertoPorPersona, configPedido, onCerra
   };
 
   const continuar = () => (modalidad ? setPaso('datos') : setMostrarErrores(true));
+  // Con zonas cargadas, un delivery sin zona no se puede enviar (ver
+  // `validarDatos`). Cada hoja decide en qué paso lo exige: la de halloween
+  // pregunta la zona en el primero.
+  const faltaZona = modalidad === 'delivery' && configPedido.zonasEnvio.length > 0 && !zona;
 
   return {
     nombreLocal,
@@ -172,6 +180,7 @@ export function useHojaPedido({ items, cubiertoPorPersona, configPedido, onCerra
     puedeEnviar,
     alEnviar,
     continuar,
+    faltaZona,
     cambiarCantidad,
     quitar,
     vaciar,

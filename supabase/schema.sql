@@ -30,6 +30,8 @@ create table if not exists clientes (
   medios_de_pago text[] not null default '{}',
   zonas_envio jsonb not null default '[]'::jsonb,
   descuento_retiro jsonb not null default '{"tipo":"ninguno"}'::jsonb,
+  -- { "efectivo": {"tipo":"porcentaje","valor":10}, ... } (logica/tipos.ts DescuentosPago)
+  descuentos_pago jsonb not null default '{}'::jsonb,
 
   clave_panel_hash text,
   activo boolean not null default true,

@@ -10,8 +10,8 @@ import { AvisoDesactualizado } from '@/componentes/AvisoDesactualizado';
 import { useClienteActual } from '@/componentes/ClienteContext';
 import { formatearPrecio, textoEnvio } from '@/logica/precio';
 import { precioDesde } from '@/logica/variantes';
-import { enlaceWhatsApp } from '@/logica/whatsapp';
-import type { Carta as CartaDatos, Categoria, ConfigPedido, Item } from '@/logica/tipos';
+import { ETIQUETA_MEDIO, enlaceWhatsApp } from '@/logica/whatsapp';
+import type { Carta as CartaDatos, Categoria, ConfigPedido, Item, ZonaEnvio } from '@/logica/tipos';
 
 type Props = {
   carta: CartaDatos;
@@ -57,6 +57,33 @@ const ADORNO_CATEGORIA: Record<string, { icono: string; bajada: string }> = {
     bajada: 'Arañas, velas, calderos, lápidas y colgantes para asustar a todos.',
   },
 };
+
+/** Condiciones de la temporada. Viven acá, como los adornos de categoría,
+ *  porque la base no tiene dónde guardarlas y son de esta campaña.
+ *
+ *  Los animatrónicos y los inflables no están en el local: se encargan al
+ *  mayorista. Sin el aviso en la tarjeta, el que pide el 29 espera tenerlo
+ *  el 31. */
+const CORTE_ENCARGOS = 'Encargos hasta el 20 de octubre';
+const AVISO_A_PEDIDO = 'A pedido · entrega 7 a 10 días · seña 70%';
+const CATEGORIAS_A_PEDIDO = new Set(['ANIMATRÓNICOS', 'INFLABLES GIGANTES']);
+
+/** "10% OFF en efectivo o transferencia", armado desde la config de pedido:
+ *  el cartel no puede prometer un descuento que el total no aplica. */
+function textoDescuentoPago(config: ConfigPedido): string {
+  const medios = config.mediosDePago.filter((m) => config.descuentosPago[m]?.tipo === 'porcentaje');
+  if (!medios.length) return '';
+  const valores = new Set(medios.map((m) => (config.descuentosPago[m] as { valor: number }).valor));
+  if (valores.size > 1) return '';
+  return `${[...valores][0]}% OFF en ${medios.map((m) => ETIQUETA_MEDIO[m].toLowerCase()).join(' o ')}`;
+}
+
+/** "A convenir" + "a convenir" no le dice nada a nadie: el costo se agrega
+ *  sólo cuando el nombre de la zona no lo dice ya. */
+function costoZona(z: ZonaEnvio): string {
+  const costo = textoEnvio(z.precio);
+  return z.nombre.toLowerCase().includes(costo.toLowerCase()) ? '' : costo;
+}
 
 /** Las tres fotos del collage del encabezado. Se eligen por nombre —son las
  *  que quedaron mejor en el diseño— y si alguna no está se cae a las
@@ -117,6 +144,13 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
 
   const conProductos = categorias.filter((c) => (porCategoria.get(c.id)?.length ?? 0) > 0);
 
+  const aPedido = useMemo(
+    () => new Set(categorias.filter((c) => CATEGORIAS_A_PEDIDO.has(c.nombre)).map((c) => c.id)),
+    [categorias],
+  );
+  const avisoDe = (item: Item) => (aPedido.has(item.categoriaId) ? AVISO_A_PEDIDO : undefined);
+  const descuentoPago = textoDescuentoPago(configPedido);
+
   useEffect(() => {
     const secciones = document.querySelectorAll('[data-seccion]');
     if (!secciones.length) return;
@@ -157,6 +191,13 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
 
   return (
     <div className={`halloween ${CLASES_FUENTES} min-h-dvh overflow-x-hidden`}>
+      <p
+        className="m-0 px-4 py-2 text-center text-[14px] font-semibold tracking-[0.02em]"
+        style={{ background: 'var(--h-naranja)', color: '#fff' }}
+      >
+        {CORTE_ENCARGOS}
+      </p>
+
       <header className="relative max-w-[1100px] mx-auto px-5 pt-7 pb-2 text-center">
         <AdornosEncabezado />
 
@@ -229,13 +270,21 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                   boxShadow: '0 4px 10px rgb(42 27 69 / 0.1)',
                 }}
               >
-                ¡Todo lo que necesitás en un solo lugar! ♥
+                {descuentoPago ? `${descuentoPago} · Envío gratis ♥` : 'Envío gratis ♥'}
               </div>
             </div>
           )}
 
-          {configPedido.zonasEnvio.length > 0 && (
+          {(configPedido.zonasEnvio.length > 0 || descuentoPago) && (
             <div className="flex flex-wrap justify-center gap-2.5 mt-6">
+              {descuentoPago && (
+                <div
+                  className="flex items-center rounded-full px-5 py-2.5 text-[16px] font-bold"
+                  style={{ background: 'var(--h-naranja)', color: '#fff' }}
+                >
+                  {descuentoPago}
+                </div>
+              )}
               {configPedido.zonasEnvio.map((z) =>
                 // el envío sin cargo es el argumento de venta, así que va
                 // destacado; el resto de las zonas informan nomás
@@ -257,7 +306,7 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                     style={{ background: 'var(--h-lila)', color: 'var(--h-tinta)' }}
                   >
                     <span>{z.nombre}</span>
-                    <span className="font-bold">{textoEnvio(z.precio)}</span>
+                    {costoZona(z) && <span className="font-bold">{costoZona(z)}</span>}
                   </div>
                 ),
               )}
@@ -317,6 +366,7 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
             color={COLORES[i % 3]}
             inclinacion={i % 2 ? '1.2deg' : '-1.4deg'}
             onAbrir={setAbierto}
+            aviso={aPedido.has(c.id) ? AVISO_A_PEDIDO : undefined}
           />
         ))}
 
@@ -441,8 +491,13 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                     <>en {z.nombre}</>
                   ) : (
                     <>
-                      {z.nombre} ·{' '}
-                      <span style={{ color: 'var(--h-naranja)' }}>{textoEnvio(z.precio)}</span>
+                      {z.nombre}
+                      {costoZona(z) && (
+                        <>
+                          {' '}·{' '}
+                          <span style={{ color: 'var(--h-naranja)' }}>{costoZona(z)}</span>
+                        </>
+                      )}
                     </>
                   )}
                 </span>
@@ -466,7 +521,9 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
         </div>
       </footer>
 
-      {abierto && <ModalProducto item={abierto} onCerrar={() => setAbierto(null)} />}
+      {abierto && (
+        <ModalProducto item={abierto} aviso={avisoDe(abierto)} onCerrar={() => setAbierto(null)} />
+      )}
 
       <BarraPedidoHalloween items={visibles} configPedido={configPedido} />
     </div>
@@ -479,12 +536,14 @@ function SeccionCategoria({
   color,
   inclinacion,
   onAbrir,
+  aviso,
 }: {
   categoria: Categoria;
   items: Item[];
   color: string;
   inclinacion: string;
   onAbrir: (item: Item) => void;
+  aviso?: string;
 }) {
   const [desplegada, setDesplegada] = useState(false);
 
@@ -541,7 +600,7 @@ function SeccionCategoria({
 
       <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(150px,1fr))]">
         {visibles.map((item) => (
-          <TarjetaProducto key={item.id} item={item} onAbrir={onAbrir} />
+          <TarjetaProducto key={item.id} item={item} onAbrir={onAbrir} aviso={aviso} />
         ))}
       </div>
 

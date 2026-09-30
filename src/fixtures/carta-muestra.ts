@@ -91,4 +91,5 @@ export const CONFIG_PEDIDO_MUESTRA: ConfigPedido = {
     { nombre: 'Zona 2', precio: 3000 },
   ],
   descuentoRetiro: { tipo: 'porcentaje', valor: 10 },
+  descuentosPago: {},
 };

@@ -73,8 +73,12 @@ export type Descuento =
   | { tipo: 'porcentaje'; valor: number } // 0 a 100
   | { tipo: 'monto'; valor: number }; // ENTERO en pesos
 
-export const MEDIOS_DE_PAGO = ['transferencia', 'efectivo', 'link'] as const;
+export const MEDIOS_DE_PAGO = ['transferencia', 'efectivo', 'tarjeta', 'link'] as const;
 export type MedioDePago = (typeof MEDIOS_DE_PAGO)[number];
+
+/** Descuento por forma de pago ("10% pagando en efectivo"). Un medio que no
+ *  figura acá no descuenta nada. */
+export type DescuentosPago = Partial<Record<MedioDePago, Descuento>>;
 
 /** Una zona de envío con su precio. El local las asigna a mano según el
  *  barrio: la app no calcula distancias.
@@ -98,6 +102,7 @@ export type ConfigPedido = {
   zonasEnvio: ZonaEnvio[];
   /** Descuento automático por retirar en el local. */
   descuentoRetiro: Descuento;
+  descuentosPago: DescuentosPago;
 };
 
 export type Carta = {
@@ -147,6 +152,7 @@ export type Cliente = {
   mediosDePago: MedioDePago[];
   zonasEnvio: ZonaEnvio[];
   descuentoRetiro: Descuento;
+  descuentosPago: DescuentosPago;
 };
 
 export function configCartaDe(cliente: Cliente): ConfigCarta {
@@ -161,5 +167,6 @@ export function configPedidoDe(cliente: Cliente): ConfigPedido {
     mediosDePago: cliente.mediosDePago,
     zonasEnvio: cliente.zonasEnvio,
     descuentoRetiro: cliente.descuentoRetiro,
+    descuentosPago: cliente.descuentosPago,
   };
 }

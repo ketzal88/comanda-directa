@@ -229,6 +229,12 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
               </div>
             )}
 
+            {cuenta.descuentoPago > 0 && medioDePago && (
+              <div className="flex items-baseline justify-between mt-6" aria-live="polite">
+                <p className="metadata-item">Descuento · {ETIQUETA_MEDIO[medioDePago]}</p>
+                <p className="numero-item">−{formatearPrecio(cuenta.descuentoPago)}</p>
+              </div>
+            )}
             {cuenta.descuentoRetiro > 0 && (
               <div className="flex items-baseline justify-between mt-6" aria-live="polite">
                 <p className="metadata-item">Descuento por retiro</p>
@@ -433,6 +439,9 @@ export function HojaPedido({ items, cubiertoPorPersona, configPedido, onCerrar }
                     </button>
                   ))}
                 </div>
+                {mostrarErrores && errorDe('zona') && (
+                  <span className="metadata-item text-tinta block mt-2">{errorDe('zona')}</span>
+                )}
                 <p className="metadata-item mt-2">
                   El envío se suma al total. Si no ves tu zona, elegí la más cercana y aclaralo
                   arriba: el local la ajusta antes de despachar.

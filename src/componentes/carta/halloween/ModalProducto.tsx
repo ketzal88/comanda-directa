@@ -8,9 +8,10 @@ import { useClienteActual } from '@/componentes/ClienteContext';
 import { claveLinea } from '@/logica/pedido';
 import { formatearPrecio } from '@/logica/precio';
 import { tieneVariantes, variantesDe } from '@/logica/variantes';
+import { AvisoVenta } from './TarjetaProducto';
 import type { Item } from '@/logica/tipos';
 
-type Props = { item: Item; onCerrar: () => void };
+type Props = { item: Item; onCerrar: () => void; aviso?: string };
 
 /** La ficha del producto: la foto grande, lo que trae y los talles.
  *
@@ -20,7 +21,7 @@ type Props = { item: Item; onCerrar: () => void };
  *  despacha a ciegas. Así que cada talle tiene su fila, con su precio y su
  *  propio contador: quien arma una fiesta se lleva dos M y una S del mismo
  *  modelo, y eso son tres líneas distintas del pedido. */
-export function ModalProducto({ item, onCerrar }: Props) {
+export function ModalProducto({ item, onCerrar, aviso }: Props) {
   const { slug } = useClienteActual();
   const { agregarItem, cambiarCantidad, cantidadDe } = usePedido(slug);
   const cerrar = useRef<HTMLButtonElement>(null);
@@ -103,6 +104,12 @@ export function ModalProducto({ item, onCerrar }: Props) {
         >
           {item.nombre}
         </h2>
+
+        {aviso && (
+          <div className="px-1.5">
+            <AvisoVenta texto={aviso} />
+          </div>
+        )}
 
         {item.descripcion && (
           <p className="px-1.5 mt-1 text-[14.5px]" style={{ color: 'var(--h-tinta-suave)' }}>

@@ -33,10 +33,9 @@ function conMargen(precioMayorista: number): number {
  *  dividido por `1 - COMISION_TARJETA`, redondeado a los $100 de arriba. */
 export const COMISION_TARJETA = 0.1;
 
-/** El descuento que se ofrece pagando en efectivo. Lo anuncian las notas de
- *  la carta; el motor todavía no descuenta por medio de pago, así que el
- *  total del mensaje de WhatsApp sale a precio de lista y el local lo ajusta
- *  al confirmar. */
+/** El descuento pagando en efectivo o transferencia. Lo aplica el motor al
+ *  elegir el medio de pago (`descuentosPago`): el total de la hoja y del
+ *  mensaje de WhatsApp ya salen con el descuento. */
 export const DESCUENTO_EFECTIVO = 0.1;
 
 function precioTarjeta(precioEfectivo: number): number {
@@ -118,8 +117,9 @@ export const CONFIG_PEDIDO_HALLOWEEN: ConfigPedido = {
   // modalidad habilitada el selector de modalidad ni se muestra.
   modalidades: ['delivery'],
   cabecera: '',
-  // Sin "link" hasta que exista el generador de Mercado Pago.
-  mediosDePago: ['transferencia', 'efectivo'],
+  // Sin "link" hasta que exista el generador de Mercado Pago. "tarjeta" paga
+  // el precio de lista; los otros dos, con descuento.
+  mediosDePago: ['efectivo', 'transferencia', 'tarjeta'],
   // Los destinos que se ofrecen. Cargados acá y no escritos en el diseño, el
   // precio se suma solo al total y viaja en el mensaje de WhatsApp; la
   // plantilla lee esta misma lista para los carteles del encabezado y del
@@ -133,6 +133,10 @@ export const CONFIG_PEDIDO_HALLOWEEN: ConfigPedido = {
     { nombre: 'A convenir', precio: null },
   ],
   descuentoRetiro: { tipo: 'ninguno' },
+  descuentosPago: {
+    efectivo: { tipo: 'porcentaje', valor: DESCUENTO_EFECTIVO * 100 },
+    transferencia: { tipo: 'porcentaje', valor: DESCUENTO_EFECTIVO * 100 },
+  },
 };
 
 type Fila = {
@@ -176,7 +180,7 @@ function categoria(categoriaId: string, filas: Fila[]): Item[] {
  *  cliente (hojas "Catálogo" y "Combos"), volcada tal cual a
  *  `scripts/data/piedro-planilla.json`. Se toma el precio CON TARJETA, que es
  *  el de lista: pagando en efectivo se le descuenta `DESCUENTO_EFECTIVO`
- *  (lo anuncian las notas de la carta y lo aplica el local al confirmar).
+ *  (lo aplica el motor al elegir el medio de pago).
  *
  *  La planilla trae un disfraz por fila y por talle ("Disfraz Preso Talle M",
  *  "Disfraz Preso Talle L"). Acá se juntan en un producto con variantes: dos
@@ -341,7 +345,7 @@ export const CATALOGO_HALLOWEEN: Carta = {
     // manuscrita del diseño y las siguientes como letra chica del pie.
     notas: [
       'Armá el pedido y mandalo por WhatsApp: te confirmamos stock, envío y forma de pago.',
-      `Precios con tarjeta. Pagando en efectivo, ${DESCUENTO_EFECTIVO * 100}% de descuento.`,
+      `Precios con tarjeta. Pagando en efectivo o transferencia, ${DESCUENTO_EFECTIVO * 100}% de descuento.`,
       'Envío gratis a Villanueva y Nordelta, a coordinar. Precios en pesos, sujetos a stock.',
     ],
     cubiertoPorPersona: 0,

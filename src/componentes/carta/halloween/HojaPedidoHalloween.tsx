@@ -5,7 +5,7 @@ import { useHojaPedido } from '@/componentes/pedido/useHojaPedido';
 import { nombreDeLinea } from '@/logica/pedido';
 import { formatearPrecio, textoEnvio } from '@/logica/precio';
 import { ETIQUETA_MEDIO, ETIQUETA_MODALIDAD, MAX_TEXTO } from '@/logica/whatsapp';
-import type { ConfigPedido, Item } from '@/logica/tipos';
+import type { ConfigPedido, Item, MedioDePago } from '@/logica/tipos';
 
 type Props = { items: Item[]; configPedido: ConfigPedido; onCerrar: () => void };
 
@@ -37,6 +37,7 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
     zona,
     setZona,
     mostrarErrores,
+    setMostrarErrores,
     enviado,
     confirmandoVaciar,
     setConfirmandoVaciar,
@@ -52,6 +53,7 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
     puedeEnviar,
     alEnviar,
     continuar,
+    faltaZona,
     cambiarCantidad,
     quitar,
     vaciar,
@@ -71,6 +73,21 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
   }, [onCerrar]);
 
   const borde = { borderColor: 'rgb(42 27 69 / 0.18)' };
+
+  const porcentajeDe = (m: MedioDePago | null) => {
+    const d = m ? configPedido.descuentosPago[m] : undefined;
+    return d?.tipo === 'porcentaje' ? d.valor : 0;
+  };
+  const porcentajePago = porcentajeDe(medioDePago);
+  // Hasta que elija cómo paga, el total es el de lista: se le avisa que hay
+  // descuento para que no crea que el precio es ese sí o sí.
+  const conDescuento = configPedido.mediosDePago.filter((m) => porcentajeDe(m) > 0);
+  const avisoDescuento =
+    conDescuento.length && medioDePago !== 'tarjeta'
+      ? `${porcentajeDe(conDescuento[0])}% OFF pagando en ${conDescuento
+          .map((m) => ETIQUETA_MEDIO[m].toLowerCase())
+          .join(' o ')}${paso === 'pedido' ? ': lo elegís en el paso siguiente' : ''}.`
+      : '';
 
   return (
     <div
@@ -181,6 +198,11 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                       );
                     })}
                   </div>
+                  {mostrarErrores && faltaZona && (
+                    <span className="block mt-1.5 text-[13px] font-semibold" aria-live="assertive" style={{ color: 'var(--h-naranja-hondo)' }}>
+                      Elegí a qué zona va el envío.
+                    </span>
+                  )}
                 </fieldset>
               )}
 
@@ -328,6 +350,7 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                         }}
                       >
                         {ETIQUETA_MEDIO[m]}
+                        {porcentajeDe(m) > 0 && ` · ${porcentajeDe(m)}% OFF`}
                       </button>
                     ))}
                   </div>
@@ -377,6 +400,25 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
           className="flex flex-col gap-3 border-t border-dashed px-5 pt-3.5"
           style={{ ...borde, paddingBottom: 'calc(18px + env(safe-area-inset-bottom))' }}
         >
+          {cuenta.descuentoPago > 0 && medioDePago && (
+            <>
+              <div className="flex items-baseline justify-between text-[14px]">
+                <span style={{ color: 'var(--h-tinta-suave)' }}>Precio con tarjeta</span>
+                <span className="line-through" style={{ color: 'var(--h-tinta-suave)' }}>
+                  {formatearPrecio(cuenta.subtotal)}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between text-[14px]">
+                <span style={{ color: 'var(--h-tinta-suave)' }}>
+                  {porcentajePago ? `${porcentajePago}% OFF` : 'Descuento'} ·{' '}
+                  {ETIQUETA_MEDIO[medioDePago].toLowerCase()}
+                </span>
+                <span className="font-bold" style={{ color: 'var(--h-naranja-hondo)' }}>
+                  −{formatearPrecio(cuenta.descuentoPago)}
+                </span>
+              </div>
+            </>
+          )}
           {cuenta.descuentoRetiro > 0 && (
             <div className="flex items-baseline justify-between text-[14px]">
               <span style={{ color: 'var(--h-tinta-suave)' }}>Descuento por retiro</span>
@@ -392,7 +434,11 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
 
           <div className="flex items-baseline justify-between" aria-live="polite">
             <span className="halloween-mano text-[21px]">
-              {cuenta.hayLineasSinPrecio ? 'Total parcial' : 'Total estimado'}
+              {cuenta.hayLineasSinPrecio
+                ? 'Total parcial'
+                : cuenta.descuentoPago > 0
+                  ? `Total con ${porcentajePago ? `${porcentajePago}% OFF` : 'descuento'}`
+                  : 'Total estimado'}
             </span>
             <span className="text-[22px] font-bold">
               {cuenta.total > 0 ? formatearPrecio(cuenta.total) : '—'}
@@ -406,9 +452,9 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
             </p>
           )}
 
-          {zona?.precio === null && (
-            <p className="-mt-1 text-[12.5px]" style={{ color: 'var(--h-tinta-suave)' }}>
-              El envío a esa zona se acuerda por WhatsApp y no está sumado acá.
+          {avisoDescuento && cuenta.descuentoPago === 0 && (
+            <p className="-mt-1.5 text-[12.5px] font-semibold" style={{ color: 'var(--h-naranja-hondo)' }}>
+              {avisoDescuento}
             </p>
           )}
 
@@ -417,7 +463,7 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
               {puedeEnviar ? (
                 <button
                   type="button"
-                  onClick={continuar}
+                  onClick={() => (faltaZona ? setMostrarErrores(true) : continuar())}
                   className="flex h-13 items-center justify-center rounded-full border-0 py-3.5 text-[17px] font-semibold text-white"
                   style={{ background: 'var(--h-naranja)' }}
                 >

@@ -15,6 +15,8 @@ export type Cuenta = {
   subtotal: number;
   descuentoRetiro: number;
   descuentoManual: number;
+  /** Por la forma de pago elegida ("10% en efectivo"). */
+  descuentoPago: number;
   envio: number;
   total: number;
   /** Hay al menos una línea sin precio y sin bonificar: el total está incompleto. */
@@ -29,6 +31,9 @@ export type ArgsCuenta = {
   modalidad: Modalidad | null;
   descuentoRetiro: Descuento;
   descuentoManual: Descuento;
+  /** El descuento del medio de pago que eligió el comensal. Opcional: el
+   *  panel y la extensión no lo conocen todavía. */
+  descuentoPago?: Descuento;
   /** Entero en pesos. Cero cuando no es delivery o no se cargó zona. */
   envio: number;
 };
@@ -54,6 +59,7 @@ export function calcularCuenta({
   modalidad,
   descuentoRetiro,
   descuentoManual,
+  descuentoPago = { tipo: 'ninguno' },
   envio,
 }: ArgsCuenta): Cuenta {
   const subtotal = lineas.reduce(
@@ -63,17 +69,23 @@ export function calcularCuenta({
 
   const hayLineasSinPrecio = lineas.some((l) => l.importe == null && !l.bonificada);
 
-  // los dos descuentos se calculan sobre el MISMO subtotal, no en cascada
+  // los descuentos se calculan sobre el MISMO subtotal, no en cascada
   const montoRetiro = modalidad === 'retiro' ? montoDelDescuento(descuentoRetiro, subtotal) : 0;
   const montoManual = montoDelDescuento(descuentoManual, subtotal);
+  // Redondeado a los $100 de abajo: el que paga en efectivo paga con billetes,
+  // y un total de $49.860 es un vuelto que nadie tiene. Para abajo, porque
+  // descontar de más es regalarle plata al comprador sin que el local lo
+  // haya decidido.
+  const montoPago = Math.floor(montoDelDescuento(descuentoPago, subtotal) / 100) * 100;
 
   const envioEntero = Number.isFinite(envio) ? Math.max(0, Math.floor(envio)) : 0;
-  const conDescuento = Math.max(0, subtotal - montoRetiro - montoManual);
+  const conDescuento = Math.max(0, subtotal - montoRetiro - montoManual - montoPago);
 
   return {
     subtotal,
     descuentoRetiro: montoRetiro,
     descuentoManual: montoManual,
+    descuentoPago: montoPago,
     envio: envioEntero,
     total: conDescuento + envioEntero,
     hayLineasSinPrecio,

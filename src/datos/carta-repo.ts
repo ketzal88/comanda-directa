@@ -2,8 +2,8 @@ import 'server-only';
 import { cache } from 'react';
 import { supabaseServidor } from './supabase-servidor';
 import { renumerar } from '@/logica/numeracion';
-import { TEMA_DEFECTO, configCartaDe } from '@/logica/tipos';
-import type { Carta, Categoria, Cliente, Descuento, Item, MedioDePago, Modalidad, Tema, ZonaEnvio } from '@/logica/tipos';
+import { MEDIOS_DE_PAGO, TEMA_DEFECTO, configCartaDe } from '@/logica/tipos';
+import type { Carta, Categoria, Cliente, Descuento, DescuentosPago, Item, MedioDePago, Modalidad, Tema, ZonaEnvio } from '@/logica/tipos';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Fila = Record<string, any>;
@@ -27,6 +27,17 @@ function aDescuento(crudo: unknown): Descuento {
   return { tipo: 'ninguno' };
 }
 
+/** Sin la columna (una base a la que todavía no se le corrió la 0002) o con
+ *  un medio que no existe, no descuenta nada: nunca se inventa un descuento. */
+function aDescuentosPago(crudo: unknown): DescuentosPago {
+  const mapa = (crudo ?? {}) as Record<string, unknown>;
+  const salida: DescuentosPago = {};
+  for (const medio of MEDIOS_DE_PAGO) {
+    if (mapa[medio] != null) salida[medio] = aDescuento(mapa[medio]);
+  }
+  return salida;
+}
+
 export function aCliente(fila: Fila): Cliente {
   return {
     id: fila.id,
@@ -44,6 +55,7 @@ export function aCliente(fila: Fila): Cliente {
     mediosDePago: (Array.isArray(fila.medios_de_pago) ? fila.medios_de_pago : []) as MedioDePago[],
     zonasEnvio: (Array.isArray(fila.zonas_envio) ? fila.zonas_envio : []) as ZonaEnvio[],
     descuentoRetiro: aDescuento(fila.descuento_retiro),
+    descuentosPago: aDescuentosPago(fila.descuentos_pago),
   };
 }
 

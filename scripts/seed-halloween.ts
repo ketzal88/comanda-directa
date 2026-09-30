@@ -67,6 +67,7 @@ const campos = {
   medios_de_pago: CONFIG_PEDIDO_HALLOWEEN.mediosDePago,
   zonas_envio: CONFIG_PEDIDO_HALLOWEEN.zonasEnvio,
   descuento_retiro: CONFIG_PEDIDO_HALLOWEEN.descuentoRetiro,
+  descuentos_pago: CONFIG_PEDIDO_HALLOWEEN.descuentosPago,
   ...(clave ? { clave_panel_hash: hash(clave) } : {}),
   activo: true,
 };

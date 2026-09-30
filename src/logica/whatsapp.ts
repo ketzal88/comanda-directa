@@ -2,7 +2,7 @@ import { calcularCuenta } from './cuenta';
 import { esCubierto, lineasDeCuenta, nombreDeLinea } from './pedido';
 import { formatearPrecio } from './precio';
 import type { LineaPedido, Pedido } from './pedido';
-import type { Descuento, MedioDePago, Modalidad, ZonaEnvio } from './tipos';
+import type { Descuento, DescuentosPago, MedioDePago, Modalidad, ZonaEnvio } from './tipos';
 
 /** El pedido armado, listo para salir por WhatsApp. Del otro lado hay una
  *  persona, no un POS: el mensaje trae todo lo que el salón preguntaría por
@@ -17,6 +17,7 @@ export const ETIQUETA_MODALIDAD: Record<Modalidad, string> = {
 export const ETIQUETA_MEDIO: Record<MedioDePago, string> = {
   transferencia: 'Transferencia',
   efectivo: 'Efectivo',
+  tarjeta: 'Tarjeta / Mercado Pago',
   link: 'Link de pago',
 };
 
@@ -41,8 +42,22 @@ export type ErrorDato = { campo: keyof DatosComensal; mensaje: string };
 /** Tope de cada campo libre: el texto termina en una URL. */
 export const MAX_TEXTO = 280;
 
-/** Qué falta para poder enviar. Devuelve TODOS los errores, no corta en el primero. */
-export function validarDatos(datos: DatosComensal, habilitadas: Modalidad[]): ErrorDato[] {
+/** El descuento que corresponde al medio elegido, o ninguno. */
+export function descuentoDelMedio(
+  descuentos: DescuentosPago,
+  medio: MedioDePago | null | undefined,
+): Descuento {
+  return (medio && descuentos[medio]) || { tipo: 'ninguno' };
+}
+
+/** Qué falta para poder enviar. Devuelve TODOS los errores, no corta en el primero.
+ *  `hayZonas`: con zonas cargadas, un delivery sin zona no sale. Sin ella el
+ *  mensaje llega diciendo "Delivery" y el local tiene que preguntar a dónde. */
+export function validarDatos(
+  datos: DatosComensal,
+  habilitadas: Modalidad[],
+  { hayZonas = false }: { hayZonas?: boolean } = {},
+): ErrorDato[] {
   const errores: ErrorDato[] = [];
 
   if (!datos.nombre.trim()) {
@@ -56,6 +71,9 @@ export function validarDatos(datos: DatosComensal, habilitadas: Modalidad[]): Er
   }
   if (datos.modalidad === 'delivery' && !datos.direccion?.trim()) {
     errores.push({ campo: 'direccion', mensaje: 'Hace falta la dirección para el envío.' });
+  }
+  if (datos.modalidad === 'delivery' && hayZonas && !datos.zona) {
+    errores.push({ campo: 'zona', mensaje: 'Elegí a qué zona va el envío.' });
   }
   // El teléfono es opcional, así que vacío no es un error. Cargado y a medias
   // sí: un número que no se puede discar es peor que ninguno, porque el local
@@ -120,11 +138,13 @@ export function armarMensaje(
     cubiertoPorPersona = 0,
     cabecera = '',
     descuentoRetiro = { tipo: 'ninguno' },
+    descuentosPago = {},
     codigo = '',
   }: {
     cubiertoPorPersona?: number;
     cabecera?: string;
     descuentoRetiro?: Descuento;
+    descuentosPago?: DescuentosPago;
     /** El código del pedido, sin el `#`. Vacío = el mensaje no lo lleva. */
     codigo?: string;
   } = {},
@@ -133,11 +153,13 @@ export function armarMensaje(
 
   const zona = datos.modalidad === 'delivery' ? (datos.zona ?? null) : null;
 
+  const descuentoPago = descuentoDelMedio(descuentosPago, datos.medioDePago);
   const cuenta = calcularCuenta({
     lineas: lineasDeCuenta(pedido),
     modalidad: datos.modalidad,
     descuentoRetiro,
     descuentoManual: { tipo: 'ninguno' },
+    descuentoPago,
     envio: zona?.precio ?? 0,
   });
 
@@ -169,10 +191,22 @@ export function armarMensaje(
     const monto = zona.precio === null ? '' : ` — ${cuenta.envio > 0 ? formatearPrecio(cuenta.envio) : 'sin cargo'}`;
     bloques.push(`Envío: ${zona.nombre}${monto}`);
   }
+  // UN solo bloque de descuento aunque haya dos: el parser de la extensión
+  // lee un único "Descuento:" y se quedaría con el último.
+  const detalles: string[] = [];
   if (cuenta.descuentoRetiro > 0) {
-    const detalle =
-      descuentoRetiro.tipo === 'porcentaje' ? `retiro ${descuentoRetiro.valor}%` : 'retiro';
-    bloques.push(`Descuento: ${detalle} — ${formatearPrecio(cuenta.descuentoRetiro)}`);
+    detalles.push(descuentoRetiro.tipo === 'porcentaje' ? `retiro ${descuentoRetiro.valor}%` : 'retiro');
+  }
+  if (cuenta.descuentoPago > 0 && datos.medioDePago) {
+    detalles.push(
+      descuentoPago.tipo === 'porcentaje'
+        ? `${datos.medioDePago} ${descuentoPago.valor}%`
+        : datos.medioDePago,
+    );
+  }
+  if (detalles.length) {
+    const monto = cuenta.descuentoRetiro + cuenta.descuentoPago;
+    bloques.push(`Descuento: ${detalles.join(' + ')} — ${formatearPrecio(monto)}`);
   }
   // El código va DESPUÉS del bloque de contacto+nombre y con `#` en el
   // prefijo, no en el valor: el parser arranca en el bloque siguiente al

@@ -8,7 +8,13 @@ import { formatearPrecio } from '@/logica/precio';
 import { precioDesde, tieneVariantes, variantesDe } from '@/logica/variantes';
 import type { Item } from '@/logica/tipos';
 
-type Props = { item: Item; onAbrir: (item: Item) => void };
+type Props = {
+  item: Item;
+  onAbrir: (item: Item) => void;
+  /** Condición de venta que el comprador tiene que ver ANTES de agregar
+   *  ("A pedido · entrega 7 a 10 días · seña 70%"). */
+  aviso?: string;
+};
 
 /** Un producto en la grilla: foto, nombre, precio y el botón de agregar.
  *
@@ -18,7 +24,7 @@ type Props = { item: Item; onAbrir: (item: Item) => void };
  *  comprador. En ese caso el botón dice "Elegir talle" y abre la ficha, donde
  *  cada talle tiene su propio contador. Un disfraz en el talle equivocado es
  *  una devolución. */
-export function TarjetaProducto({ item, onAbrir }: Props) {
+export function TarjetaProducto({ item, onAbrir, aviso }: Props) {
   const { slug } = useClienteActual();
   const { agregarItem, cambiarCantidad, cantidadDe } = usePedido(slug);
 
@@ -62,6 +68,7 @@ export function TarjetaProducto({ item, onAbrir }: Props) {
 
       <div className="flex flex-1 flex-col gap-0.5 px-1">
         <div className="text-[14.5px] font-medium leading-[1.2] text-pretty">{item.nombre}</div>
+        {aviso && <AvisoVenta texto={aviso} />}
         <div className="mt-auto pt-1 flex items-baseline gap-1">
           {hayQueElegir && (
             <span className="halloween-mano text-[15px]" style={{ color: 'var(--h-tinta-suave)' }}>
@@ -137,5 +144,16 @@ export function TarjetaProducto({ item, onAbrir }: Props) {
         </button>
       )}
     </article>
+  );
+}
+
+export function AvisoVenta({ texto }: { texto: string }) {
+  return (
+    <span
+      className="mt-1 self-start rounded-[8px] px-2 py-1 text-[12px] font-semibold leading-[1.25]"
+      style={{ background: 'var(--h-durazno)', color: 'var(--h-tinta)' }}
+    >
+      {texto}
+    </span>
   );
 }
