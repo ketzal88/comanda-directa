@@ -8,10 +8,10 @@ import { TarjetaProducto } from './halloween/TarjetaProducto';
 import { CLASES_FUENTES } from './halloween/tipografia';
 import { AvisoDesactualizado } from '@/componentes/AvisoDesactualizado';
 import { useClienteActual } from '@/componentes/ClienteContext';
-import { formatearPrecio, textoEnvio } from '@/logica/precio';
+import { formatearPrecio } from '@/logica/precio';
 import { precioDesde } from '@/logica/variantes';
 import { ETIQUETA_MEDIO, enlaceWhatsApp } from '@/logica/whatsapp';
-import type { Carta as CartaDatos, Categoria, ConfigPedido, Item, ZonaEnvio } from '@/logica/tipos';
+import type { Carta as CartaDatos, Categoria, ConfigPedido, Item } from '@/logica/tipos';
 
 type Props = {
   carta: CartaDatos;
@@ -76,13 +76,6 @@ function textoDescuentoPago(config: ConfigPedido): string {
   const valores = new Set(medios.map((m) => (config.descuentosPago[m] as { valor: number }).valor));
   if (valores.size > 1) return '';
   return `${[...valores][0]}% OFF en ${medios.map((m) => ETIQUETA_MEDIO[m].toLowerCase()).join(' o ')}`;
-}
-
-/** "A convenir" + "a convenir" no le dice nada a nadie: el costo se agrega
- *  sólo cuando el nombre de la zona no lo dice ya. */
-function costoZona(z: ZonaEnvio): string {
-  const costo = textoEnvio(z.precio);
-  return z.nombre.toLowerCase().includes(costo.toLowerCase()) ? '' : costo;
 }
 
 /** Las tres fotos del collage del encabezado. Se eligen por nombre —son las
@@ -150,6 +143,9 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
   );
   const avisoDe = (item: Item) => (aPedido.has(item.categoriaId) ? AVISO_A_PEDIDO : undefined);
   const descuentoPago = textoDescuentoPago(configPedido);
+  const gratis = configPedido.zonasEnvio.filter((z) => z.precio === 0).map((z) => z.nombre);
+  const zonasGratis =
+    gratis.length > 1 ? `${gratis.slice(0, -1).join(', ')} y ${gratis.at(-1)}` : (gratis[0] ?? '');
 
   useEffect(() => {
     const secciones = document.querySelectorAll('[data-seccion]');
@@ -270,12 +266,12 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                   boxShadow: '0 4px 10px rgb(42 27 69 / 0.1)',
                 }}
               >
-                {descuentoPago ? `${descuentoPago} · Envío gratis ♥` : 'Envío gratis ♥'}
+                ¡Pedidos hasta el 20 de octubre! Stock limitado ♥
               </div>
             </div>
           )}
 
-          {(configPedido.zonasEnvio.length > 0 || descuentoPago) && (
+          {(zonasGratis || descuentoPago) && (
             <div className="flex flex-wrap justify-center gap-2.5 mt-6">
               {descuentoPago && (
                 <div
@@ -285,30 +281,19 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                   {descuentoPago}
                 </div>
               )}
-              {configPedido.zonasEnvio.map((z) =>
-                // el envío sin cargo es el argumento de venta, así que va
-                // destacado; el resto de las zonas informan nomás
-                z.precio === 0 ? (
-                  <div
-                    key={z.nombre}
-                    className="flex items-center gap-2 rounded-full px-4 py-2.5 text-[14px] font-medium"
-                    style={{ background: 'var(--h-tinta)', color: 'var(--h-crema)' }}
-                  >
-                    <span className="font-bold" style={{ color: 'var(--h-naranja)' }}>
-                      Envío gratis
-                    </span>
-                    <span>en {z.nombre}</span>
-                  </div>
-                ) : (
-                  <div
-                    key={z.nombre}
-                    className="flex items-center gap-2 rounded-full px-4 py-2.5 text-[14px] font-medium"
-                    style={{ background: 'var(--h-lila)', color: 'var(--h-tinta)' }}
-                  >
-                    <span>{z.nombre}</span>
-                    {costoZona(z) && <span className="font-bold">{costoZona(z)}</span>}
-                  </div>
-                ),
+              {/* Un solo chip con las zonas sin cargo: una por chip se leía como
+                  una lista de precios. Las zonas con costo o a convenir no se
+                  anuncian acá: se ven al elegir el envío en el pedido. */}
+              {zonasGratis && (
+                <div
+                  className="flex items-center gap-2 rounded-full px-4 py-2.5 text-[14px] font-medium"
+                  style={{ background: 'var(--h-tinta)', color: 'var(--h-crema)' }}
+                >
+                  <span className="font-bold" style={{ color: 'var(--h-naranja)' }}>
+                    Envío gratis
+                  </span>
+                  <span>en {zonasGratis}</span>
+                </div>
               )}
             </div>
           )}
@@ -478,30 +463,15 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
         <div className="relative mx-auto flex max-w-[560px] flex-col items-center gap-3.5">
           <div className="text-[28px] font-bold leading-none">{nombre}</div>
 
-          {configPedido.zonasEnvio.length > 0 && (
+          {zonasGratis && (
             <div className="text-[20px] font-bold uppercase tracking-[0.04em]">
-              {configPedido.zonasEnvio.some((z) => z.precio === 0) && <>Envío gratis</>}
-              {configPedido.zonasEnvio.map((z) => (
-                <span
-                  key={z.nombre}
-                  className="block mt-1.5 text-[13px] font-medium tracking-[0.08em]"
-                  style={{ color: z.precio === 0 ? 'var(--h-lila-medio)' : 'var(--h-crema)' }}
-                >
-                  {z.precio === 0 ? (
-                    <>en {z.nombre}</>
-                  ) : (
-                    <>
-                      {z.nombre}
-                      {costoZona(z) && (
-                        <>
-                          {' '}·{' '}
-                          <span style={{ color: 'var(--h-naranja)' }}>{costoZona(z)}</span>
-                        </>
-                      )}
-                    </>
-                  )}
-                </span>
-              ))}
+              Envío gratis
+              <span
+                className="block mt-1.5 text-[13px] font-medium tracking-[0.08em]"
+                style={{ color: 'var(--h-lila-medio)' }}
+              >
+                en {zonasGratis}
+              </span>
             </div>
           )}
 
