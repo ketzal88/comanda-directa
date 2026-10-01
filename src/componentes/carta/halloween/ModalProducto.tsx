@@ -109,11 +109,7 @@ export function ModalProducto({ item, onCerrar, aviso }: Props) {
           </div>
         )}
 
-        {item.descripcion && (
-          <p className="px-1.5 mt-1 text-[14.5px]" style={{ color: 'var(--h-tinta-suave)' }}>
-            {item.descripcion}
-          </p>
-        )}
+        {item.descripcion && <Descripcion texto={item.descripcion} />}
 
         {item.agotado ? (
           <p
@@ -220,6 +216,49 @@ export function ModalProducto({ item, onCerrar, aviso }: Props) {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+/** La descripción, con los renglones que empiezan con "- " como viñetas: lo
+ *  que trae un combo se lee de un vistazo en vez de en un párrafo de comas.
+ *  Un texto sin guiones (el que se carga a mano en el panel) sale igual que
+ *  siempre. */
+function Descripcion({ texto }: { texto: string }) {
+  const bloques: { titulo?: string; vinetas: string[] }[] = [];
+  for (const renglon of texto.split('\n')) {
+    const r = renglon.trim();
+    if (!r) continue;
+    if (r.startsWith('- ')) {
+      if (!bloques.length) bloques.push({ vinetas: [] });
+      bloques[bloques.length - 1].vinetas.push(r.slice(2));
+    } else {
+      bloques.push({ titulo: r, vinetas: [] });
+    }
+  }
+  return (
+    <div className="px-1.5 mt-1 flex flex-col gap-2 text-[14.5px]" style={{ color: 'var(--h-tinta-suave)' }}>
+      {bloques.map((b, i) => (
+        <div key={i}>
+          {b.titulo && (
+            <p className={b.vinetas.length ? 'font-semibold' : ''} style={b.vinetas.length ? { color: 'var(--h-tinta)' } : undefined}>
+              {b.titulo}
+            </p>
+          )}
+          {b.vinetas.length > 0 && (
+            <ul className="mt-1 flex flex-col gap-0.5">
+              {b.vinetas.map((v) => (
+                <li key={v} className="flex gap-2">
+                  <span aria-hidden="true" style={{ color: 'var(--h-naranja)' }}>
+                    •
+                  </span>
+                  <span>{v}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

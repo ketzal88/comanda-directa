@@ -114,7 +114,7 @@ describe('pedido de Halloween por WhatsApp', () => {
   it('los combos son sólo los de la hoja, a precio con tarjeta', () => {
     const combos = items.filter((i) => i.categoriaId === 'combos');
     for (const c of combos.filter((c) => !c.variantes.length)) {
-      expect(c.descripcion, c.nombre).toMatch(/^Incluye: /);
+      expect(c.descripcion, c.nombre).toMatch(/^Incluye:\n- \d+ × /);
     }
     // El de la planilla "con tarjeta": con el de efectivo el 10% se
     // descontaba dos veces al pagar en efectivo.
@@ -134,9 +134,21 @@ describe('pedido de Halloween por WhatsApp', () => {
       { etiqueta: 'Esqueleto M 7-9', precio: 29800 },
     ]);
     expect(disfraz.descripcion).toBe(
-      'Todo lo que necesita para salir a pedir dulces, en un solo pedido. ' +
-        'Look Brujita: Tutú spooky (color surtido), set brujita chispeante, nariz de bruja con verruga, balde y varita mágica. ' +
-        'Look Esqueleto (talle S 5-6 años o M 7-9 años): Disfraz de esqueleto, balde y tatuajes de cortes de cara.',
+      [
+        'Todo lo que necesita para salir a pedir dulces, en un solo pedido.',
+        '',
+        'Look Brujita:',
+        '- Tutú spooky (color surtido)',
+        '- Set brujita chispeante',
+        '- Nariz de bruja con verruga',
+        '- Balde',
+        '- Varita mágica',
+        '',
+        'Look Esqueleto (talle S 5-6 años o M 7-9 años):',
+        '- Disfraz de esqueleto',
+        '- Balde',
+        '- Tatuajes de cortes de cara',
+      ].join('\n'),
     );
     // El look y el talle llegan en el mensaje: sin eso el local no sabe qué armar.
     const linea = lineaDeItem(disfraz, 'Esqueleto M 7-9')!;

@@ -220,16 +220,28 @@ type ComboPlanilla = {
  *  en el mensaje de WhatsApp ("Disfraz completo · Esqueleto S 5-6"), que es
  *  lo que el local necesita para armarlo. Las etiquetas entran en los 16
  *  caracteres del panel (lo verifica la prueba). */
+/** "a, b, c y d" → ["A", "B", "C", "D"]: la lista de la planilla, una por
+ *  renglón, para que en la ficha se lea como viñetas. */
+function enRenglones(lista: string): string[] {
+  return lista
+    .split(/,\s*|\s+y\s+(?=[^,]*$)/)
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .map((x) => x[0].toUpperCase() + x.slice(1));
+}
+
 function comboConLooks(c: ComboPlanilla): Fila {
   const looks = c.looks!;
+  // Formato de la descripción: un renglón que empieza con "- " es una viñeta
+  // (lo pinta `ModalProducto`); el panel lo muestra y edita como texto.
   const incluye = looks
     .map((l) => {
       const talles = l.talles.length
         ? ` (talle ${l.talles.map((t) => `${t} años`).join(' o ')})`
         : '';
-      return `Look ${l.look}${talles}: ${l.incluye}.`;
+      return [`Look ${l.look}${talles}:`, ...enRenglones(l.incluye).map((x) => `- ${x}`)].join('\n');
     })
-    .join(' ');
+    .join('\n\n');
   return {
     id: `combo-${slugDe(c.nombre)}`,
     nombre: c.nombre,
@@ -239,7 +251,7 @@ function comboConLooks(c: ComboPlanilla): Fila {
         ? l.talles.map((t): [string, number] => [`${l.look} ${t}`, c.tarjeta])
         : [[l.look, c.tarjeta] as [string, number]],
     ),
-    descripcion: `${c.descripcion} ${incluye}`,
+    descripcion: `${c.descripcion}\n\n${incluye}`,
   };
 }
 
@@ -331,13 +343,13 @@ const COMBOS = categoria(
     const contenido = (c.productos ?? []).map(({ codigo, cantidad }) => {
       const p = PRODUCTOS_PLANILLA.find((x) => x.codigo === codigo);
       if (!p) throw new Error(`El combo "${c.nombre}" trae un código que no está en el catálogo: ${codigo}`);
-      return `${cantidad} × ${p.nombre}`;
+      return `- ${cantidad} × ${p.nombre}`;
     });
     return {
       id: `combo-${slugDe(c.nombre)}`,
       nombre: c.nombre.startsWith('Combo') ? c.nombre : `Combo ${c.nombre}`,
       precio: c.tarjeta,
-      descripcion: `Incluye: ${contenido.join(', ')}.`,
+      descripcion: `Incluye:\n${contenido.join('\n')}`,
     };
   }),
 );
