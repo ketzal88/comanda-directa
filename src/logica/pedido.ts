@@ -137,7 +137,55 @@ export function lineasDeCuenta(pedido: Pedido): LineaDeCuenta[] {
   return pedido.lineas.map((l) => ({
     importe: l.precioUnitario > 0 ? l.precioUnitario * l.cantidad : null,
     bonificada: false,
+    precioUnitario: l.precioUnitario,
+    cantidad: l.cantidad,
   }));
+}
+
+/** El pedido guardado, puesto al día con la carta que se acaba de leer.
+ *
+ *  El pedido vive días en el navegador y la carta cambia: un producto que se
+ *  dio de baja seguía en el carrito con su precio viejo y llegaba así al
+ *  mensaje. Acá se saca lo que ya no está (o la medida que ya no se vende) y
+ *  se refrescan nombre y precio de lo que sigue.
+ *
+ *  Se busca por id y, si no aparece, por nombre: recargar el catálogo desde
+ *  el seed le da ids nuevos a los mismos productos. Devuelve el MISMO objeto
+ *  si no hay nada que cambiar, para no escribir de más. */
+export function sincronizarPedido(pedido: Pedido, items: Item[]): Pedido {
+  const porId = new Map(items.map((i) => [i.id, i]));
+  const porNombre = new Map(items.map((i) => [i.nombre.trim().toLowerCase(), i]));
+
+  let cambio = false;
+  const lineas: LineaPedido[] = [];
+  for (const l of pedido.lineas) {
+    if (esCubierto(l.itemId)) {
+      lineas.push(l);
+      continue;
+    }
+    const item = porId.get(l.itemId) ?? porNombre.get(l.nombre.trim().toLowerCase());
+    const nueva = item && item.activo ? lineaDeItem(item, l.variante) : null;
+    if (!nueva) {
+      cambio = true;
+      continue;
+    }
+    const linea = { ...nueva, cantidad: l.cantidad };
+    if (
+      linea.clave !== l.clave ||
+      linea.nombre !== l.nombre ||
+      linea.precioUnitario !== l.precioUnitario
+    ) {
+      cambio = true;
+    }
+    const repetida = lineas.find((x) => x.clave === linea.clave);
+    if (repetida) {
+      repetida.cantidad = Math.min(repetida.cantidad + linea.cantidad, MAX_CANTIDAD);
+      cambio = true;
+    } else {
+      lineas.push(linea);
+    }
+  }
+  return cambio ? { lineas } : pedido;
 }
 
 export type Aviso = {

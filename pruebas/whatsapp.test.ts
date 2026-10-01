@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { armarMensaje, enlaceWhatsApp, normalizarNumero, numeroUsable, validarDatos } from '../src/logica/whatsapp';
-import { agregar, lineaDeItem, PEDIDO_VACIO } from '../src/logica/pedido';
+import { agregar, lineaDeItem, PEDIDO_VACIO, sincronizarPedido } from '../src/logica/pedido';
 import type { Item } from '../src/logica/tipos';
 
 const item: Item = {
@@ -169,8 +169,20 @@ describe('descuento por medio de pago', () => {
 
   it('en efectivo el total sale con el 10% y el descuento viaja en el mensaje', () => {
     const msj = armarMensaje(pedido, { ...base, medioDePago: 'efectivo' }, 'Piedro Shop', { descuentosPago });
-    expect(msj).toContain('Descuento: efectivo 10% — $5.500');
-    expect(msj).toContain('*Total: $49.900*');
+    // $55.400 × 0,9 = $49.860 → $49.800, el precio en efectivo de la carta.
+    expect(msj).toContain('Descuento: efectivo 10% — $5.600');
+    expect(msj).toContain('*Total: $49.800*');
+  });
+
+  it('en efectivo cada unidad va a su precio en efectivo, no el 10% del total', () => {
+    // Set Diablita: $14.300 con tarjeta, $12.800 en efectivo en la planilla.
+    // Sobre el total daría $25.740 → $25.700; por unidad, 2 × $12.800.
+    const dos = {
+      lineas: [{ clave: 'd::unica', itemId: 'd', nombre: 'Set Diablita', variante: '', precioUnitario: 14300, cantidad: 2 }],
+    };
+    const msj = armarMensaje(dos, { ...base, medioDePago: 'efectivo' }, 'Piedro Shop', { descuentosPago });
+    expect(msj).toContain('*Total: $25.600*');
+    expect(msj).toContain('Descuento: efectivo 10% — $3.000');
   });
 
   it('con tarjeta sale a precio de lista', () => {
@@ -188,5 +200,40 @@ describe('descuento por medio de pago', () => {
   it('con zonas cargadas, un delivery sin zona no se puede enviar', () => {
     const errores = validarDatos({ ...base, zona: null }, ['delivery'], { hayZonas: true });
     expect(errores.map((e) => e.campo)).toContain('zona');
+  });
+});
+
+describe('pedido guardado vs. carta nueva', () => {
+  const item = (id: string, nombre: string, precio: number, extra: Partial<Item> = {}): Item => ({
+    id, numero: 1, nombre, categoriaId: 'c', orden: 1, precio, variantes: [], agotado: false,
+    activo: true, etiquetas: [], ...extra,
+  });
+  const linea = (itemId: string, nombre: string, precio: number, cantidad = 1) => ({
+    clave: `${itemId}::unica`, itemId, nombre, variante: '', precioUnitario: precio, cantidad,
+  });
+
+  it('saca lo que ya no está y actualiza el precio de lo que cambió', () => {
+    const guardado = { lineas: [linea('a', 'Combo Halloween Básico', 12600), linea('b', 'Set Diablita', 14000, 2)] };
+    const aldia = sincronizarPedido(guardado, [item('b', 'Set Diablita', 14300)]);
+    expect(aldia.lineas).toEqual([linea('b', 'Set Diablita', 14300, 2)]);
+  });
+
+  it('reconoce por nombre un producto que el seed recargó con otro id', () => {
+    const guardado = { lineas: [linea('viejo', 'Set Diablita', 14300)] };
+    const aldia = sincronizarPedido(guardado, [item('nuevo', 'Set Diablita', 14300)]);
+    expect(aldia.lineas.map((l) => l.itemId)).toEqual(['nuevo']);
+  });
+
+  it('una medida que ya no se vende sale del pedido', () => {
+    const guardado = { lineas: [{ ...linea('p', 'Disfraz', 30000), clave: 'p::Talle XL', variante: 'Talle XL' }] };
+    const aldia = sincronizarPedido(guardado, [
+      item('p', 'Disfraz', 0, { variantes: [{ etiqueta: 'Talle M', precio: 30000 }] }),
+    ]);
+    expect(aldia.lineas).toEqual([]);
+  });
+
+  it('sin cambios devuelve el mismo pedido (no reescribe)', () => {
+    const guardado = { lineas: [linea('b', 'Set Diablita', 14300)] };
+    expect(sincronizarPedido(guardado, [item('b', 'Set Diablita', 14300)])).toBe(guardado);
   });
 });

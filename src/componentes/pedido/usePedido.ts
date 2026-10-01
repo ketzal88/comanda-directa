@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { escribir, leer, leerEnServidor, suscribir } from '@/datos/pedido-almacen';
 import {
   PEDIDO_VACIO,
@@ -11,6 +11,7 @@ import {
   lineaDeItem,
   quitar,
   sinCubierto,
+  sincronizarPedido,
   totalizar,
 } from '@/logica/pedido';
 import type { Item } from '@/logica/tipos';
@@ -59,4 +60,14 @@ export function usePedido(slug: string) {
       return pedido.lineas.find((l) => l.clave === clave)?.cantidad ?? 0;
     },
   };
+}
+
+/** Pone el pedido guardado al día con la carta (`sincronizarPedido`) cada vez
+ *  que llega una carta nueva. Va una sola vez por página, en la plantilla. */
+export function useSincronizarPedido(slug: string, items: Item[]) {
+  const { pedido } = usePedido(slug);
+  useEffect(() => {
+    const aldia = sincronizarPedido(pedido, items);
+    if (aldia !== pedido) escribir(slug, aldia);
+  }, [slug, items, pedido]);
 }

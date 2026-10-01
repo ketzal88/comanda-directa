@@ -6,13 +6,15 @@ import { useClienteActual } from '@/componentes/ClienteContext';
 import { claveLinea } from '@/logica/pedido';
 import { formatearPrecio } from '@/logica/precio';
 import { precioDesde, tieneVariantes, variantesDe } from '@/logica/variantes';
-import type { Item } from '@/logica/tipos';
+import { precioConDescuentoPago } from '@/logica/cuenta';
+import { textoEleccion } from './eleccion';
+import type { Descuento, Item } from '@/logica/tipos';
 
 type Props = {
   item: Item;
   onAbrir: (item: Item) => void;
-  /** El descuento pagando en efectivo, en %. 0 = no se muestra la línea. */
-  pctEfectivo?: number;
+  /** El descuento pagando en efectivo. 'ninguno' = no se muestra la línea. */
+  efectivo?: Descuento;
 };
 
 /** Un producto en la grilla: foto, nombre, precio y el botón de agregar.
@@ -23,7 +25,7 @@ type Props = {
  *  comprador. En ese caso el botón dice "Elegir talle" y abre la ficha, donde
  *  cada talle tiene su propio contador. Un disfraz en el talle equivocado es
  *  una devolución. */
-export function TarjetaProducto({ item, onAbrir, pctEfectivo = 0 }: Props) {
+export function TarjetaProducto({ item, onAbrir, efectivo = { tipo: 'ninguno' } }: Props) {
   const { slug } = useClienteActual();
   const { agregarItem, cambiarCantidad, cantidadDe } = usePedido(slug);
 
@@ -31,10 +33,11 @@ export function TarjetaProducto({ item, onAbrir, pctEfectivo = 0 }: Props) {
   const hayQueElegir = tieneVariantes(item) && medidas.length > 1;
   const cantidad = medidas.reduce((n, v) => n + cantidadDe(item.id, v.etiqueta), 0);
   const desde = precioDesde(item);
-  // Mismo redondeo que `montoDelDescuento` (para abajo, por línea). El total
-  // del pedido además redondea el descuento a los $100: puede dar hasta $99
-  // más que la suma de estas líneas, nunca menos.
-  const enEfectivo = pctEfectivo > 0 && desde > 0 ? desde - Math.floor((desde * pctEfectivo) / 100) : 0;
+  // El mismo cálculo que el total del pedido y el mensaje de WhatsApp.
+  const enEfectivo = efectivo.tipo === 'porcentaje' && desde > 0 ? precioConDescuentoPago(desde, efectivo) : 0;
+  // "desde" sólo si las opciones cuestan distinto: el Disfraz completo vale
+  // lo mismo en Brujita que en Esqueleto.
+  const preciosDistintos = new Set(medidas.map((v) => v.precio)).size > 1;
 
   const sumar = (e: React.MouseEvent<HTMLButtonElement>) => {
     chispas(e.currentTarget, cantidad === 0);
@@ -72,7 +75,7 @@ export function TarjetaProducto({ item, onAbrir, pctEfectivo = 0 }: Props) {
       <div className="flex flex-1 flex-col gap-0.5 px-1">
         <div className="text-[14.5px] font-medium leading-[1.2] text-pretty">{item.nombre}</div>
         <div className="mt-auto pt-1 flex items-baseline gap-1">
-          {hayQueElegir && (
+          {hayQueElegir && preciosDistintos && (
             <span className="halloween-mano text-[15px]" style={{ color: 'var(--h-tinta-suave)' }}>
               desde
             </span>
@@ -106,7 +109,7 @@ export function TarjetaProducto({ item, onAbrir, pctEfectivo = 0 }: Props) {
             color: cantidad > 0 ? 'var(--h-crema)' : 'var(--h-tinta)',
           }}
         >
-          {cantidad > 0 ? `${cantidad} en el pedido` : 'Elegir talle'}
+          {cantidad > 0 ? `${cantidad} en el pedido` : textoEleccion(medidas).boton}
         </button>
       ) : cantidad > 0 ? (
         <div

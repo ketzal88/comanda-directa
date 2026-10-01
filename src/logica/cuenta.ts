@@ -9,6 +9,11 @@ export type LineaDeCuenta = {
    *  mismo que un cero por bonificación. */
   importe: number | null;
   bonificada: boolean;
+  /** Precio por unidad y cantidad. Con los dos, el descuento por medio de
+   *  pago en % se calcula por unidad (ver `precioConDescuentoPago`); sin
+   *  ellos (el panel, la extensión), sobre el subtotal. */
+  precioUnitario?: number;
+  cantidad?: number;
 };
 
 export type Cuenta = {
@@ -54,6 +59,34 @@ function montoDelDescuento(descuento: Descuento, base: number): number {
   return Math.floor((base * porcentaje) / 100);
 }
 
+/** El precio de UNA unidad pagando con un medio que descuenta un %: el de
+ *  lista menos el %, redondeado a los $100 de abajo.
+ *
+ *  Es el mismo número que la tarjeta del producto muestra como "en efectivo"
+ *  y, en Piedro, el de la columna "efectivo" de la planilla del cliente (que
+ *  arma el de tarjeta como efectivo / 0,9 redondeado a los $100 de arriba:
+ *  la vuelta da exacta, lo verifica `pruebas/catalogo-halloween.test.ts`).
+ *  Redondear por unidad y no el total es lo que hace que el total del pedido
+ *  sea la suma de los precios que el comprador vio. Con un descuento en
+ *  monto fijo (no por unidad) devuelve el precio sin tocar. */
+export function precioConDescuentoPago(precio: number, descuento: Descuento): number {
+  if (descuento.tipo !== 'porcentaje' || !Number.isFinite(descuento.valor)) return precio;
+  const porcentaje = Math.min(100, Math.max(0, descuento.valor));
+  return Math.floor((precio * (100 - porcentaje)) / 10000) * 100;
+}
+
+function descuentoPagoPorUnidad(lineas: LineaDeCuenta[], descuento: Descuento): number | null {
+  if (descuento.tipo !== 'porcentaje') return null;
+  let monto = 0;
+  for (const l of lineas) {
+    if (l.bonificada || l.importe == null) continue;
+    if (l.precioUnitario == null || l.cantidad == null) return null;
+    const unidad = importeUsable(l.precioUnitario);
+    monto += (unidad - precioConDescuentoPago(unidad, descuento)) * Math.floor(l.cantidad);
+  }
+  return monto;
+}
+
 export function calcularCuenta({
   lineas,
   modalidad,
@@ -72,11 +105,13 @@ export function calcularCuenta({
   // los descuentos se calculan sobre el MISMO subtotal, no en cascada
   const montoRetiro = modalidad === 'retiro' ? montoDelDescuento(descuentoRetiro, subtotal) : 0;
   const montoManual = montoDelDescuento(descuentoManual, subtotal);
-  // Redondeado a los $100 de abajo: el que paga en efectivo paga con billetes,
-  // y un total de $49.860 es un vuelto que nadie tiene. Para abajo, porque
-  // descontar de más es regalarle plata al comprador sin que el local lo
-  // haya decidido.
-  const montoPago = Math.floor(montoDelDescuento(descuentoPago, subtotal) / 100) * 100;
+  // Por unidad cuando se conocen las unidades: cada producto a su precio en
+  // efectivo redondeado a los $100 de abajo, el mismo que se vio en la carta.
+  // Si no, sobre el subtotal, también a los $100: el que paga en efectivo
+  // paga con billetes, y $49.860 es un vuelto que nadie tiene.
+  const montoPago =
+    descuentoPagoPorUnidad(lineas, descuentoPago) ??
+    Math.floor(montoDelDescuento(descuentoPago, subtotal) / 100) * 100;
 
   const envioEntero = Number.isFinite(envio) ? Math.max(0, Math.floor(envio)) : 0;
   const conDescuento = Math.max(0, subtotal - montoRetiro - montoManual - montoPago);

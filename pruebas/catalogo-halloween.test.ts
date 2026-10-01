@@ -10,6 +10,8 @@ import { MAX_ETIQUETA_VARIANTE, MAX_VARIANTES } from '../src/logica/validar-item
 import { armarMensaje, enlaceWhatsApp } from '../src/logica/whatsapp';
 import { variantesDe } from '../src/logica/variantes';
 import { fotoGrande } from '../src/componentes/carta/halloween/fotos';
+import { precioConDescuentoPago } from '../src/logica/cuenta';
+import PLANILLA from '../scripts/data/piedro-planilla.json';
 
 /** El catálogo se carga una sola vez con `scripts/seed-halloween.ts`: si algo
  *  está mal escrito, se descubre con el cliente adentro del panel. Estas
@@ -67,14 +69,14 @@ describe('catálogo de Halloween', () => {
     expect(sinPrecio.map((i) => i.nombre)).toEqual([]);
   });
 
-  it('numera los 237 productos corridos desde 1, agrupados por categoría', () => {
+  it('numera los 238 productos corridos desde 1, agrupados por categoría', () => {
     const numerados = renumerar(items, categorias);
-    expect(numerados).toHaveLength(237);
+    expect(numerados).toHaveLength(238);
     expect(numerados.map((i) => i.numero)).toEqual(numerados.map((_, i) => i + 1));
 
     const porCategoria = categorias.map((c) => items.filter((i) => i.categoriaId === c.id).length);
     // combos, infantiles, adulto, animatrónicos, inflables, accesorios, trick, decoración
-    expect(porCategoria).toEqual([3, 13, 10, 133, 25, 20, 17, 16]);
+    expect(porCategoria).toEqual([4, 13, 10, 133, 25, 20, 17, 16]);
   });
 });
 
@@ -111,14 +113,50 @@ describe('pedido de Halloween por WhatsApp', () => {
 
   it('los combos son sólo los de la hoja, a precio con tarjeta', () => {
     const combos = items.filter((i) => i.categoriaId === 'combos');
-    for (const c of combos) expect(c.descripcion, c.nombre).toMatch(/^Incluye: /);
+    for (const c of combos.filter((c) => !c.variantes.length)) {
+      expect(c.descripcion, c.nombre).toMatch(/^Incluye: /);
+    }
     // El de la planilla "con tarjeta": con el de efectivo el 10% se
     // descontaba dos veces al pagar en efectivo.
     expect(combos.map((c) => [c.nombre, c.precio])).toEqual([
       ['Combo Cumple de Halloween (12 chicos)', 133600],
       ['Combo Casa Embrujada', 47600],
       ['Combo Rincón de fotos', 73400],
+      ['Disfraz completo', 0],
     ]);
+  });
+
+  it('el Disfraz completo es una publicación con look y talle, al mismo precio', () => {
+    const disfraz = buscar('combo-disfraz-completo');
+    expect(variantesDe(disfraz)).toEqual([
+      { etiqueta: 'Brujita', precio: 29800 },
+      { etiqueta: 'Esqueleto S 5-6', precio: 29800 },
+      { etiqueta: 'Esqueleto M 7-9', precio: 29800 },
+    ]);
+    expect(disfraz.descripcion).toBe(
+      'Todo lo que necesita para salir a pedir dulces, en un solo pedido. ' +
+        'Look Brujita: Tutú spooky (color surtido), set brujita chispeante, nariz de bruja con verruga, balde y varita mágica. ' +
+        'Look Esqueleto (talle S 5-6 años o M 7-9 años): Disfraz de esqueleto, balde y tatuajes de cortes de cara.',
+    );
+    // El look y el talle llegan en el mensaje: sin eso el local no sabe qué armar.
+    const linea = lineaDeItem(disfraz, 'Esqueleto M 7-9')!;
+    const msj = armarMensaje(agregar({ lineas: [] }, linea), {
+      nombre: 'Prueba', modalidad: 'delivery', mesa: '', direccion: 'x', telefono: '', notas: '',
+      medioDePago: 'efectivo', zona: CONFIG_PEDIDO_HALLOWEEN.zonasEnvio[0],
+    }, NOMBRE_HALLOWEEN, { descuentosPago: CONFIG_PEDIDO_HALLOWEEN.descuentosPago });
+    expect(msj).toContain('Disfraz completo · Esqueleto M 7-9');
+    expect(msj).toContain('*Total: $26.800*');
+  });
+
+  it('el precio en efectivo del motor es el de la planilla, producto por producto', () => {
+    const efectivo = CONFIG_PEDIDO_HALLOWEEN.descuentosPago.efectivo!;
+    const enLaPlanilla = new Map<number, number>();
+    for (const p of PLANILLA.productos) enLaPlanilla.set(p.tarjeta, p.efectivo);
+    for (const c of PLANILLA.combos) enLaPlanilla.set(c.tarjeta, c.efectivo);
+    for (const [tarjeta, ef] of enLaPlanilla) {
+      expect(precioConDescuentoPago(tarjeta, efectivo), `$${tarjeta}`).toBe(ef);
+    }
+    expect(precioConDescuentoPago(14300, efectivo)).toBe(12800); // Set Diablita
   });
 
   it('los animatrónicos se parten en colgantes y de piso, sin que quede ninguno afuera', () => {

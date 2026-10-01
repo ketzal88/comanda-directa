@@ -8,6 +8,7 @@ import { useClienteActual } from '@/componentes/ClienteContext';
 import { claveLinea } from '@/logica/pedido';
 import { formatearPrecio } from '@/logica/precio';
 import { tieneVariantes, variantesDe } from '@/logica/variantes';
+import { textoEleccion } from './eleccion';
 import { AvisoVenta } from './TarjetaProducto';
 import type { Item } from '@/logica/tipos';
 
@@ -41,9 +42,6 @@ export function ModalProducto({ item, onCerrar, aviso }: Props) {
 
   const medidas = variantesDe(item);
   const conMedidas = tieneVariantes(item);
-  // Una capa viene en 80 y 130 cm, no en talle M. Decirle "talle" a eso hace
-  // dudar de si falta elegir algo más.
-  const eligeMedida = medidas.some((v) => /\d\s*cm/i.test(v.etiqueta));
   const enElPedido = medidas.reduce((n, v) => n + cantidadDe(item.id, v.etiqueta), 0);
 
   return (
@@ -131,7 +129,7 @@ export function ModalProducto({ item, onCerrar, aviso }: Props) {
                 className="halloween-mano text-[19px] leading-none"
                 style={{ color: 'var(--h-tinta-suave)' }}
               >
-                {eligeMedida ? 'Elegí la medida' : 'Elegí el talle'}
+                {textoEleccion(medidas).titulo}
               </p>
             )}
 

@@ -9,10 +9,11 @@ import { CLASES_FUENTES } from './halloween/tipografia';
 import { AvisoDesactualizado } from '@/componentes/AvisoDesactualizado';
 import { useClienteActual } from '@/componentes/ClienteContext';
 import { fijarVencimiento } from '@/datos/pedido-almacen';
+import { useSincronizarPedido } from '@/componentes/pedido/usePedido';
 import { formatearPrecio } from '@/logica/precio';
 import { precioDesde } from '@/logica/variantes';
 import { ETIQUETA_MEDIO, enlaceWhatsApp } from '@/logica/whatsapp';
-import type { Carta as CartaDatos, Categoria, ConfigPedido, Item } from '@/logica/tipos';
+import type { Carta as CartaDatos, Categoria, ConfigPedido, Descuento, Item } from '@/logica/tipos';
 
 type Props = {
   carta: CartaDatos;
@@ -80,12 +81,11 @@ function textoDescuentoPago(config: ConfigPedido): string {
   return `${[...valores][0]}% OFF en ${medios.map((m) => ETIQUETA_MEDIO[m].toLowerCase()).join(' o ')}`;
 }
 
-/** El porcentaje que se descuenta pagando en efectivo, o 0. Sale de la misma
- *  config que usa el total, para que la línea "en efectivo" de cada tarjeta
- *  no prometa otro número. */
-function porcentajeEfectivo(config: ConfigPedido): number {
+/** El descuento pagando en efectivo, de la misma config que usa el total:
+ *  la línea "en efectivo" de cada tarjeta no puede prometer otro número. */
+function descuentoEfectivo(config: ConfigPedido): Descuento {
   const d = config.descuentosPago.efectivo;
-  return config.mediosDePago.includes('efectivo') && d?.tipo === 'porcentaje' ? d.valor : 0;
+  return config.mediosDePago.includes('efectivo') && d ? d : { tipo: 'ninguno' };
 }
 
 /** Minúsculas y sin tildes: "animatronico" encuentra "Animatrónico". */
@@ -141,6 +141,7 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
     [carta.categorias],
   );
   const visibles = useMemo(() => carta.items.filter((i) => i.activo), [carta.items]);
+  useSincronizarPedido(slug, carta.items);
   const collage = useMemo(() => fotosDelCollage(visibles), [visibles]);
 
   const porCategoria = useMemo(() => {
@@ -164,7 +165,7 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
   );
   const avisoDe = (item: Item) => (aPedido.has(item.categoriaId) ? AVISO_A_PEDIDO : undefined);
   const descuentoPago = textoDescuentoPago(configPedido);
-  const pctEfectivo = porcentajeEfectivo(configPedido);
+  const efectivo = descuentoEfectivo(configPedido);
 
   // Con 240 productos, el que viene a buscar "la máscara del Joker" no
   // recorre ocho secciones. Busca por nombre y por lo que trae un combo.
@@ -416,7 +417,7 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                   key={item.id}
                   item={item}
                   onAbrir={setAbierto}
-                  pctEfectivo={pctEfectivo}
+                  efectivo={efectivo}
                 />
               ))}
             </div>
@@ -431,7 +432,7 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
               inclinacion={i % 2 ? '1.2deg' : '-1.4deg'}
               onAbrir={setAbierto}
               aviso={aPedido.has(c.id) ? AVISO_A_PEDIDO : undefined}
-              pctEfectivo={pctEfectivo}
+              efectivo={efectivo}
             />
           ))
         )}
@@ -585,7 +586,7 @@ function SeccionCategoria({
   inclinacion,
   onAbrir,
   aviso,
-  pctEfectivo,
+  efectivo,
 }: {
   categoria: Categoria;
   items: Item[];
@@ -594,7 +595,7 @@ function SeccionCategoria({
   onAbrir: (item: Item) => void;
   /** Condición de venta de toda la sección, abajo del título. */
   aviso?: string;
-  pctEfectivo: number;
+  efectivo: Descuento;
 }) {
   const [desplegada, setDesplegada] = useState(false);
   const [subgrupo, setSubgrupo] = useState<string | null>(null);
@@ -695,7 +696,7 @@ function SeccionCategoria({
 
       <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(150px,1fr))]">
         {visibles.map((item) => (
-          <TarjetaProducto key={item.id} item={item} onAbrir={onAbrir} pctEfectivo={pctEfectivo} />
+          <TarjetaProducto key={item.id} item={item} onAbrir={onAbrir} efectivo={efectivo} />
         ))}
       </div>
 

@@ -207,8 +207,41 @@ type ComboPlanilla = {
   nombre: string;
   efectivo: number;
   tarjeta: number;
-  productos: { codigo: string; cantidad: number }[];
+  productos?: { codigo: string; cantidad: number }[];
+  /** Un combo que se elige: "Disfraz completo" en Brujita o en Esqueleto, y
+   *  el Esqueleto además en talle. Textos tal cual del bloque "PARA LA WEB"
+   *  de la hoja. */
+  descripcion?: string;
+  looks?: { look: string; incluye: string; talles: string[] }[];
 };
+
+/** Un combo con looks es UN producto con una variante por look y talle
+ *  ("Brujita", "Esqueleto S 5-6"), todas al mismo precio: la variante viaja
+ *  en el mensaje de WhatsApp ("Disfraz completo · Esqueleto S 5-6"), que es
+ *  lo que el local necesita para armarlo. Las etiquetas entran en los 16
+ *  caracteres del panel (lo verifica la prueba). */
+function comboConLooks(c: ComboPlanilla): Fila {
+  const looks = c.looks!;
+  const incluye = looks
+    .map((l) => {
+      const talles = l.talles.length
+        ? ` (talle ${l.talles.map((t) => `${t} años`).join(' o ')})`
+        : '';
+      return `Look ${l.look}${talles}: ${l.incluye}.`;
+    })
+    .join(' ');
+  return {
+    id: `combo-${slugDe(c.nombre)}`,
+    nombre: c.nombre,
+    precio: 0,
+    opciones: looks.flatMap((l) =>
+      l.talles.length
+        ? l.talles.map((t): [string, number] => [`${l.look} ${t}`, c.tarjeta])
+        : [[l.look, c.tarjeta] as [string, number]],
+    ),
+    descripcion: `${c.descripcion} ${incluye}`,
+  };
+}
 
 const PRODUCTOS_PLANILLA = PLANILLA.productos as ProductoPlanilla[];
 const SLUGS_MAYORISTA = new Set((MERAKYS as ProductoMayorista[]).map((p) => p.slug));
@@ -294,7 +327,8 @@ const DECORACION = deLaPlanilla('decoracion', 'Decoración');
 const COMBOS = categoria(
   'combos',
   (PLANILLA.combos as ComboPlanilla[]).map((c) => {
-    const contenido = c.productos.map(({ codigo, cantidad }) => {
+    if (c.looks) return comboConLooks(c);
+    const contenido = (c.productos ?? []).map(({ codigo, cantidad }) => {
       const p = PRODUCTOS_PLANILLA.find((x) => x.codigo === codigo);
       if (!p) throw new Error(`El combo "${c.nombre}" trae un código que no está en el catálogo: ${codigo}`);
       return `${cantidad} × ${p.nombre}`;

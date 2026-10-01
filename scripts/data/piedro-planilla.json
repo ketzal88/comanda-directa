@@ -981,6 +981,27 @@
           "cantidad": 2
         }
       ]
+    },
+    {
+      "nombre": "Disfraz completo",
+      "efectivo": 26800,
+      "tarjeta": 29800,
+      "descripcion": "Todo lo que necesita para salir a pedir dulces, en un solo pedido.",
+      "looks": [
+        {
+          "look": "Brujita",
+          "incluye": "Tutú spooky (color surtido), set brujita chispeante, nariz de bruja con verruga, balde y varita mágica",
+          "talles": []
+        },
+        {
+          "look": "Esqueleto",
+          "incluye": "Disfraz de esqueleto, balde y tatuajes de cortes de cara",
+          "talles": [
+            "S 5-6",
+            "M 7-9"
+          ]
+        }
+      ]
     }
   ]
 }
