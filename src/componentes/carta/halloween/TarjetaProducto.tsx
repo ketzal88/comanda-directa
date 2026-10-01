@@ -11,9 +11,8 @@ import type { Item } from '@/logica/tipos';
 type Props = {
   item: Item;
   onAbrir: (item: Item) => void;
-  /** Condición de venta que el comprador tiene que ver ANTES de agregar
-   *  ("A pedido · entrega 7 a 10 días · seña 70%"). */
-  aviso?: string;
+  /** El descuento pagando en efectivo, en %. 0 = no se muestra la línea. */
+  pctEfectivo?: number;
 };
 
 /** Un producto en la grilla: foto, nombre, precio y el botón de agregar.
@@ -24,7 +23,7 @@ type Props = {
  *  comprador. En ese caso el botón dice "Elegir talle" y abre la ficha, donde
  *  cada talle tiene su propio contador. Un disfraz en el talle equivocado es
  *  una devolución. */
-export function TarjetaProducto({ item, onAbrir, aviso }: Props) {
+export function TarjetaProducto({ item, onAbrir, pctEfectivo = 0 }: Props) {
   const { slug } = useClienteActual();
   const { agregarItem, cambiarCantidad, cantidadDe } = usePedido(slug);
 
@@ -32,6 +31,10 @@ export function TarjetaProducto({ item, onAbrir, aviso }: Props) {
   const hayQueElegir = tieneVariantes(item) && medidas.length > 1;
   const cantidad = medidas.reduce((n, v) => n + cantidadDe(item.id, v.etiqueta), 0);
   const desde = precioDesde(item);
+  // Mismo redondeo que `montoDelDescuento` (para abajo, por línea). El total
+  // del pedido además redondea el descuento a los $100: puede dar hasta $99
+  // más que la suma de estas líneas, nunca menos.
+  const enEfectivo = pctEfectivo > 0 && desde > 0 ? desde - Math.floor((desde * pctEfectivo) / 100) : 0;
 
   const sumar = (e: React.MouseEvent<HTMLButtonElement>) => {
     chispas(e.currentTarget, cantidad === 0);
@@ -68,7 +71,6 @@ export function TarjetaProducto({ item, onAbrir, aviso }: Props) {
 
       <div className="flex flex-1 flex-col gap-0.5 px-1">
         <div className="text-[14.5px] font-medium leading-[1.2] text-pretty">{item.nombre}</div>
-        {aviso && <AvisoVenta texto={aviso} />}
         <div className="mt-auto pt-1 flex items-baseline gap-1">
           {hayQueElegir && (
             <span className="halloween-mano text-[15px]" style={{ color: 'var(--h-tinta-suave)' }}>
@@ -79,6 +81,11 @@ export function TarjetaProducto({ item, onAbrir, aviso }: Props) {
             {desde > 0 ? formatearPrecio(desde) : 'Consultar'}
           </span>
         </div>
+        {enEfectivo > 0 && (
+          <div className="text-[12.5px] leading-[1.2]" style={{ color: 'var(--h-tinta-suave)' }}>
+            {formatearPrecio(enEfectivo)} en efectivo
+          </div>
+        )}
       </div>
 
       {item.agotado ? (

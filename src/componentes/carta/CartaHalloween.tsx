@@ -8,6 +8,7 @@ import { TarjetaProducto } from './halloween/TarjetaProducto';
 import { CLASES_FUENTES } from './halloween/tipografia';
 import { AvisoDesactualizado } from '@/componentes/AvisoDesactualizado';
 import { useClienteActual } from '@/componentes/ClienteContext';
+import { fijarVencimiento } from '@/datos/pedido-almacen';
 import { formatearPrecio } from '@/logica/precio';
 import { precioDesde } from '@/logica/variantes';
 import { ETIQUETA_MEDIO, enlaceWhatsApp } from '@/logica/whatsapp';
@@ -62,10 +63,11 @@ const ADORNO_CATEGORIA: Record<string, { icono: string; bajada: string }> = {
  *  porque la base no tiene dónde guardarlas y son de esta campaña.
  *
  *  Los animatrónicos y los inflables no están en el local: se encargan al
- *  mayorista. Sin el aviso en la tarjeta, el que pide el 29 espera tenerlo
- *  el 31. */
-const CORTE_ENCARGOS = 'Encargos hasta el 20 de octubre';
-const AVISO_A_PEDIDO = 'A pedido · entrega 7 a 10 días · seña 70%';
+ *  mayorista. El aviso va una vez, abajo del título de la sección (en cada
+ *  tarjeta eran 158 copias del mismo cartel), y en la ficha del producto. */
+const CORTE_ENCARGOS = 'Pedidos hasta el 20/10 · animatrónicos e inflables hasta el 17/10';
+const AVISO_A_PEDIDO =
+  'A pedido: entrega de 7 a 10 días, con seña del 50%. Encargá hasta el 17/10 para tenerlo antes de Halloween.';
 const CATEGORIAS_A_PEDIDO = new Set(['ANIMATRÓNICOS', 'INFLABLES GIGANTES']);
 
 /** "10% OFF en efectivo o transferencia", armado desde la config de pedido:
@@ -76,6 +78,19 @@ function textoDescuentoPago(config: ConfigPedido): string {
   const valores = new Set(medios.map((m) => (config.descuentosPago[m] as { valor: number }).valor));
   if (valores.size > 1) return '';
   return `${[...valores][0]}% OFF en ${medios.map((m) => ETIQUETA_MEDIO[m].toLowerCase()).join(' o ')}`;
+}
+
+/** El porcentaje que se descuenta pagando en efectivo, o 0. Sale de la misma
+ *  config que usa el total, para que la línea "en efectivo" de cada tarjeta
+ *  no prometa otro número. */
+function porcentajeEfectivo(config: ConfigPedido): number {
+  const d = config.descuentosPago.efectivo;
+  return config.mediosDePago.includes('efectivo') && d?.tipo === 'porcentaje' ? d.valor : 0;
+}
+
+/** Minúsculas y sin tildes: "animatronico" encuentra "Animatrónico". */
+function normalizar(texto: string): string {
+  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
 
 /** Las tres fotos del collage del encabezado. Se eligen por nombre —son las
@@ -109,10 +124,16 @@ function fotosDelCollage(items: Item[]): Item[] {
  *  mensaje de WhatsApp. Acá abajo está el del motor (`componentes/pedido/`),
  *  que además pregunta retiro o envío, nombre, teléfono y forma de pago, y es
  *  el mismo que ya usan los otros clientes. */
+/** Una semana: ver `fijarVencimiento`. */
+const VENCE_PEDIDO_MS = 7 * 24 * 60 * 60 * 1000;
+
 export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = false }: Props) {
-  const { nombre } = useClienteActual();
+  const { nombre, slug } = useClienteActual();
+  // Antes de cualquier `usePedido` de abajo: es el que lee el guardado.
+  fijarVencimiento(slug, VENCE_PEDIDO_MS);
   const [activa, setActiva] = useState<string | null>(null);
   const [abierto, setAbierto] = useState<Item | null>(null);
+  const [busqueda, setBusqueda] = useState('');
   const fila = useRef<HTMLDivElement>(null);
 
   const categorias = useMemo(
@@ -143,6 +164,25 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
   );
   const avisoDe = (item: Item) => (aPedido.has(item.categoriaId) ? AVISO_A_PEDIDO : undefined);
   const descuentoPago = textoDescuentoPago(configPedido);
+  const pctEfectivo = porcentajeEfectivo(configPedido);
+
+  // Con 240 productos, el que viene a buscar "la máscara del Joker" no
+  // recorre ocho secciones. Busca por nombre y por lo que trae un combo.
+  const consulta = normalizar(busqueda.trim());
+  const encontrados = useMemo(() => {
+    if (!consulta) return [];
+    const palabras = consulta.split(/\s+/);
+    const orden = new Map(categorias.map((c, i) => [c.id, i]));
+    return visibles
+      .filter((i) => {
+        const texto = normalizar(`${i.nombre} ${i.descripcion ?? ''}`);
+        return palabras.every((p) => texto.includes(p));
+      })
+      .sort(
+        (a, b) =>
+          (orden.get(a.categoriaId) ?? 0) - (orden.get(b.categoriaId) ?? 0) || a.orden - b.orden,
+      );
+  }, [consulta, visibles, categorias]);
   const gratis = configPedido.zonasEnvio.filter((z) => z.precio === 0).map((z) => z.nombre);
   const zonasGratis =
     gratis.length > 1 ? `${gratis.slice(0, -1).join(', ')} y ${gratis.at(-1)}` : (gratis[0] ?? '');
@@ -163,7 +203,7 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
     );
     secciones.forEach((s) => observador.observe(s));
     return () => observador.disconnect();
-  }, [visibles.length]);
+  }, [visibles.length, consulta]);
 
   // el chip activo se trae solo a la vista: con seis categorías y una fila
   // que se arrastra, el que corresponde suele quedar fuera de pantalla
@@ -176,13 +216,14 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
   }, [activa]);
 
   const irA = (id: string) => {
+    setBusqueda('');
     const el = document.getElementById(`cat-${id}`);
     if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 64, behavior: 'smooth' });
   };
 
-  const linkCombos = enlaceWhatsApp(
+  const linkConsulta = enlaceWhatsApp(
     configPedido.whatsapp,
-    `¡Hola ${nombre}! Quiero armar un combo de Halloween (disfraz + accesorios + deco). ¿Me ayudan?`,
+    `¡Hola ${nombre}! Estoy buscando algo que no encontré en el catálogo: `,
   );
 
   return (
@@ -313,6 +354,25 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
             borderBottom: '1px solid rgb(42 27 69 / 0.08)',
           }}
         >
+          <div className="max-w-[1100px] mx-auto px-4 pt-3">
+            <label className="relative block">
+              <span className="sr-only">Buscar en el catálogo</span>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[16px]"
+              >
+                🔍
+              </span>
+              <input
+                type="search"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder={`Buscar entre ${visibles.length} productos`}
+                className="w-full rounded-full border-2 bg-white py-2.5 pl-11 pr-4 text-[16px] outline-none"
+                style={{ borderColor: 'var(--h-tinta)', color: 'var(--h-tinta)' }}
+              />
+            </label>
+          </div>
           <div
             ref={fila}
             className="halloween-sin-barra flex gap-2 overflow-x-auto px-4 py-3 max-w-[1100px] mx-auto"
@@ -343,17 +403,38 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
       {desactualizada && <AvisoDesactualizado />}
 
       <main className="max-w-[1100px] mx-auto px-4 pt-2">
-        {conProductos.map((c, i) => (
-          <SeccionCategoria
-            key={c.id}
-            categoria={c}
-            items={porCategoria.get(c.id) ?? []}
-            color={COLORES[i % 3]}
-            inclinacion={i % 2 ? '1.2deg' : '-1.4deg'}
-            onAbrir={setAbierto}
-            aviso={aPedido.has(c.id) ? AVISO_A_PEDIDO : undefined}
-          />
-        ))}
+        {consulta ? (
+          <section aria-live="polite" className="pt-6">
+            <p className="halloween-mano mb-4 text-[20px]" style={{ color: 'var(--h-tinta-suave)' }}>
+              {encontrados.length
+                ? `${encontrados.length} ${encontrados.length === 1 ? 'producto' : 'productos'} para “${busqueda.trim()}”`
+                : `No encontramos “${busqueda.trim()}”. Escribinos y te lo conseguimos.`}
+            </p>
+            <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(150px,1fr))]">
+              {encontrados.map((item) => (
+                <TarjetaProducto
+                  key={item.id}
+                  item={item}
+                  onAbrir={setAbierto}
+                  pctEfectivo={pctEfectivo}
+                />
+              ))}
+            </div>
+          </section>
+        ) : (
+          conProductos.map((c, i) => (
+            <SeccionCategoria
+              key={c.id}
+              categoria={c}
+              items={porCategoria.get(c.id) ?? []}
+              color={COLORES[i % 3]}
+              inclinacion={i % 2 ? '1.2deg' : '-1.4deg'}
+              onAbrir={setAbierto}
+              aviso={aPedido.has(c.id) ? AVISO_A_PEDIDO : undefined}
+              pctEfectivo={pctEfectivo}
+            />
+          ))
+        )}
 
         {!visibles.length && (
           <div className="px-8 py-20 text-center">
@@ -366,7 +447,7 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
           </div>
         )}
 
-        {linkCombos && (
+        {linkConsulta && (
           <section
             className="halloween-recorte-panel relative mt-12 overflow-hidden px-[22px] pt-[30px] pb-7"
             style={{ background: 'var(--h-tinta)', color: 'var(--h-crema)' }}
@@ -402,30 +483,27 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
             </div>
 
             <div className="relative">
-              <div className="font-bold uppercase leading-[0.95] text-[clamp(34px,9vw,52px)]">
-                Combos
-              </div>
-              <div
-                className="halloween-terror leading-[0.95] text-[clamp(46px,13vw,72px)]"
+              <h2
+                className="m-0 max-w-[70%] font-bold leading-[1] text-[clamp(30px,8vw,48px)]"
                 style={{ color: 'var(--h-naranja)' }}
               >
-                Especiales
-              </div>
+                ¿No encontrás lo que buscás?
+              </h2>
               <p
                 className="halloween-mano mt-3.5 max-w-[460px] text-[21px] leading-[1.25] text-pretty"
                 style={{ color: '#e9e0f7' }}
               >
-                Disfraz + accesorios + decoración. Ya seas de los que dan miedo o de los que dan
-                ternura… ¡armamos el tuyo!
+                Tenemos muchos más disfraces, accesorios y decoración. Contanos qué necesitás y te lo
+                conseguimos.
               </p>
               <a
-                href={linkCombos}
+                href={linkConsulta}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2.5 mt-5 rounded-full px-[22px] py-3.5 font-semibold text-[16px] text-white no-underline"
                 style={{ background: 'var(--h-naranja)' }}
               >
-                Consultanos por WhatsApp →
+                Pedilo por WhatsApp →
               </a>
             </div>
           </section>
@@ -507,15 +585,26 @@ function SeccionCategoria({
   inclinacion,
   onAbrir,
   aviso,
+  pctEfectivo,
 }: {
   categoria: Categoria;
   items: Item[];
   color: string;
   inclinacion: string;
   onAbrir: (item: Item) => void;
+  /** Condición de venta de toda la sección, abajo del título. */
   aviso?: string;
+  pctEfectivo: number;
 }) {
   const [desplegada, setDesplegada] = useState(false);
+  const [subgrupo, setSubgrupo] = useState<string | null>(null);
+
+  // Los subgrupos que de verdad tienen productos, en el orden de la categoría.
+  const subgrupos = [...categoria.subcategorias]
+    .sort((a, b) => a.orden - b.orden)
+    .map((s) => ({ nombre: s.nombre, cantidad: items.filter((i) => i.subcategoria === s.nombre).length }))
+    .filter((s) => s.cantidad > 0);
+  const delSubgrupo = subgrupo ? items.filter((i) => i.subcategoria === subgrupo) : items;
 
   const adorno = ADORNO_CATEGORIA[categoria.nombre];
   const conPrecio = items.map(precioDesde).filter((p) => p > 0);
@@ -525,8 +614,8 @@ function SeccionCategoria({
   // disfraces se come cuarenta pantallas de scroll para llegar a la sección
   // siguiente. Se muestran los primeros y el resto se despliega: el que vino
   // a comprar un animatrónico toca el botón, el que no, sigue de largo.
-  const visibles = desplegada ? items : items.slice(0, TOPE_SIN_DESPLEGAR);
-  const ocultos = items.length - visibles.length;
+  const visibles = desplegada ? delSubgrupo : delSubgrupo.slice(0, TOPE_SIN_DESPLEGAR);
+  const ocultos = delSubgrupo.length - visibles.length;
 
   return (
     <section
@@ -568,9 +657,45 @@ function SeccionCategoria({
         </p>
       )}
 
+      {aviso && (
+        <p
+          className="mt-1 mb-4 rounded-[10px] px-3.5 py-2.5 text-[14.5px] font-semibold leading-[1.35] text-pretty"
+          style={{ background: 'var(--h-durazno)', color: 'var(--h-tinta)' }}
+        >
+          {aviso}
+        </p>
+      )}
+
+      {subgrupos.length > 1 && (
+        <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label={`Filtrar ${categoria.nombre}`}>
+          {[{ nombre: null, cantidad: items.length }, ...subgrupos].map((s) => {
+            const elegido = subgrupo === s.nombre;
+            return (
+              <button
+                key={s.nombre ?? 'todos'}
+                type="button"
+                aria-pressed={elegido}
+                onClick={() => {
+                  setSubgrupo(s.nombre);
+                  setDesplegada(false);
+                }}
+                className="rounded-full border-2 px-3.5 py-1.5 text-[14px] font-semibold"
+                style={{
+                  borderColor: 'var(--h-tinta)',
+                  background: elegido ? 'var(--h-tinta)' : 'var(--h-crema)',
+                  color: elegido ? 'var(--h-crema)' : 'var(--h-tinta)',
+                }}
+              >
+                {s.nombre ?? 'Todos'} · {s.cantidad}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(150px,1fr))]">
         {visibles.map((item) => (
-          <TarjetaProducto key={item.id} item={item} onAbrir={onAbrir} aviso={aviso} />
+          <TarjetaProducto key={item.id} item={item} onAbrir={onAbrir} pctEfectivo={pctEfectivo} />
         ))}
       </div>
 
@@ -582,7 +707,7 @@ function SeccionCategoria({
           className="mt-4 w-full rounded-full border-2 py-3 text-[15px] font-semibold"
           style={{ borderColor: 'var(--h-tinta)', color: 'var(--h-tinta)' }}
         >
-          {desplegada ? 'Ver menos' : `Ver los ${items.length} →`}
+          {desplegada ? 'Ver menos' : `Ver los ${delSubgrupo.length} →`}
         </button>
       )}
     </section>

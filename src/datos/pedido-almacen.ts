@@ -10,6 +10,15 @@ import type { Pedido } from '@/logica/pedido';
 
 const VENCE_EN_MS = 6 * 60 * 60 * 1000; // seis horas cubre una comida larga
 
+/** Cuánto dura el pedido guardado, por cliente, cuando no es una comida. Una
+ *  tienda (la plantilla halloween) se arma en varios días: el comprador sale
+ *  a WhatsApp a preguntar un talle y vuelve a la noche o al día siguiente. */
+const vencimientoPorCliente = new Map<string, number>();
+
+export function fijarVencimiento(slug: string, ms: number) {
+  vencimientoPorCliente.set(slug, ms);
+}
+
 function clave(slug: string): string {
   return `comanda:${slug}:pedido:v1`;
 }
@@ -29,7 +38,9 @@ function leerDelNavegador(slug: string): Pedido {
 
     const sobre = JSON.parse(crudo) as { guardadoEn?: unknown; pedido?: unknown };
     const guardadoEn = typeof sobre?.guardadoEn === 'number' ? sobre.guardadoEn : 0;
-    if (!guardadoEn || Date.now() - guardadoEn > VENCE_EN_MS) return PEDIDO_VACIO;
+    if (!guardadoEn || Date.now() - guardadoEn > (vencimientoPorCliente.get(slug) ?? VENCE_EN_MS)) {
+      return PEDIDO_VACIO;
+    }
 
     return sanearPedido(sobre.pedido);
   } catch {

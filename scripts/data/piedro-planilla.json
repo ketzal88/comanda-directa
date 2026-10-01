@@ -1,5 +1,5 @@
 {
-  "fuente": "Planilla \"Catálogo Halloween minorista\", hojas Catálogo y Combos (precios mayoristas del 24/09/2026)",
+  "fuente": "Planilla \"catalogo-minorista-halloween-v2\", hojas Catálogo y Combos (precios mayoristas del 24/09/2026; combos al 01/10/2026)",
   "productos": [
     {
       "grupo": "Disfraces infantiles",
@@ -53,7 +53,7 @@
     },
     {
       "grupo": "Disfraces infantiles",
-      "nombre": "Set Brujito Hechicera Negro",
+      "nombre": "Set Brujito Hechicero Negro",
       "codigo": "AC722",
       "efectivo": 9400,
       "tarjeta": 10500,
@@ -834,138 +834,9 @@
   ],
   "combos": [
     {
-      "nombre": "Combo Halloween Básico",
-      "efectivo": 11300,
-      "productos": [
-        {
-          "codigo": "HD001",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD430",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD778",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD521",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD010",
-          "cantidad": 1
-        }
-      ]
-    },
-    {
-      "nombre": "Casa Embrujada",
-      "efectivo": 38500,
-      "productos": [
-        {
-          "codigo": "HD001",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD430",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD427",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD521",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD619",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD778",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD014-2",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD008",
-          "cantidad": 1
-        },
-        {
-          "codigo": "BAGHA",
-          "cantidad": 1
-        }
-      ]
-    },
-    {
-      "nombre": "Salida de chicos (Trick or Treat)",
-      "efectivo": 8300,
-      "productos": [
-        {
-          "codigo": "HD010",
-          "cantidad": 1
-        },
-        {
-          "codigo": "XLVI01",
-          "cantidad": 1
-        },
-        {
-          "codigo": "COT029",
-          "cantidad": 1
-        },
-        {
-          "codigo": "LE26",
-          "cantidad": 1
-        }
-      ]
-    },
-    {
-      "nombre": "Look Esqueleto (chicos)",
-      "efectivo": 24000,
-      "productos": [
-        {
-          "codigo": "DI070S",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD006",
-          "cantidad": 1
-        },
-        {
-          "codigo": "COT032",
-          "cantidad": 1
-        }
-      ]
-    },
-    {
-      "nombre": "Look Brujita (talle único)",
-      "efectivo": 13400,
-      "productos": [
-        {
-          "codigo": "TUTNE",
-          "cantidad": 1
-        },
-        {
-          "codigo": "GO171",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD305",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD005",
-          "cantidad": 1
-        }
-      ]
-    },
-    {
       "nombre": "Cumple de Halloween (12 chicos)",
-      "efectivo": 108100,
+      "efectivo": 120200,
+      "tarjeta": 133600,
       "productos": [
         {
           "codigo": "HD010",
@@ -1026,8 +897,52 @@
       ]
     },
     {
+      "nombre": "Casa Embrujada",
+      "efectivo": 42800,
+      "tarjeta": 47600,
+      "productos": [
+        {
+          "codigo": "HD001",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD430",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD427",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD521",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD619",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD778",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD014-2",
+          "cantidad": 1
+        },
+        {
+          "codigo": "HD008",
+          "cantidad": 1
+        },
+        {
+          "codigo": "BAGHA",
+          "cantidad": 1
+        }
+      ]
+    },
+    {
       "nombre": "Rincón de fotos",
-      "efectivo": 59400,
+      "efectivo": 66000,
+      "tarjeta": 73400,
       "productos": [
         {
           "codigo": "HD014-2",
@@ -1064,60 +979,6 @@
         {
           "codigo": "HD521",
           "cantidad": 2
-        }
-      ]
-    },
-    {
-      "nombre": "Halloween completo (jardín + entrada + puerta)",
-      "efectivo": 87400,
-      "productos": [
-        {
-          "codigo": "HD619",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD142",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD014-2",
-          "cantidad": 3
-        },
-        {
-          "codigo": "HD001",
-          "cantidad": 4
-        },
-        {
-          "codigo": "HD430",
-          "cantidad": 3
-        },
-        {
-          "codigo": "HD521",
-          "cantidad": 4
-        },
-        {
-          "codigo": "HD008",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD417",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD520",
-          "cantidad": 1
-        },
-        {
-          "codigo": "HD427",
-          "cantidad": 1
-        },
-        {
-          "codigo": "BAGHA",
-          "cantidad": 2
-        },
-        {
-          "codigo": "HD778",
-          "cantidad": 1
         }
       ]
     }

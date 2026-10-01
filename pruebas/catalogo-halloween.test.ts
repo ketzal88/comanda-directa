@@ -67,14 +67,14 @@ describe('catálogo de Halloween', () => {
     expect(sinPrecio.map((i) => i.nombre)).toEqual([]);
   });
 
-  it('numera los 242 productos corridos desde 1, agrupados por categoría', () => {
+  it('numera los 237 productos corridos desde 1, agrupados por categoría', () => {
     const numerados = renumerar(items, categorias);
-    expect(numerados).toHaveLength(242);
+    expect(numerados).toHaveLength(237);
     expect(numerados.map((i) => i.numero)).toEqual(numerados.map((_, i) => i + 1));
 
     const porCategoria = categorias.map((c) => items.filter((i) => i.categoriaId === c.id).length);
     // combos, infantiles, adulto, animatrónicos, inflables, accesorios, trick, decoración
-    expect(porCategoria).toEqual([8, 13, 10, 133, 25, 20, 17, 16]);
+    expect(porCategoria).toEqual([3, 13, 10, 133, 25, 20, 17, 16]);
   });
 });
 
@@ -109,13 +109,32 @@ describe('pedido de Halloween por WhatsApp', () => {
     expect(variantesDe(preso).map((v) => v.etiqueta)).toEqual(['Talle M', 'Talle L']);
   });
 
-  it('cada combo dice qué trae y cuesta menos que armarlo suelto', () => {
+  it('los combos son sólo los de la hoja, a precio con tarjeta', () => {
     const combos = items.filter((i) => i.categoriaId === 'combos');
     for (const c of combos) expect(c.descripcion, c.nombre).toMatch(/^Incluye: /);
-    const basico = buscar('combo-combo-halloween-basico');
-    const suelto = ['telarana-halloween', 'set-murcielagos-x4', 'banner-sangriento-happy-halloween',
-      'vela-led-mano-tenebrosa', 'balde-caramelera-calabaza'].reduce((t, id) => t + buscar(id).precio, 0);
-    expect(basico.precio).toBeLessThan(suelto);
+    // El de la planilla "con tarjeta": con el de efectivo el 10% se
+    // descontaba dos veces al pagar en efectivo.
+    expect(combos.map((c) => [c.nombre, c.precio])).toEqual([
+      ['Combo Cumple de Halloween (12 chicos)', 133600],
+      ['Combo Casa Embrujada', 47600],
+      ['Combo Rincón de fotos', 73400],
+    ]);
+  });
+
+  it('los animatrónicos se parten en colgantes y de piso, sin que quede ninguno afuera', () => {
+    const anim = items.filter((i) => i.categoriaId === 'animatronicos');
+    const subs = categorias.find((c) => c.id === 'animatronicos')!.subcategorias.map((s) => s.nombre);
+    expect(anim.every((i) => subs.includes(i.subcategoria ?? ''))).toBe(true);
+    expect(buscar('colgante-pesadilla-negro-para-colgar').subcategoria).toBe('Colgantes');
+    expect(buscar('escoba-caminante-luz-sonido-y-movimiento').subcategoria).toBe('De piso y mesa');
+  });
+
+  it('los nombres que corrigió el cliente', () => {
+    const nombres = items.map((i) => i.nombre);
+    expect(nombres).toEqual(
+      expect.arrayContaining(['Set Brujito Hechicero Negro', 'Inflable Momia', 'Colgante Pesadilla Negro']),
+    );
+    expect(nombres).not.toEqual(expect.arrayContaining(['Inflable Momia Ok']));
   });
 
   it('el enlace apunta al WhatsApp del cliente', () => {

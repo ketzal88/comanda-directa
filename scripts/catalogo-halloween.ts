@@ -49,8 +49,16 @@ function idDeSlug(slug: string): string {
 /** El mayorista escribe "R.i.p" y "Animatronic Lobisón". Se corrigen las
  *  siglas que quedaron a medio capitalizar y nada más: el nombre es dato del
  *  proveedor, no se reescribe a gusto. */
+/** Nombres del mayorista que el cliente pidió corregir. La página del
+ *  proveedor sigue con el original, y el slug (que es lo que baja la foto)
+ *  no cambia. */
+const NOMBRES_CORREGIDOS: Record<string, string> = {
+  'Inflable Momia Ok': 'Inflable Momia',
+  'Colgante Pesadilla Negro para Colgar': 'Colgante Pesadilla Negro',
+};
+
 function nombreLegible(nombre: string): string {
-  return nombre.replace(/\bR\.i\.p\.?/gi, 'R.I.P.').trim();
+  return (NOMBRES_CORREGIDOS[nombre] ?? nombre).replace(/\bR\.i\.p\.?/gi, 'R.I.P.').trim();
 }
 
 /** Catálogo de temporada de Halloween: disfraces, cotillón y decoración.
@@ -195,7 +203,12 @@ type ProductoPlanilla = {
   nota: string | null;
   stock: string;
 };
-type ComboPlanilla = { nombre: string; efectivo: number; productos: { codigo: string; cantidad: number }[] };
+type ComboPlanilla = {
+  nombre: string;
+  efectivo: number;
+  tarjeta: number;
+  productos: { codigo: string; cantidad: number }[];
+};
 
 const PRODUCTOS_PLANILLA = PLANILLA.productos as ProductoPlanilla[];
 const SLUGS_MAYORISTA = new Set((MERAKYS as ProductoMayorista[]).map((p) => p.slug));
@@ -272,10 +285,12 @@ const ACCESORIOS = deLaPlanilla('accesorios', 'Accesorios');
 const TRICK_OR_TREAT = deLaPlanilla('trick-or-treat', 'Trick or treat');
 const DECORACION = deLaPlanilla('decoracion', 'Decoración');
 
-/** Los combos: el precio con tarjeta sale del de efectivo de la planilla con
- *  la misma cuenta que usa ella para los productos sueltos, así el 10% en
- *  efectivo vuelve (redondeo aparte) al precio que armó el cliente. Lo que
- *  trae cada uno va en la descripción, que es lo que se lee en la ficha. */
+/** Los combos de la hoja "Combos" (sólo los que el cliente marcó como "que
+ *  usamos"). El precio es el CON TARJETA que calcula la planilla, igual que
+ *  el de los productos sueltos: cargar el de efectivo dejaba al combo más
+ *  barato que sus partes por el 10% y el descuento se aplicaba dos veces.
+ *  Lo que trae cada uno va en la descripción, que es lo que se lee en la ficha.
+ *  Sus fotos las manda el cliente: se suben con `scripts/foto-propia.ts`. */
 const COMBOS = categoria(
   'combos',
   (PLANILLA.combos as ComboPlanilla[]).map((c) => {
@@ -287,7 +302,7 @@ const COMBOS = categoria(
     return {
       id: `combo-${slugDe(c.nombre)}`,
       nombre: c.nombre.startsWith('Combo') ? c.nombre : `Combo ${c.nombre}`,
-      precio: precioTarjeta(c.efectivo),
+      precio: c.tarjeta,
       descripcion: `Incluye: ${contenido.join(', ')}.`,
     };
   }),
@@ -316,7 +331,20 @@ function delMayorista(categoriaId: string, categoriaMerakys: string): Item[] {
   return categoria(categoriaId, filas);
 }
 
-const ANIMATRONICOS = delMayorista('animatronicos', 'animatronics');
+/** Los animatrónicos son 133: partidos por cómo se ponen. "Colgante" sale del
+ *  nombre del mayorista ("Colgante …", "… para colgar"); el resto se apoya. No
+ *  hay grupo "con sensor": el mayorista sólo lo aclara en uno (Hombre Lobo). */
+const SUB_COLGANTES = 'Colgantes';
+const SUB_APOYAR = 'De piso y mesa';
+const MERAKYS_POR_ID = new Map((MERAKYS as ProductoMayorista[]).map((p) => [idDeSlug(p.slug), p]));
+function conSubgrupo(items: Item[]): Item[] {
+  return items.map((i) => ({
+    ...i,
+    subcategoria: /colga/i.test(MERAKYS_POR_ID.get(i.id)?.nombre ?? i.nombre) ? SUB_COLGANTES : SUB_APOYAR,
+  }));
+}
+
+const ANIMATRONICOS = conSubgrupo(delMayorista('animatronicos', 'animatronics'));
 const INFLABLES = delMayorista('inflables', 'deco-inflables-gigantes');
 
 export const CATALOGO_HALLOWEEN: Carta = {
@@ -324,7 +352,16 @@ export const CATALOGO_HALLOWEEN: Carta = {
     { id: 'combos', nombre: 'COMBOS', nombreEn: '', orden: 1, subcategorias: [] },
     { id: 'infantiles', nombre: 'DISFRACES INFANTILES', nombreEn: '', orden: 2, subcategorias: [] },
     { id: 'adulto', nombre: 'DISFRACES ADULTO', nombreEn: '', orden: 3, subcategorias: [] },
-    { id: 'animatronicos', nombre: 'ANIMATRÓNICOS', nombreEn: '', orden: 4, subcategorias: [] },
+    {
+      id: 'animatronicos',
+      nombre: 'ANIMATRÓNICOS',
+      nombreEn: '',
+      orden: 4,
+      subcategorias: [
+        { nombre: SUB_COLGANTES, orden: 1 },
+        { nombre: SUB_APOYAR, orden: 2 },
+      ],
+    },
     { id: 'inflables', nombre: 'INFLABLES GIGANTES', nombreEn: '', orden: 5, subcategorias: [] },
     { id: 'accesorios', nombre: 'ACCESORIOS', nombreEn: '', orden: 6, subcategorias: [] },
     { id: 'trick-or-treat', nombre: 'TRICK OR TREAT', nombreEn: '', orden: 7, subcategorias: [] },
@@ -358,7 +395,8 @@ export const CATALOGO_HALLOWEEN: Carta = {
  *  son del proveedor. */
 export const FUENTES: Record<string, string> = {
   // Los de la planilla se cargan al armar sus categorías; los animatrónicos
-  // y los inflables, abajo, desde su JSON. Los combos no tienen foto propia.
+  // y los inflables, abajo, desde su JSON. Los combos no salen del mayorista:
+  // sus fotos se suben a mano (`scripts/foto-propia.ts`).
   ...SLUGS_PLANILLA,
 };
 
