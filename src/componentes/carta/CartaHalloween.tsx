@@ -68,7 +68,7 @@ const ADORNO_CATEGORIA: Record<string, { icono: string; bajada: string }> = {
  *  tarjeta eran 158 copias del mismo cartel), y en la ficha del producto. */
 const CORTE_ENCARGOS = 'Pedidos hasta el 20/10 · animatrónicos e inflables hasta el 17/10';
 const AVISO_A_PEDIDO =
-  'A pedido: entrega de 7 a 10 días, con seña del 50%. Encargá hasta el 17/10 para tenerlo antes de Halloween.';
+  'A pedido: entrega de 7 a 10 días. Encargá hasta el 17/10 para tenerlo antes de Halloween.';
 const CATEGORIAS_A_PEDIDO = new Set(['ANIMATRÓNICOS', 'INFLABLES GIGANTES']);
 
 /** "10% OFF en efectivo o transferencia", armado desde la config de pedido:
