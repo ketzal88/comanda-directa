@@ -73,6 +73,22 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
   }, [onCerrar]);
 
   const borde = { borderColor: 'rgb(42 27 69 / 0.18)' };
+  // Un campo con error: el mismo naranja del mensaje de abajo.
+  const bordeDe = (campo: Parameters<typeof errorDe>[0]) =>
+    mostrarErrores && errorDe(campo) ? { borderColor: 'var(--h-naranja-hondo)' } : borde;
+
+  /** Lleva al primer campo que falta y lo deja listo para escribir. Sin
+   *  esto el error queda pintado más abajo en la hoja y el botón de enviar
+   *  "no hace nada": quien no scrollea no se entera de qué falta. Espera un
+   *  cuadro para que React pinte los mensajes de error antes de buscarlos. */
+  const irAlPrimerError = () => {
+    requestAnimationFrame(() => {
+      const campo = hoja.current?.querySelector<HTMLElement>('[data-con-error]');
+      if (!campo) return;
+      campo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      campo.querySelector<HTMLElement>('input, textarea, button')?.focus({ preventScroll: true });
+    });
+  };
 
   const porcentajeDe = (m: MedioDePago | null) => {
     const d = m ? configPedido.descuentosPago[m] : undefined;
@@ -169,7 +185,7 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                   después de que la persona lo dio por bueno es la sorpresa que
                   hace abandonar el pedido. */}
               {modalidad === 'delivery' && configPedido.zonasEnvio.length > 0 && (
-                <fieldset className="mb-4">
+                <fieldset className="mb-4" data-con-error={mostrarErrores && faltaZona ? '' : undefined}>
                   <legend className={ROTULO} style={{ color: 'var(--h-tinta-suave)' }}>
                     ¿A dónde lo mandamos?
                   </legend>
@@ -266,7 +282,9 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                 {cuenta.total > 0 ? formatearPrecio(cuenta.total) : 'total a confirmar'}
               </p>
 
-              <label className="block">
+              <label
+                data-con-error={mostrarErrores && errorDe('nombre') ? '' : undefined}
+                className="block">
                 <span className={ROTULO} style={{ color: 'var(--h-tinta-suave)' }}>
                   Tu nombre
                 </span>
@@ -277,7 +295,8 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                   autoFocus
                   autoComplete="name"
                   className={CAMPO}
-                  style={borde}
+                  aria-invalid={mostrarErrores && Boolean(errorDe('nombre'))}
+                  style={bordeDe('nombre')}
                 />
                 {mostrarErrores && errorDe('nombre') && (
                   <span className="block mt-1 text-[13px] font-semibold" style={{ color: 'var(--h-naranja-hondo)' }}>
@@ -287,7 +306,9 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
               </label>
 
               {modalidad === 'delivery' && (
-                <label className="block mt-4">
+                <label
+                data-con-error={mostrarErrores && errorDe('direccion') ? '' : undefined}
+                className="block mt-4">
                   <span className={ROTULO} style={{ color: 'var(--h-tinta-suave)' }}>
                     Dirección de entrega
                   </span>
@@ -298,7 +319,8 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                     autoComplete="street-address"
                     placeholder="Calle, altura, piso y depto"
                     className={CAMPO}
-                    style={borde}
+                    aria-invalid={mostrarErrores && Boolean(errorDe('direccion'))}
+                  style={bordeDe('direccion')}
                   />
                   {mostrarErrores && errorDe('direccion') && (
                     <span className="block mt-1 text-[13px] font-semibold" style={{ color: 'var(--h-naranja-hondo)' }}>
@@ -308,7 +330,9 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                 </label>
               )}
 
-              <label className="block mt-4">
+              <label
+                data-con-error={mostrarErrores && errorDe('telefono') ? '' : undefined}
+                className="block mt-4">
                 <span className={ROTULO} style={{ color: 'var(--h-tinta-suave)' }}>
                   Teléfono (opcional)
                 </span>
@@ -321,7 +345,8 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                   autoComplete="tel"
                   placeholder="Por si hay que llamarte"
                   className={CAMPO}
-                  style={borde}
+                  aria-invalid={mostrarErrores && Boolean(errorDe('telefono'))}
+                  style={bordeDe('telefono')}
                 />
                 {mostrarErrores && errorDe('telefono') && (
                   <span className="block mt-1 text-[13px] font-semibold" style={{ color: 'var(--h-naranja-hondo)' }}>
@@ -463,7 +488,12 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
               {puedeEnviar ? (
                 <button
                   type="button"
-                  onClick={() => (faltaZona ? setMostrarErrores(true) : continuar())}
+                  onClick={() => {
+                    if (faltaZona) {
+                      setMostrarErrores(true);
+                      irAlPrimerError();
+                    } else continuar();
+                  }}
                   className="flex h-13 items-center justify-center rounded-full border-0 py-3.5 text-[17px] font-semibold text-white"
                   style={{ background: 'var(--h-naranja)' }}
                 >
@@ -517,7 +547,10 @@ export function HojaPedidoHalloween({ items, configPedido, onCerrar }: Props) {
                 href={errores.length ? '#' : (enlace ?? '#')}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={alEnviar}
+                onClick={(e) => {
+                  alEnviar(e);
+                  if (errores.length) irAlPrimerError();
+                }}
                 className="flex h-[52px] items-center justify-center rounded-full text-[17px] font-semibold no-underline"
                 style={{ background: 'var(--h-whatsapp)', color: 'var(--h-whatsapp-tinta)' }}
               >
