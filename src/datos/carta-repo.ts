@@ -2,6 +2,7 @@ import 'server-only';
 import { cache } from 'react';
 import { supabaseServidor } from './supabase-servidor';
 import { renumerar } from '@/logica/numeracion';
+import { slugsAnteriores } from '@/logica/slugs-renombrados';
 import { MEDIOS_DE_PAGO, TEMA_DEFECTO, configCartaDe } from '@/logica/tipos';
 import type { Carta, Categoria, Cliente, Descuento, DescuentosPago, Item, MedioDePago, Modalidad, Tema, ZonaEnvio } from '@/logica/tipos';
 
@@ -97,14 +98,18 @@ export function aItem(fila: Fila): Item {
  *  el layout y la página de `/[cliente]` piden el mismo cliente en el mismo
  *  render, y sin esto pegaría dos veces a la base por request. */
 export const leerCliente = cache(async (slug: string): Promise<Cliente | null> => {
+  // Por el slug pedido y, si el cliente se renombró y la base todavía tiene
+  // el viejo, por ése (ver `logica/slugs-renombrados.ts`). Se devuelve con el
+  // slug PEDIDO: los links internos y el pedido guardado usan el nuevo.
+  const candidatos = [slug, ...slugsAnteriores(slug)];
   const { data, error } = await supabaseServidor()
     .from('clientes')
     .select('*')
-    .eq('slug', slug)
-    .eq('activo', true)
-    .maybeSingle();
+    .in('slug', candidatos)
+    .eq('activo', true);
   if (error) throw error;
-  return data ? aCliente(data) : null;
+  const fila = candidatos.map((s) => data?.find((d) => d.slug === s)).find(Boolean);
+  return fila ? { ...aCliente(fila), slug } : null;
 });
 
 /** La carta completa (categorías + ítems, ya renumerados) de un cliente. */

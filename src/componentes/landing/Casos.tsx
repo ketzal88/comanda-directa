@@ -13,7 +13,7 @@
  *  aclaración en una landing que vende justamente eso sería vender algo que
  *  ese caso no prueba. */
 
-const CATALOGO = '/piedro-shop';
+const CATALOGO = '/party-market';
 
 /** Fotos del propio catálogo, servidas desde el mismo Storage que las sirve
  *  allá. Si el bucket se mueve, se cambian acá y en `items.foto_url`. */

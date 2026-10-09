@@ -45,7 +45,7 @@ pruebas encima) y un script que los inserta.
 
 ```bash
 npx tsx scripts/traer-merakys.ts animatronics deco-inflables-gigantes
-CLAVE_PANEL=loquesea npm run seed:halloween    # crea/recarga /piedro-shop
+CLAVE_PANEL=loquesea npm run seed:halloween    # crea/recarga /party-market
 npm run fotos:halloween                        # baja, normaliza y sube las fotos
 npm run fotos:halloween -- --faltantes         # sólo las que quedaron sin foto
 ```
@@ -202,12 +202,16 @@ clientes a la vez.
 | slug | qué es | modalidades | notas |
 | --- | --- | --- | --- |
 | `demo` | carta de muestra para probar el motor | salón, retiro, delivery | `npm run seed:demo` |
-| `piedro-shop` | Piedro Shop, catálogo de temporada de cotillón y disfraces | sólo delivery | plantilla `halloween`, 242 productos (8 combos) a precio de tarjeta, 10% en efectivo; sin comandas ni link de pago |
+| `party-market` (en la base, todavía `piedro-shop`) | Party Market (antes Piedro Shop), catálogo de temporada de cotillón y disfraces | sólo delivery | plantilla `halloween`, 250 productos (4 combos) a precio de tarjeta, 10% en efectivo; selecciones por link en `/party-market/p/<codigo>`; sin comandas ni link de pago |
 
-Piedro Shop se publica en **hace-tu-pedido.site/piedro-shop**. Nació como
-`/halloween` y ese link ya estaba circulando, así que el slug viejo queda
-desviado desde `next.config.ts` (ver `SLUGS_RENOMBRADOS`): renombrar sin dejar
-el desvío es romperle el link a quien está por comprar.
+Party Market se publica en **hace-tu-pedido.site/party-market**. Nació como
+`/halloween` y después fue `/piedro-shop`; los dos links circulan, así que
+quedan desviados al nuevo (ver `src/logica/slugs-renombrados.ts`): renombrar
+sin dejar el desvío es romperle el link a quien está por comprar. Además
+`leerCliente` encuentra al cliente por el slug nuevo aunque la base siga con
+el viejo, así que `clientes.slug` se puede pasar a `party-market` cuando sea,
+pero SIEMPRE después del deploy (el código publicado busca el viejo). Al
+hacerlo, `SLUG_HALLOWEEN` en `scripts/catalogo-halloween.ts` cambia con él.
 
 Ojo con el slug: es la URL, no la marca. `clientes.nombre` es lo que se ve en
 la carta y en el mensaje de WhatsApp, y los dos se cambian por separado.

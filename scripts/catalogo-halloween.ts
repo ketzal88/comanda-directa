@@ -78,6 +78,9 @@ function nombreLegible(nombre: string): string {
  *    y `cubiertoPorPersona` queda en 0 (la pantalla lo oculta sola).
  */
 
+/** El slug con el que el cliente está EN LA BASE. La URL pública es
+ *  /party-market (ver `src/logica/slugs-renombrados.ts`); la base sigue con
+ *  el viejo hasta que se renombre después de un deploy. */
 export const SLUG_HALLOWEEN = 'piedro-shop';
 export const NOMBRE_HALLOWEEN = 'Party Market';
 

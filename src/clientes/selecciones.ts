@@ -36,7 +36,7 @@ export type Seleccion = {
 };
 
 export const SELECCIONES: Record<string, Record<string, Seleccion>> = {
-  'piedro-shop': {
+  'party-market': {
     // Presupuesto del 08/10/2026 (planilla "pedido" que armó Cinthia).
     upopj6: {
       titulo: 'Tu presupuesto de Halloween',

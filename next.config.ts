@@ -1,21 +1,11 @@
 import type { NextConfig } from 'next';
+import { SLUGS_RENOMBRADOS } from './src/logica/slugs-renombrados';
 
-/** Clientes que cambiaron de slug, con su nombre viejo a la izquierda.
- *
- *  El slug es la URL del cliente y, una vez impreso en un QR o mandado por
- *  WhatsApp, deja de ser nuestro: renombrarlo sin dejar el desvío es romperle
- *  el link a todos los que ya lo tienen, y en un catálogo de temporada eso es
- *  justo la gente que está por comprar.
- *
- *  Se desvía con 307 y no con 308 a propósito. Un 308 lo cachea el navegador
+/** Se desvía con 307 y no con 308 a propósito. Un 308 lo cachea el navegador
  *  para siempre, así que el slug viejo quedaría quemado aunque después se
- *  borre esta línea; acá no hay SEO que cuidar (los links se reparten por
+ *  borre la línea; acá no hay SEO que cuidar (los links se reparten por
  *  WhatsApp), y sí conviene poder reusar un slug de temporada el año que
- *  viene. */
-const SLUGS_RENOMBRADOS: Record<string, string> = {
-  halloween: 'piedro-shop',
-};
-
+ *  viene. Los slugs, en `src/logica/slugs-renombrados.ts`. */
 const nextConfig: NextConfig = {
   async redirects() {
     return Object.entries(SLUGS_RENOMBRADOS).flatMap(([viejo, nuevo]) => [
