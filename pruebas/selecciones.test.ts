@@ -26,10 +26,9 @@ describe('selecciones', () => {
   }
 
   it('el presupuesto de octubre da los totales en efectivo de la planilla', () => {
-    // Hoja "Resumen": A $321.600, B $630.200, C $1.052.700 (efectivo). B y C
-    // dan $100 menos: el Colgante Pesadilla Blanco ya estaba en la web a
-    // $25.600 en efectivo y la hoja lo calculó a $25.700 (redondeo para
-    // arriba). Manda el precio de la web, que es el que se cobra.
+    // Hoja "Resumen": A $321.600, B $630.200, C $1.052.700 (efectivo). El
+    // Colgante Pesadilla Blanco tiene el precio del Excel fijado a mano
+    // (`EFECTIVO_FIJADO`): la fórmula de la web daba $100 menos.
     const seleccion = SELECCIONES[SLUG].upopj6;
     const efectivo = CONFIG_PEDIDO_HALLOWEEN.descuentosPago.efectivo!;
     const total = (letra: string) =>
@@ -37,7 +36,7 @@ describe('selecciones', () => {
         (t, l) => t + precioConDescuentoPago(porNombre.get(l.producto)!.precio, efectivo) * l.cantidad,
         0,
       );
-    expect([total('A'), total('B'), total('C')]).toEqual([321600, 630100, 1052600]);
+    expect([total('A'), total('B'), total('C')]).toEqual([321600, 630200, 1052700]);
     expect(lineasDeOpcion(seleccion, 'C')).toHaveLength(25);
   });
 });

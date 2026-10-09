@@ -394,6 +394,16 @@ const COMBOS = categoria(
  *  Actualizar precios es volver a correr ese script y mirar el diff del JSON:
  *  el margen se aplica acá, en un solo lugar, y no queda pegado a 158 números
  *  copiados. */
+/** Precios en efectivo que el cliente fijó en una planilla y que la fórmula
+ *  no da: su planilla redondea el margen a los $100 de ARRIBA y `conMargen`
+ *  al más cercano. Se fijan sólo los que el cliente pasó (en un presupuesto
+ *  ya enviado, el precio tiene que ser el de su Excel); repreciar los 158
+ *  con la otra regla es otra decisión. */
+const EFECTIVO_FIJADO: Record<string, number> = {
+  // presupuesto del 08/10 (selección upopj6)
+  'colgante-pesadilla-blanco': 25700,
+};
+
 function delMayorista(categoriaId: string, categoriaMerakys: string): Item[] {
   const filas = (MERAKYS as ProductoMayorista[])
     .filter((p) => p.categoria === categoriaMerakys)
@@ -403,7 +413,7 @@ function delMayorista(categoriaId: string, categoriaMerakys: string): Item[] {
     .map((p) => ({
       id: idDeSlug(p.slug),
       nombre: nombreLegible(p.nombre),
-      precio: precioTarjeta(conMargen(p.precio)),
+      precio: precioTarjeta(EFECTIVO_FIJADO[p.slug] ?? conMargen(p.precio)),
     }));
 
   return categoria(categoriaId, filas);
