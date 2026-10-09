@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/canonical-guard.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/pre-push-guard.py",
+            "timeout": 330
+          },
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/secret-scan-guard.py",
+            "timeout": 20
+          },
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/filter-verbose-guard.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && python .claude/core/hooks/scripts/close-guard.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,121 @@
+# Comanda Directa — Codex Brain
+
+## Qué es este repo
+
+El motor del producto **Comanda Directa** (pedidos por WhatsApp + carta QR +
+impresión de comandas): un Next.js 15 en la raíz que sirve la landing (`/`) y
+la carta de todos los clientes (`/[cliente]`) contra un único proyecto de
+Supabase multi-tenant. Ver `README.md` para la arquitectura completa y el
+runbook de alta de cliente.
+
+Conviven en el working tree, con su propio código y su propio git:
+
+- `presencia-carta/`, `sagrado-sushi-carta/` — otros dos productos de Worker,
+  cada uno su propio repo git anidado (`.git` propio), Firebase y Vercel
+  propios. `sagrado-sushi-carta` fue la referencia para portar la lógica de
+  este motor (ver comentarios en `src/logica/`). El `.gitignore` de acá los
+  excluye del historial de este repo a propósito. **Los dos se gestionan
+  desde esta sesión**: ver "Los tres repos" más abajo.
+- `landing/` — artboards de Codex Design (`.dc.html`) del brief original de
+  la landing, ya codeada de verdad en `src/app/page.tsx`. Quedan de
+  referencia de copy/diseño, no son código servible.
+- `skills/` — biblioteca de skills de marketing de Worker (contenido de
+  referencia, no auto-loaded — ver `skills/SKILLS-INDEX.md`), sin relación
+  con el código de acá.
+- `extension-comandas/` — SÍ es parte del producto: extensión de Chrome
+  genérica (mismo build para todos los clientes) que imprime la comanda
+  desde WhatsApp Web. Tiene su propio `tsconfig.json`/`package.json`, el
+  `tsconfig.json` de la raíz la excluye del typecheck del motor a propósito.
+
+## Modular Rules
+
+@.Codex/core/rules/operating-procedure.md
+@.Codex/core/rules/environment-canonical.md
+@.Codex/core/rules/close-protocol.md
+
+## Testing
+
+`stack.json` declara `commands.typecheck` / `.test` / `.lint` — corren sobre
+el motor (`src/`, `pruebas/`), no tocan `extension-comandas/` (tests propios,
+`npm test` en esa carpeta) ni los otros dos productos, que se corren con `-C`
+(ver "Los tres repos"). Los tres tienen su propio `stack.json` y los guards
+leen el del repo al que apunta el comando.
+
+## Los tres repos
+
+Tres repos git independientes en un mismo working tree. Desde una sesión
+abierta en la raíz se trabajan los tres, pero cada uno tiene su historial, su
+remoto y su deploy:
+
+| repo | ruta | remoto (`ketzal88/`) | config propia de Codex |
+| --- | --- | --- | --- |
+| motor Comanda Directa | `.` | `comanda-directa` | `.Codex/` + `stack.json` |
+| Sagrado Sushi | `sagrado-sushi-carta/` | `sagrado-sushi-carta` | `.Codex/` + `stack.json` propios |
+| Presencia | `presencia-carta/` | `presencia-carta` | `.Codex/AGENTS.md` + `stack.json` |
+
+Reglas para operarlos desde acá:
+
+- **Git siempre con `-C`**: `git -C presencia-carta status`. Un `git add -A`
+  en la raíz no los toca (están en el `.gitignore`), y un commit de la raíz
+  nunca entra en su historial.
+- **npm también con `-C`** (`npm --prefix`): cada repo tiene su propio
+  `node_modules`. Los dos anidados comparten el mismo set de scripts:
+  `dev` (`next dev --turbopack`), `build`, `lint` (eslint), `test`
+  (`vitest run`), `smoke` (`playwright test`), `qr`. Sagrado suma
+  `empaquetar-extension` y lo corre en `prebuild`.
+- **Push: operator-only en los tres.** `pre-push-guard.py` bloquea también
+  `git -C <repo> push`, `cd <repo> && git push` y el helper del operador (ver
+  abajo), no sólo el `git push` pelado. Cerrá con "committed: `<sha>` —
+  N commit(s) listos para pushear".
+- **El operador pushea los tres con un solo comando**, `scripts/pushear.mjs`
+  (`npm run` + el nombre del script). Recorre la raíz y cada subcarpeta con
+  `.git`, muestra qué tiene cada una y pushea las que están adelante; con
+  `-- --ver` sólo muestra. Existe porque "el push es del operador" no debería
+  significar "abrir cada repo en su propia ventana del editor y acordarse de
+  los tres": un commit de sagrado-sushi ya quedó sin pushear por eso. Vos no
+  lo corrés — el guard lo bloquea igual que a un `git push`.
+- **Una rama nueva no se publica sola.** Sin upstream no hay a dónde pushear, y
+  elegir remoto y nombre es del operador: el script la lista aparte, con cuántos
+  commits tiene y el comando exacto, y la publica sólo con `-- --nueva`
+  (`origin`, mismo nombre de rama). El flag ES la decisión. Al cerrar el turno,
+  una rama así se nombra como lo que es: commiteada y **sin publicar**, que no
+  es lo mismo que "N commit(s) ahead of upstream".
+- **El scan de secretos corre en el repo del commit**, resuelto desde el
+  comando (`secret-scan-guard.py` + `git_target_dir.py`).
+- **Cada gate corre contra el `stack.json` del repo destino.** Un
+  `git -C presencia-carta push` resuelve los `gates.prePush.steps` de
+  `presencia-carta/stack.json` (typecheck + lint + test) y los ejecuta con
+  cwd en presencia, no en la raíz. Si el repo destino no tiene manifest, la
+  búsqueda sube y cae en el de la raíz.
+- **El close-guard mira los tres, y las dos deudas.** Al cerrar el turno
+  recorre la raíz y todo subdirectorio con `.git` propio, y reporta dos cosas
+  distintas: archivos sin commitear (prefijados con el repo,
+  `presencia-carta/src/...`) y **commits sin pushear** (`N commit(s) ahead of
+  upstream`). Lo segundo no se arregla commiteando — el push es del operador —:
+  se nombra en la línea de cierre, con el repo y el número, y se aclara de
+  quién es el trabajo si no es tuyo. Sin eso, "commiteado" y "pusheado"
+  parecen la misma palabra y no lo son.
+- **Los tres aparecen en el Source Control del editor**, se abra la carpeta o
+  el `.code-workspace`. El workspace los lista como raíces; `.vscode/settings.json`
+  agrega `git.scanRepositories` con los dos anidados, que es lo que los hace
+  aparecer también al abrir la carpeta pelada (la detección automática se
+  saltea lo que está en el `.gitignore` del repo padre, y estos dos están ahí
+  a propósito). Si aun así no se ven, el estado real no depende del editor:
+  `npm run` + el script de push con `-- --ver` los lista los tres.
+- **Los `forbiddenCommands` sí salen del `stack.json` de la raíz**: son del
+  entorno (PowerShell vs Bash), no del repo.
+
+## Notes for Codex
+
+- `presencia-carta/` y `sagrado-sushi-carta/` son repos git anidados (tienen su propio `.git`).
+  Un commit hecho desde la raíz de `comanda-directa` no los toca — hay que operar `git -C`
+  contra cada uno para su propio historial. Detalle completo en "Los tres repos".
+- Los skills en `skills/` son conocimiento de referencia para trabajo de marketing (copy,
+  ads, SEO, etc.), no específicos de este proyecto. Pedile a Codex que lea el `SKILL.md`
+  puntual antes de un tema, no se cargan automáticamente.
+- Los plugins de marketing (`Codex-ads:*`, `Codex-blog:*`, `seo-*`, etc.) están habilitados
+  a nivel global en este equipo, no viven en este repo.
+- El proyecto de Supabase (`comanda-directa`, org Worker) y el de Vercel
+  (`comanda-directa`, team Worker's projects) ya existen y están conectados
+  — ver README, sección "Poner en marcha Supabase". No crear proyectos
+  nuevos sin confirmar primero: ya hay uno.
