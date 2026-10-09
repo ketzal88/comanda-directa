@@ -69,14 +69,14 @@ describe('catálogo de Halloween', () => {
     expect(sinPrecio.map((i) => i.nombre)).toEqual([]);
   });
 
-  it('numera los 238 productos corridos desde 1, agrupados por categoría', () => {
+  it('numera los 250 productos corridos desde 1, agrupados por categoría', () => {
     const numerados = renumerar(items, categorias);
-    expect(numerados).toHaveLength(238);
+    expect(numerados).toHaveLength(250);
     expect(numerados.map((i) => i.numero)).toEqual(numerados.map((_, i) => i + 1));
 
     const porCategoria = categorias.map((c) => items.filter((i) => i.categoriaId === c.id).length);
     // combos, infantiles, adulto, animatrónicos, inflables, accesorios, trick, decoración
-    expect(porCategoria).toEqual([4, 13, 10, 133, 25, 20, 17, 16]);
+    expect(porCategoria).toEqual([4, 13, 10, 133, 25, 20, 17, 28]);
   });
 });
 

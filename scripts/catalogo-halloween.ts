@@ -1,5 +1,6 @@
 import MERAKYS from './data/merakys.json';
 import PLANILLA from './data/piedro-planilla.json';
+import EXTRA from './data/piedro-extra.json';
 import type { Carta, ConfigPedido, Item, Tema } from '@/logica/tipos';
 
 type ProductoMayorista = { nombre: string; precio: number; slug: string; categoria: string };
@@ -328,7 +329,35 @@ const INFANTILES = deLaPlanilla('infantiles', 'Disfraces infantiles');
 const ADULTO = deLaPlanilla('adulto', 'Disfraces adulto');
 const ACCESORIOS = deLaPlanilla('accesorios', 'Accesorios');
 const TRICK_OR_TREAT = deLaPlanilla('trick-or-treat', 'Trick or treat');
-const DECORACION = deLaPlanilla('decoracion', 'Decoración');
+/** Decoración del mayorista que no estaba en la planilla y entró por un
+ *  presupuesto armado para un comprador (`src/clientes/selecciones.ts`):
+ *  para pedirla tiene que existir en la carta. El precio en efectivo es el
+ *  de la hoja del presupuesto, tal cual: ahí el margen redondea a los $100
+ *  de ARRIBA y `conMargen` al más cercano, y recalcularlo le cambiaba $100
+ *  a dos productos respecto de lo que se le pasó al comprador. La medida,
+ *  cuando la hoja la trae, va en la descripción. */
+type ProductoExtra = {
+  nombre: string;
+  slug: string;
+  precioMerakys: number;
+  efectivo: number;
+  medida: string | null;
+};
+const EXTRA_DECORACION: Fila[] = (EXTRA.productos as ProductoExtra[]).map((p) => {
+  const id = idDeSlug(p.slug);
+  SLUGS_PLANILLA[id] = p.slug;
+  return {
+    id,
+    nombre: p.nombre,
+    precio: precioTarjeta(p.efectivo),
+    ...(p.medida ? { descripcion: `Medida: ${p.medida}.` } : {}),
+  };
+});
+
+const DECORACION = [
+  ...deLaPlanilla('decoracion', 'Decoración'),
+  ...categoria('decoracion', EXTRA_DECORACION),
+].map((item, i) => ({ ...item, orden: i + 1 }));
 
 /** Los combos de la hoja "Combos" (sólo los que el cliente marcó como "que
  *  usamos"). El precio es el CON TARJETA que calcula la planilla, igual que

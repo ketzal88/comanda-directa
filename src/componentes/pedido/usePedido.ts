@@ -14,6 +14,7 @@ import {
   sincronizarPedido,
   totalizar,
 } from '@/logica/pedido';
+import type { LineaPedido } from '@/logica/pedido';
 import type { Item } from '@/logica/tipos';
 
 /** El pedido, conectado a la carta de un cliente puntual (`slug`).
@@ -53,6 +54,11 @@ export function usePedido(slug: string) {
 
     vaciar() {
       escribir(slug, PEDIDO_VACIO);
+    },
+
+    /** Deja el pedido con exactamente estas líneas (una selección elegida). */
+    reemplazar(lineas: LineaPedido[]) {
+      escribir(slug, { lineas });
     },
 
     cantidadDe(itemId: string, variante?: string): number {

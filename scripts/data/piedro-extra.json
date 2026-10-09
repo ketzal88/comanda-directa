@@ -1,0 +1,89 @@
+{
+  "fuente": "Planilla de presupuesto de Piedro (hoja Productos, 08/10/2026): precio mayorista de Merakys y precio de venta en efectivo",
+  "productos": [
+    {
+      "nombre": "Sepulcro Olvidado",
+      "slug": "sepulcro-olvidado",
+      "precioMerakys": 38270,
+      "efectivo": 49800,
+      "medida": "91,5 x 45 x 4 cm, 2 pilas AA"
+    },
+    {
+      "nombre": "Piedra de Descanso Eterno",
+      "slug": "piedra-de-descanso-eterno",
+      "precioMerakys": 24300,
+      "efectivo": 31600,
+      "medida": null
+    },
+    {
+      "nombre": "Set Lápidas Abandonadas",
+      "slug": "set-lapidas-abandonadas",
+      "precioMerakys": 18100,
+      "efectivo": 23600,
+      "medida": "40,5 x 23 x 2 cm"
+    },
+    {
+      "nombre": "Brazo Esqueleto con Mano V para clavar",
+      "slug": "brazo-esqueleto-con-mano-v-para-clavar",
+      "precioMerakys": 5500,
+      "efectivo": 7200,
+      "medida": null
+    },
+    {
+      "nombre": "Set Calavera y Brazos de la Cripta LED",
+      "slug": "set-calavera-y-brazos-de-la-cripta-led",
+      "precioMerakys": 25340,
+      "efectivo": 33000,
+      "medida": "Brazos 46 cm, calavera 14 x 16 x 19 cm. LED, 3 pilas AA no incluidas"
+    },
+    {
+      "nombre": "Vela LED Calavera Macabra",
+      "slug": "vela-led-calavera-macabra",
+      "precioMerakys": 1750,
+      "efectivo": 2300,
+      "medida": null
+    },
+    {
+      "nombre": "Telaraña Glow in the Dark",
+      "slug": "telarana-glow-in-the-dark",
+      "precioMerakys": 1450,
+      "efectivo": 1900,
+      "medida": null
+    },
+    {
+      "nombre": "Set Arañas",
+      "slug": "set-aranas-preventa",
+      "precioMerakys": 2070,
+      "efectivo": 2700,
+      "medida": null
+    },
+    {
+      "nombre": "Telaraña para las Ventanas",
+      "slug": "telarana-para-las-ventanas",
+      "precioMerakys": 1150,
+      "efectivo": 1500,
+      "medida": null
+    },
+    {
+      "nombre": "Murciélago Peludo",
+      "slug": "murcielago-peludo",
+      "precioMerakys": 11270,
+      "efectivo": 14700,
+      "medida": "66 x 24 x 6,5 cm"
+    },
+    {
+      "nombre": "Lápida Súper Macabra",
+      "slug": "lapida-super-macabra",
+      "precioMerakys": 57900,
+      "efectivo": 75300,
+      "medida": null
+    },
+    {
+      "nombre": "Lápida Ángel",
+      "slug": "lapida-angel",
+      "precioMerakys": 37240,
+      "efectivo": 48500,
+      "medida": null
+    }
+  ]
+}
