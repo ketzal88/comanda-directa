@@ -79,7 +79,7 @@ function nombreLegible(nombre: string): string {
  */
 
 export const SLUG_HALLOWEEN = 'piedro-shop';
-export const NOMBRE_HALLOWEEN = 'Piedro Shop';
+export const NOMBRE_HALLOWEEN = 'Party Market';
 
 /** La carpeta del bucket `fotos` donde ya están subidas las 162 imágenes.
  *

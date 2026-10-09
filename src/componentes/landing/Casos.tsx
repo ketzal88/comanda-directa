@@ -70,7 +70,7 @@ export function Casos() {
           </div>
 
           <h2 className="m-0 mb-4 max-w-[20ch] text-[clamp(28px,4.6vw,40px)] leading-[1.08]">
-            Piedro Shop vende su temporada con esto.
+            Party Market vende su temporada con esto.
           </h2>
 
           <p className="m-0 mb-5 max-w-[50ch] text-[17px] sm:text-[18px]">
@@ -97,7 +97,7 @@ export function Casos() {
             className="landing-boton-secundario inline-flex items-center gap-2 px-6 py-3.5 text-[16px] no-underline"
             style={{ color: 'var(--l-tinta)' }}
           >
-            Ver el catálogo de Piedro Shop →
+            Ver el catálogo de Party Market →
           </a>
         </div>
 

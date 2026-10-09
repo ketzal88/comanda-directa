@@ -6,7 +6,7 @@
  *  que se haya usado de ejemplo, y en un teléfono se lee borrosa. Acá lo que
  *  se muestra es la FORMA del producto —catálogo, mensaje, ticket— que es lo
  *  que hay que entender antes de escribir. La prueba de que existe de verdad
- *  es el catálogo de Piedro Shop, que está linkeado más abajo y es navegable. */
+ *  es el catálogo de Party Market, que está linkeado más abajo y es navegable. */
 
 export function Logo({ tamano = 30 }: { tamano?: number }) {
   return (
