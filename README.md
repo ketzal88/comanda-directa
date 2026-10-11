@@ -213,6 +213,12 @@ el viejo, así que `clientes.slug` se puede pasar a `party-market` cuando sea,
 pero SIEMPRE después del deploy (el código publicado busca el viejo). Al
 hacerlo, `SLUG_HALLOWEEN` en `scripts/catalogo-halloween.ts` cambia con él.
 
+El catálogo de Meta se alimenta de **hace-tu-pedido.site/party-market/catalogo.xml**
+(sirve para cualquier cliente: `/<slug>/catalogo.xml`). Se arma en cada
+request contra la base, así que en el Commerce Manager se carga como origen
+de datos con bajada programada y los precios y agotados del panel llegan
+solos. Detalle en `src/logica/feed-meta.ts`.
+
 Ojo con el slug: es la URL, no la marca. `clientes.nombre` es lo que se ve en
 la carta y en el mensaje de WhatsApp, y los dos se cambian por separado.
 
