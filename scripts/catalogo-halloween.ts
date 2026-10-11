@@ -122,7 +122,7 @@ export const TEMA_HALLOWEEN: Tema = {
 };
 
 export const CONFIG_PEDIDO_HALLOWEEN: ConfigPedido = {
-  whatsapp: '5491132556379',
+  whatsapp: '5491139535981',
   // Sólo delivery: las tres opciones que se le ofrecen al comprador son
   // DESTINOS (ver `zonasEnvio`), no formas de entrega, así que la pregunta de
   // la hoja es "¿a dónde lo mandamos?" y no "¿cómo lo querés?". Con una sola

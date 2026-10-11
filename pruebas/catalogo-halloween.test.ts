@@ -189,7 +189,7 @@ describe('pedido de Halloween por WhatsApp', () => {
 
   it('el enlace apunta al WhatsApp del cliente', () => {
     const enlace = enlaceWhatsApp(CONFIG_PEDIDO_HALLOWEEN.whatsapp, 'hola');
-    expect(enlace).toBe('https://wa.me/5491132556379?text=hola');
+    expect(enlace).toBe('https://wa.me/5491139535981?text=hola');
   });
 
   it('los disfraces con un solo talle igual lo ofrecen como variante', () => {
