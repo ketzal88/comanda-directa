@@ -1,3 +1,4 @@
+import { idCatalogo } from './pixel-meta';
 import { variantesDe, tieneVariantes } from './variantes';
 import type { Carta, Cliente } from './tipos';
 
@@ -62,7 +63,7 @@ export function filasFeed(cliente: Cliente, carta: Carta): FilaFeed[] {
     for (const variante of variantesDe(item)) {
       if (variante.precio <= 0) continue;
       filas.push({
-        id: conVariantes ? `${item.id}--${variante.etiqueta}` : item.id,
+        id: idCatalogo(item.id, conVariantes ? variante.etiqueta : undefined),
         ...(conTalles ? { grupo: item.id, talle: variante.etiqueta } : {}),
         titulo: (conVariantes ? `${item.nombre} - ${variante.etiqueta}` : item.nombre).slice(0, MAX_TITULO),
         descripcion,

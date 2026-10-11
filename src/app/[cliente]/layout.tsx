@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ProveedorCliente } from '@/componentes/ClienteContext';
+import { PixelMeta } from '@/componentes/PixelMeta';
 import { leerCliente } from '@/datos/carta-repo';
 import { haySupabaseConfigurado } from '@/datos/supabase-servidor';
+import { pixelDe } from '@/logica/pixel-meta';
 import { TEMA_DEFECTO } from '@/logica/tipos';
 import type { Tema } from '@/logica/tipos';
 
@@ -75,10 +77,12 @@ export default async function LayoutCliente({ children, params }: Props) {
 
   const cliente = await leerCliente(slug);
   if (!cliente) notFound();
+  const pixel = pixelDe(cliente.slug);
 
   return (
     <>
       <TemaDelCliente tema={cliente.tema} />
+      {pixel && <PixelMeta id={pixel} />}
       <ProveedorCliente slug={cliente.slug} nombre={cliente.nombre}>
         {children}
       </ProveedorCliente>

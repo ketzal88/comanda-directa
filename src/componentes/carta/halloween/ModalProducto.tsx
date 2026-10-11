@@ -5,9 +5,11 @@ import { chispas } from './chispas';
 import { fotoGrande } from './fotos';
 import { usePedido } from '@/componentes/pedido/usePedido';
 import { useClienteActual } from '@/componentes/ClienteContext';
+import { eventoMeta } from '@/componentes/PixelMeta';
 import { claveLinea } from '@/logica/pedido';
+import { idCatalogo } from '@/logica/pixel-meta';
 import { formatearPrecio } from '@/logica/precio';
-import { tieneVariantes, variantesDe } from '@/logica/variantes';
+import { precioDesde, tieneVariantes, variantesDe } from '@/logica/variantes';
 import { textoEleccion } from './eleccion';
 import { AvisoVenta } from './TarjetaProducto';
 import type { Item } from '@/logica/tipos';
@@ -26,6 +28,21 @@ export function ModalProducto({ item, onCerrar, aviso }: Props) {
   const { slug } = useClienteActual();
   const { agregarItem, cambiarCantidad, cantidadDe } = usePedido(slug);
   const cerrar = useRef<HTMLButtonElement>(null);
+
+  // Abrir la ficha es "ver el producto". Con talles van todos los ids del
+  // grupo, que es como figuran en el catálogo.
+  useEffect(() => {
+    const ids = tieneVariantes(item)
+      ? variantesDe(item).map((v) => idCatalogo(item.id, v.etiqueta))
+      : [idCatalogo(item.id)];
+    eventoMeta('ViewContent', {
+      content_ids: ids,
+      content_type: 'product',
+      content_name: item.nombre,
+      value: precioDesde(item),
+      currency: 'ARS',
+    });
+  }, [item]);
 
   useEffect(() => {
     const alTeclear = (e: KeyboardEvent) => {

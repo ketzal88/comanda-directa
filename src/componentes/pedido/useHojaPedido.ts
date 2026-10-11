@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import { usePedido } from './usePedido';
 import { useClienteActual } from '@/componentes/ClienteContext';
+import { eventoMeta } from '@/componentes/PixelMeta';
 import { generarCodigo } from '@/logica/codigo-pedido';
 import { calcularCuenta } from '@/logica/cuenta';
 import { CUBIERTO, lineasDeCuenta, lineasPedidas, resumenTexto, revisarPedido } from '@/logica/pedido';
+import { datosDeLineas } from '@/logica/pixel-meta';
 import { armarMensaje, descuentoDelMedio, enlaceWhatsApp, validarDatos } from '@/logica/whatsapp';
 import { MODALIDADES } from '@/logica/tipos';
 import type { ConfigPedido, Item, MedioDePago, Modalidad, ZonaEnvio } from '@/logica/tipos';
@@ -55,6 +57,13 @@ export function useHojaPedido({ items, cubiertoPorPersona, configPedido, onCerra
   const [codigo, setCodigo] = useState(() => generarCodigo());
   const [confirmandoVaciar, setConfirmandoVaciar] = useState(false);
   const [copiado, setCopiado] = useState(false);
+
+  // Abrir la hoja es empezar el checkout. Una vez por apertura: el pedido
+  // de ese momento, no cada cambio de cantidad adentro.
+  useEffect(() => {
+    eventoMeta('InitiateCheckout', datosDeLineas(pedido.lineas));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // vaciar el pedido desde la hoja la deja sin nada que mostrar
   useEffect(() => {
@@ -128,6 +137,12 @@ export function useHojaPedido({ items, cubiertoPorPersona, configPedido, onCerra
     // No hay historial server-side todavía (queda para una próxima etapa):
     // el pedido sale por WhatsApp igual, el código solo ayuda a nombrarlo de
     // palabra si hay que buscarlo en el chat.
+    // Purchase = el pedido salió hacia WhatsApp. No es una venta confirmada
+    // (falta que lo manden en el chat y que el local lo acepte), pero es el
+    // último paso que la carta ve. El valor es el de los productos con los
+    // descuentos, sin el envío. El código del pedido va como eventID para
+    // que Meta no lo cuente dos veces si tocan el botón de nuevo.
+    eventoMeta('Purchase', datosDeLineas(pedido.lineas, cuenta.total - cuenta.envio), codigo);
     setEnviado(true);
     setCodigo(generarCodigo());
   };

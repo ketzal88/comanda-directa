@@ -219,6 +219,13 @@ request contra la base, así que en el Commerce Manager se carga como origen
 de datos con bajada programada y los precios y agotados del panel llegan
 solos. Detalle en `src/logica/feed-meta.ts`.
 
+El pixel de Meta se activa cargando el ID en `PIXELES_META`
+(`src/logica/pixel-meta.ts`). Manda PageView, ViewContent (abrir la ficha),
+AddToCart, InitiateCheckout (abrir la hoja del pedido) y Purchase (tocar
+"Enviar pedido por WhatsApp": el pedido salió, no es una venta confirmada),
+con los mismos ids del feed para que Meta cruce eventos y catálogo. En el
+panel no se carga.
+
 Ojo con el slug: es la URL, no la marca. `clientes.nombre` es lo que se ve en
 la carta y en el mensaje de WhatsApp, y los dos se cambian por separado.
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
+import { eventoMeta } from '@/componentes/PixelMeta';
 import { escribir, leer, leerEnServidor, suscribir } from '@/datos/pedido-almacen';
 import {
   PEDIDO_VACIO,
@@ -14,6 +15,7 @@ import {
   sincronizarPedido,
   totalizar,
 } from '@/logica/pedido';
+import { datosDeLineas } from '@/logica/pixel-meta';
 import type { LineaPedido } from '@/logica/pedido';
 import type { Item } from '@/logica/tipos';
 
@@ -32,7 +34,10 @@ export function usePedido(slug: string) {
 
     agregarItem(item: Item, variante?: string) {
       const linea = lineaDeItem(item, variante);
-      if (linea) escribir(slug, agregar(pedido, linea));
+      if (!linea) return;
+      escribir(slug, agregar(pedido, linea));
+      // Acá y no en cada botón: las dos plantillas agregan por este camino.
+      eventoMeta('AddToCart', datosDeLineas([linea]));
     },
 
     agregarCubierto(precioPorPersona: number) {
