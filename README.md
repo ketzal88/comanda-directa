@@ -226,6 +226,13 @@ AddToCart, InitiateCheckout (abrir la hoja del pedido) y Purchase (tocar
 con los mismos ids del feed para que Meta cruce eventos y catálogo. En el
 panel no se carga.
 
+Cada evento sale también por la Conversions API (`/api/meta/<slug>`), con el
+mismo id para que Meta deduplique: así llega aunque un bloqueador frene el
+pixel. El token va en la variable `META_CAPI_TOKEN_<id del pixel>` (en Vercel
+como *sensitive*, nunca en el repo); sin token, el pixel anda solo. No viajan
+datos personales: matchea por la cookie del pixel, el click del anuncio, la IP
+y el navegador.
+
 Ojo con el slug: es la URL, no la marca. `clientes.nombre` es lo que se ve en
 la carta y en el mensaje de WhatsApp, y los dos se cambian por separado.
 

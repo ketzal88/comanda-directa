@@ -82,7 +82,7 @@ export default async function LayoutCliente({ children, params }: Props) {
   return (
     <>
       <TemaDelCliente tema={cliente.tema} />
-      {pixel && <PixelMeta id={pixel} />}
+      {pixel && <PixelMeta id={pixel} slug={cliente.slug} />}
       <ProveedorCliente slug={cliente.slug} nombre={cliente.nombre}>
         {children}
       </ProveedorCliente>

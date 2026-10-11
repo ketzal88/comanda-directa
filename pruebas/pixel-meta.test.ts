@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { filasFeed } from '../src/logica/feed-meta';
 import { CUBIERTO } from '../src/logica/pedido';
-import { datosDeLineas, idCatalogo, pixelDe } from '../src/logica/pixel-meta';
+import { datosDeLineas, esEventoMeta, eventoCapi, idCatalogo, pixelDe } from '../src/logica/pixel-meta';
 import type { LineaPedido } from '../src/logica/pedido';
 import type { Carta, Cliente } from '../src/logica/tipos';
 
@@ -28,8 +28,29 @@ describe('datosDeLineas', () => {
 });
 
 describe('pixelDe', () => {
-  it('sin ID cargado o con basura, no hay pixel', () => {
+  it('sin ID cargado, no hay pixel', () => {
     expect(pixelDe('no-existe')).toBeNull();
+    expect(pixelDe('party-market')).toMatch(/^\d+$/);
+  });
+});
+
+describe('CAPI', () => {
+  it('sólo los eventos del embudo', () => {
+    expect(esEventoMeta('Purchase')).toBe(true);
+    expect(esEventoMeta('Lead')).toBe(false);
+    expect(esEventoMeta(42)).toBe(false);
+  });
+
+  it('el mismo event_id que el pixel y sin campos vacíos', () => {
+    const e = eventoCapi({ evento: 'AddToCart', eventId: 'abc', url: 'https://x/party-market', fbp: 'fb.1.1.1', ahora: 100 });
+    expect(e).toEqual({
+      event_name: 'AddToCart',
+      event_time: 100,
+      event_id: 'abc',
+      event_source_url: 'https://x/party-market',
+      action_source: 'website',
+      user_data: { fbp: 'fb.1.1.1' },
+    });
   });
 });
 
