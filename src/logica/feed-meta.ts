@@ -70,7 +70,7 @@ export function filasFeed(cliente: Cliente, carta: Carta): FilaFeed[] {
         disponible: !item.agotado,
         precio: variante.precio,
         link,
-        imagen: absoluta(item.fotoUrl),
+        imagen: absoluta(variante.foto ?? item.fotoUrl),
         marca: cliente.nombre,
         tipo,
       });

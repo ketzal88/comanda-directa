@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { chispas } from './chispas';
 import { fotoGrande } from './fotos';
 import { usePedido } from '@/componentes/pedido/usePedido';
@@ -59,6 +59,10 @@ export function ModalProducto({ item, onCerrar, aviso }: Props) {
 
   const medidas = variantesDe(item);
   const conMedidas = tieneVariantes(item);
+  // La foto grande. Arranca en la del producto; si las opciones traen la
+  // suya (los looks del Disfraz completo), tocar la miniatura la cambia.
+  const [vista, setVista] = useState(item.fotoUrl);
+  useEffect(() => setVista(item.fotoUrl), [item.fotoUrl]);
   const enElPedido = medidas.reduce((n, v) => n + cantidadDe(item.id, v.etiqueta), 0);
 
   return (
@@ -87,10 +91,10 @@ export function ModalProducto({ item, onCerrar, aviso }: Props) {
           <span aria-hidden="true">✕</span>
         </button>
 
-        {item.fotoUrl ? (
+        {vista ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={fotoGrande(item.fotoUrl)}
+            src={fotoGrande(vista)}
             alt={item.nombre}
             // el alto se limita para que los talles entren en la misma
             // pantalla que la foto: elegir sin ver el producto, o ver el
@@ -154,6 +158,22 @@ export function ModalProducto({ item, onCerrar, aviso }: Props) {
                   className="flex items-center gap-3 rounded-[14px] p-2 pl-3.5"
                   style={{ background: 'var(--h-crema)' }}
                 >
+                  {v.foto && (
+                    <button
+                      type="button"
+                      onClick={() => setVista(v.foto)}
+                      aria-label={`Ver la foto de ${v.etiqueta}`}
+                      aria-pressed={vista === v.foto}
+                      className="shrink-0 w-14 h-14 -ml-1.5 rounded-[10px] overflow-hidden border-2 p-0"
+                      style={{
+                        background: '#fff',
+                        borderColor: vista === v.foto ? 'var(--h-naranja)' : 'transparent',
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={v.foto} alt="" className="block w-full h-full object-contain" />
+                    </button>
+                  )}
                   <span className="flex-1 min-w-0">
                     {v.etiqueta && (
                       <span

@@ -131,8 +131,16 @@ export function validarCambiosItem(body: Record<string, unknown>): {
           return err('variantes', `${fila}: el precio tiene que ser un entero en pesos`);
         }
 
+        // La foto de la opción no se edita desde el panel, pero el panel
+        // manda la lista entera al guardar: si no se conserva acá, cambiar
+        // un precio le borraba la foto a cada look.
+        const foto = typeof cruda.foto === 'string' ? cruda.foto.trim() : '';
+        if (foto && !/^\/[\w./-]+$/.test(foto) && !/^https:\/\/[^\s]+$/.test(foto)) {
+          return err('variantes', `${fila}: la foto tiene que ser una ruta del sitio o una URL https`);
+        }
+
         vistas.add(etiqueta.toLowerCase());
-        limpias.push({ etiqueta, precio });
+        limpias.push({ etiqueta, precio, ...(foto ? { foto } : {}) });
       });
 
       if (!errores.some((e) => e.campo === 'variantes')) cambios.variantes = limpias;

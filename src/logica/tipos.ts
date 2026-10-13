@@ -18,7 +18,13 @@ export type Subcategoria = { nombre: string; orden: number };
 
 /** Un tamaño (o una variante) del mismo plato, con su propio precio.
  *  `etiqueta` es lo que se le muestra: "5 pz", "10 pz", "pollo". */
-export type Variante = { etiqueta: string; precio: number };
+export type Variante = {
+  etiqueta: string;
+  precio: number;
+  /** La foto de ESTA opción, cuando cada una es un producto distinto (los
+   *  looks del Disfraz completo). Sin foto, la ficha muestra la del ítem. */
+  foto?: string;
+};
 
 export type Categoria = {
   id: string;

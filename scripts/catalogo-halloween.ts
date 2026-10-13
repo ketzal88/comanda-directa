@@ -207,58 +207,6 @@ type ProductoPlanilla = {
   nota: string | null;
   stock: string;
 };
-type ComboPlanilla = {
-  nombre: string;
-  efectivo: number;
-  tarjeta: number;
-  productos?: { codigo: string; cantidad: number }[];
-  /** Un combo que se elige: "Disfraz completo" en Brujita o en Esqueleto, y
-   *  el Esqueleto además en talle. Textos tal cual del bloque "PARA LA WEB"
-   *  de la hoja. */
-  descripcion?: string;
-  looks?: { look: string; incluye: string; talles: string[] }[];
-};
-
-/** Un combo con looks es UN producto con una variante por look y talle
- *  ("Brujita", "Esqueleto S 5-6"), todas al mismo precio: la variante viaja
- *  en el mensaje de WhatsApp ("Disfraz completo · Esqueleto S 5-6"), que es
- *  lo que el local necesita para armarlo. Las etiquetas entran en los 16
- *  caracteres del panel (lo verifica la prueba). */
-/** "a, b, c y d" → ["A", "B", "C", "D"]: la lista de la planilla, una por
- *  renglón, para que en la ficha se lea como viñetas. */
-function enRenglones(lista: string): string[] {
-  return lista
-    .split(/,\s*|\s+y\s+(?=[^,]*$)/)
-    .map((x) => x.trim())
-    .filter(Boolean)
-    .map((x) => x[0].toUpperCase() + x.slice(1));
-}
-
-function comboConLooks(c: ComboPlanilla): Fila {
-  const looks = c.looks!;
-  // Formato de la descripción: un renglón que empieza con "- " es una viñeta
-  // (lo pinta `ModalProducto`); el panel lo muestra y edita como texto.
-  const incluye = looks
-    .map((l) => {
-      const talles = l.talles.length
-        ? ` (talle ${l.talles.map((t) => `${t} años`).join(' o ')})`
-        : '';
-      return [`Look ${l.look}${talles}:`, ...enRenglones(l.incluye).map((x) => `- ${x}`)].join('\n');
-    })
-    .join('\n\n');
-  return {
-    id: `combo-${slugDe(c.nombre)}`,
-    nombre: c.nombre,
-    precio: 0,
-    opciones: looks.flatMap((l) =>
-      l.talles.length
-        ? l.talles.map((t): [string, number] => [`${l.look} ${t}`, c.tarjeta])
-        : [[l.look, c.tarjeta] as [string, number]],
-    ),
-    descripcion: `${c.descripcion}\n\n${incluye}`,
-  };
-}
-
 const PRODUCTOS_PLANILLA = PLANILLA.productos as ProductoPlanilla[];
 const SLUGS_MAYORISTA = new Set((MERAKYS as ProductoMayorista[]).map((p) => p.slug));
 
@@ -362,29 +310,146 @@ const DECORACION = [
   ...categoria('decoracion', EXTRA_DECORACION),
 ].map((item, i) => ({ ...item, orden: i + 1 }));
 
-/** Los combos de la hoja "Combos" (sólo los que el cliente marcó como "que
- *  usamos"). El precio es el CON TARJETA que calcula la planilla, igual que
- *  el de los productos sueltos: cargar el de efectivo dejaba al combo más
- *  barato que sus partes por el 10% y el descuento se aplicaba dos veces.
- *  Lo que trae cada uno va en la descripción, que es lo que se lee en la ficha.
- *  Sus fotos las manda el cliente: se suben con `scripts/foto-propia.ts`. */
-const COMBOS = categoria(
-  'combos',
-  (PLANILLA.combos as ComboPlanilla[]).map((c) => {
-    if (c.looks) return comboConLooks(c);
-    const contenido = (c.productos ?? []).map(({ codigo, cantidad }) => {
-      const p = PRODUCTOS_PLANILLA.find((x) => x.codigo === codigo);
-      if (!p) throw new Error(`El combo "${c.nombre}" trae un código que no está en el catálogo: ${codigo}`);
-      return `- ${cantidad} × ${p.nombre}`;
-    });
-    return {
-      id: `combo-${slugDe(c.nombre)}`,
-      nombre: c.nombre.startsWith('Combo') ? c.nombre : `Combo ${c.nombre}`,
-      precio: c.tarjeta,
-      descripcion: `Incluye:\n${contenido.join('\n')}`,
-    };
-  }),
-);
+/** Un combo tal como lo pasó el cliente (13/10/2026). Los dos precios van
+ *  escritos: la carta guarda el de TARJETA, que es el de lista, y el de
+ *  efectivo lo calcula el motor; la prueba verifica que el cálculo dé el
+ *  número que pasó el cliente. Lo que trae cada uno se escribe como texto y
+ *  no por código de la planilla: varios renglones ("Mantel", "Plato x6") son
+ *  genéricos a propósito, el modelo se elige por WhatsApp. */
+type ComboWeb = {
+  id: string;
+  nombre: string;
+  tarjeta: number;
+  efectivo: number;
+  incluye: string[];
+  nota?: string;
+};
+
+/** Un look del Disfraz completo: una variante del mismo producto, con su
+ *  precio, su lista y su foto. `etiqueta` es lo que viaja en el mensaje de
+ *  WhatsApp ("Disfraz completo · Esqueleto Niño") y entra en los 16
+ *  caracteres del panel. */
+type LookWeb = {
+  etiqueta: string;
+  titulo: string;
+  tarjeta: number;
+  efectivo: number;
+  incluye: string[];
+};
+
+export const COMBOS_WEB: ComboWeb[] = [
+  {
+    id: 'combo-casa-embrujada',
+    nombre: 'Combo Casa Embrujada',
+    tarjeta: 59500,
+    efectivo: 53500,
+    incluye: [
+      '1 × Escoba Caminante',
+      '1 × Cerebro con Luz',
+      '1 × Mano Cortada Sangrienta',
+      '2 × Cortina Metalizada Negra',
+      '1 × Set de Globos Halloween Calabazas',
+      '1 × Set de Globos Halloween Esqueletos',
+    ],
+  },
+  {
+    id: 'combo-puerta-embrujada',
+    nombre: 'Combo Puerta Embrujada',
+    tarjeta: 37700,
+    efectivo: 33900,
+    incluye: [
+      '1 × Colgante Fantasma Diabólico',
+      '1 × Corona Halloween Grande',
+      '1 × Telaraña con Araña Tinsel Plateada',
+      '2 × Cortina Metalizada Negra',
+      '1 × Set de Globos Halloween Calabazas',
+    ],
+  },
+  {
+    id: 'combo-fiesta-halloween',
+    nombre: 'Combo Fiesta Halloween',
+    tarjeta: 41900,
+    efectivo: 37700,
+    incluye: [
+      '2 × Bolsa de Papel Boo x8',
+      '6 × Careta Ghostface',
+      '6 × Vincha Cuernos Diablita LED',
+      '1 × Mantel',
+      '2 × Plato x6',
+      '1 × Servilletas x20',
+      '1 × Sorbetes x24',
+      '1 × Set de Globos Halloween Calabazas',
+      '2 × Tatuaje Temporal Boo (plancha x10)',
+    ],
+    nota: 'El modelo de mantel, platos, servilletas y sorbetes lo elegís con nosotros por WhatsApp.',
+  },
+];
+
+export const DISFRAZ_COMPLETO = {
+  id: 'combo-disfraz-completo',
+  nombre: 'Disfraz completo',
+  descripcion: 'Disfraz y accesorios en un solo pedido. Elegí tu look.',
+  looks: [
+    {
+      etiqueta: 'Brujita',
+      titulo: 'Look Brujita',
+      tarjeta: 18300,
+      efectivo: 16400,
+      incluye: [
+        'Tutú Spooky Violeta',
+        'Sombrero Bruja Berta',
+        'Nariz de Bruja con Verruga',
+        'Tatuaje Temporal Boo (plancha x10)',
+        'Balde Caramelera Calabaza',
+      ],
+    },
+    {
+      etiqueta: 'Esqueleto Niño',
+      titulo: 'Look Esqueleto Niño (talle S, 5-6 años)',
+      tarjeta: 33900,
+      efectivo: 30500,
+      incluye: ['Disfraz Esqueleto Niño talle S', 'Guantes Esqueleto', 'Tatuajes Set Heridas', 'Mini Balde Calavera'],
+    },
+    {
+      etiqueta: 'Esqueleto Niña',
+      titulo: 'Look Esqueleto Niña (talle S, 5-6 años)',
+      tarjeta: 37800,
+      efectivo: 34000,
+      incluye: ['Disfraz Esqueleto Niña talle S', 'Guantes Esqueleto', 'Tatuajes Set Heridas', 'Mini Balde Calavera'],
+    },
+    {
+      etiqueta: 'Terror',
+      titulo: 'Look Terror',
+      tarjeta: 26800,
+      efectivo: 24100,
+      incluye: ['Máscara Joker LED', 'Capa Dark Larga', 'Lentes Sangrientos', 'Tatuajes Set Cortes de Cara'],
+    },
+  ] satisfies LookWeb[],
+};
+
+/** Formato de la descripción: un renglón que empieza con "- " es una viñeta
+ *  (lo pinta `ModalProducto`); el panel lo muestra y edita como texto. */
+export function descripcionCombo(c: ComboWeb): string {
+  return ['Incluye:', ...c.incluye.map((x) => `- ${x}`), ...(c.nota ? ['', c.nota] : [])].join('\n');
+}
+
+export function descripcionDisfrazCompleto(): string {
+  const looks = DISFRAZ_COMPLETO.looks.map((l) => [`${l.titulo}:`, ...l.incluye.map((x) => `- ${x}`)].join('\n'));
+  return [DISFRAZ_COMPLETO.descripcion, ...looks].join('\n\n');
+}
+
+/** Los combos, en el orden de la sección. Sus fotos las manda el cliente: se
+ *  suben con `scripts/foto-propia.ts` (la de cada look, con `--look`). */
+const COMBOS = categoria('combos', [
+  ...COMBOS_WEB.map((c) => ({ id: c.id, nombre: c.nombre, precio: c.tarjeta, descripcion: descripcionCombo(c) })),
+  {
+    id: DISFRAZ_COMPLETO.id,
+    nombre: DISFRAZ_COMPLETO.nombre,
+    precio: 0,
+    opciones: DISFRAZ_COMPLETO.looks.map((l): [string, number] => [l.etiqueta, l.tarjeta]),
+    descripcion: descripcionDisfrazCompleto(),
+  },
+]);
 
 /** Los animatrónicos y los inflables gigantes NO se escriben a mano: son 158
  *  productos y el mayorista les cambia el precio. Salen de

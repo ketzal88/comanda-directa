@@ -82,19 +82,23 @@ async function main() {
 
   let clienteId = existente?.id as string | undefined;
 
-  // nombre del producto -> foto ya subida, para no perderlas en el borrado
+  // nombre del producto -> foto ya subida, para no perderlas en el borrado.
+  // Lo mismo con la foto de cada opción (los looks del Disfraz completo),
+  // por nombre y etiqueta.
   const fotos = new Map<string, string>();
+  const fotosOpcion = new Map<string, string>();
 
   if (clienteId) {
     const { error } = await db.from('clientes').update(campos).eq('id', clienteId);
     if (error) throw error;
 
-    const { data: previos } = await db
-      .from('items')
-      .select('nombre,foto_url')
-      .eq('cliente_id', clienteId)
-      .not('foto_url', 'is', null);
-    for (const p of previos ?? []) fotos.set(p.nombre, p.foto_url);
+    const { data: previos } = await db.from('items').select('nombre,foto_url,variantes').eq('cliente_id', clienteId);
+    for (const p of previos ?? []) {
+      if (p.foto_url) fotos.set(p.nombre, p.foto_url);
+      for (const v of (p.variantes ?? []) as { etiqueta: string; foto?: string }[]) {
+        if (v.foto) fotosOpcion.set(`${p.nombre}::${v.etiqueta}`, v.foto);
+      }
+    }
 
     // Arranca de cero: los ítems cuelgan de las categorías por FK, así que
     // se borran primero.
@@ -140,7 +144,10 @@ async function main() {
       subcategoria: item.subcategoria ?? null,
       orden: item.orden,
       precio: item.precio,
-      variantes: item.variantes,
+      variantes: item.variantes.map((v) => {
+        const foto = v.foto ?? fotosOpcion.get(`${item.nombre}::${v.etiqueta}`);
+        return foto ? { ...v, foto } : v;
+      }),
       agotado: item.agotado,
       activo: item.activo,
       piezas: item.piezas ?? null,
