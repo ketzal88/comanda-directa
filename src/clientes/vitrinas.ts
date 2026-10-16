@@ -16,5 +16,5 @@
  *    se vuelve rutina, los productos van a la carta y la vitrina pasa a ser
  *    un filtro de ella. */
 export const VITRINAS: Record<string, string[]> = {
-  'party-market': ['mujer', 'parejas'],
+  'party-market': ['mujer', 'parejas', 'accesorios'],
 };
