@@ -6,7 +6,7 @@
  *  mandar por WhatsApp a cualquiera: el link de un artifact pide cuenta o no
  *  abre en el navegador de Instagram, éste abre en cualquier teléfono.
  *
- *  - El HTML vive en `public/vitrinas/<cliente>/<vitrina>.html`, tal cual,
+ *  - El HTML vive en `clientes/vitrinas/<cliente>/<vitrina>.html`, tal cual,
  *    con `__WHATSAPP__` donde va el número del local: la ruta lo completa en
  *    cada request con el que esté cargado en el panel. Si el local cambia de
  *    número, la vitrina lo toma sola.

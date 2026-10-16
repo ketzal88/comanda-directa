@@ -7,6 +7,11 @@ import { SLUGS_RENOMBRADOS } from './src/logica/slugs-renombrados';
  *  WhatsApp), y sí conviene poder reusar un slug de temporada el año que
  *  viene. Los slugs, en `src/logica/slugs-renombrados.ts`. */
 const nextConfig: NextConfig = {
+  // Los HTML de las vitrinas se leen de disco en la ruta (ver
+  // `app/[cliente]/[vitrina]/route.ts`): sin esto no viajan a Vercel.
+  outputFileTracingIncludes: {
+    '/[cliente]/[vitrina]': ['./src/clientes/vitrinas/**/*.html'],
+  },
   async redirects() {
     return Object.entries(SLUGS_RENOMBRADOS).flatMap(([viejo, nuevo]) => [
       { source: `/${viejo}`, destination: `/${nuevo}`, permanent: false },
