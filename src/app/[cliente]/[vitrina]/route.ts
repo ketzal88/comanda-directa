@@ -1,7 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { VITRINAS } from '@/clientes/vitrinas';
+import { pestanaDeVitrina, VITRINAS, VITRINAS_PLANILLA } from '@/clientes/vitrinas';
 import { leerCliente } from '@/datos/carta-repo';
+import { armarDatosVitrina, leerHojasVitrina } from '@/datos/vitrina-planilla';
 import { haySupabaseConfigurado } from '@/datos/supabase-servidor';
 import { normalizarNumero, numeroUsable } from '@/logica/whatsapp';
 
@@ -17,21 +18,64 @@ export const dynamic = 'force-dynamic';
 
 type Contexto = { params: Promise<{ cliente: string; vitrina: string }> };
 
+async function numeroDelLocal(slug: string): Promise<string> {
+  // Sin base o sin número usable, el botón de WhatsApp no aparece y queda
+  // el de copiar el pedido: la vitrina se puede mirar igual.
+  const cliente = haySupabaseConfigurado() ? await leerCliente(slug) : null;
+  return cliente && numeroUsable(cliente.whatsapp) ? normalizarNumero(cliente.whatsapp) : '';
+}
+
+const leerPlantilla = (slug: string, nombre: string) =>
+  readFile(path.join(process.cwd(), 'src', 'clientes', 'vitrinas', slug, `${nombre}.html`), 'utf8');
+
+/** JSON adentro de un `<script>`: un `</script>` en un nombre cerraría el
+ *  bloque. Con `<` escapado no puede pasar. */
+const jsonEnHtml = (dato: unknown) => JSON.stringify(dato).replace(/</g, '\\u003c');
+
 export async function GET(_req: Request, { params }: Contexto) {
   const { cliente: slug, vitrina } = await params;
+
+  const pestana = pestanaDeVitrina(slug, vitrina);
+  if (pestana) return vitrinaDePlanilla(slug, pestana.id, pestana.titulo);
+
   if (!Object.hasOwn(VITRINAS, slug) || !VITRINAS[slug].includes(vitrina)) {
     return new Response('No existe', { status: 404 });
   }
 
-  const archivo = path.join(process.cwd(), 'src', 'clientes', 'vitrinas', slug, `${vitrina}.html`);
-  const html = await readFile(archivo, 'utf8');
-
-  // Sin base o sin número usable, el botón de WhatsApp no aparece y queda
-  // el de copiar el pedido: la vitrina se puede mirar igual.
-  const cliente = haySupabaseConfigurado() ? await leerCliente(slug) : null;
-  const numero = cliente && numeroUsable(cliente.whatsapp) ? normalizarNumero(cliente.whatsapp) : '';
+  const html = await leerPlantilla(slug, vitrina);
+  const numero = await numeroDelLocal(slug);
 
   return new Response(html.replace('__WHATSAPP__', numero), {
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+    },
+  });
+}
+
+/** Vitrina armada desde la planilla (ver `VITRINAS_PLANILLA`): la plantilla
+ *  con los datos de todas las pestañas y la pedida ya elegida. */
+async function vitrinaDePlanilla(slug: string, pestana: string, titulo: string) {
+  const v = VITRINAS_PLANILLA[slug];
+  let hojas;
+  try {
+    hojas = await leerHojasVitrina(v);
+  } catch (err) {
+    console.error(`[vitrina ${slug}/${pestana}]`, err);
+    return new Response('El catálogo no está disponible en este momento. Probá de nuevo en unos minutos.', {
+      status: 503,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+    });
+  }
+
+  const [html, numero] = await Promise.all([leerPlantilla(slug, v.plantilla), numeroDelLocal(slug)]);
+  const pagina = html
+    .replace('__DATOS__', () => jsonEnHtml(armarDatosVitrina(v, hojas)))
+    .replace('__PESTANA__', pestana)
+    .replaceAll('__TITULO__', titulo)
+    .replace('__WHATSAPP__', numero);
+
+  return new Response(pagina, {
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',

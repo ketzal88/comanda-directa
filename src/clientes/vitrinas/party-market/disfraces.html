@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><title>Party Market __TITULO__</title></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&amp;family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800&amp;display=swap">
+<style>
+/* Layout: póster de fiesta arriba, filtros pegajosos, grilla de productos numerados, barra de pedido fija abajo */
+:root{
+  --bg:#f7f1fa; --surface:#ffffff; --ink:#2a1636; --muted:#6f5c7b; --line:#e4d8ea;
+  --accent:#e8621a; --accent-ink:#ffffff; --plum:#4b1f63; --chip:#efe5f4;
+  --display:"Bowlby One SC","Arial Black",Impact,sans-serif;
+  --body:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#170c1f; --surface:#22142d; --ink:#f4ecf8; --muted:#b5a3c1; --line:#3a2749;
+  --accent:#ff8a3d; --accent-ink:#1c0f00; --plum:#2e163d; --chip:#2d1c3a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#170c1f; --surface:#22142d; --ink:#f4ecf8; --muted:#b5a3c1; --line:#3a2749;
+  --accent:#ff8a3d; --accent-ink:#1c0f00; --plum:#2e163d; --chip:#2d1c3a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.hero{background:var(--plum);color:#fff}
+header.hero .wrap{padding-block:28px 24px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.brand{font-family:var(--display);font-size:clamp(30px,6vw,52px);line-height:.95;letter-spacing:.01em;margin:0;text-wrap:balance}
+.brand span{color:#ff9a52;display:block;font-size:.5em;letter-spacing:.08em}
+.hero p{margin:0;max-width:40ch;color:#e9dcef;font-size:14px}
+.how{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.how b{background:rgba(255,255,255,.12);border-radius:999px;padding:4px 10px;font-weight:600;font-size:12.5px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .wrap{padding-block:12px;display:grid;gap:10px}
+.search{width:100%;font:inherit;padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.search:focus{outline:2px solid var(--accent);outline-offset:1px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.chip{flex:none;font:inherit;font-size:13px;font-weight:600;border:0;border-radius:999px;padding:6px 12px;background:var(--chip);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.chip:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main .wrap{padding-block:18px 120px}
+section.cat{margin-bottom:28px}
+section.cat h2{font-family:var(--display);font-size:20px;letter-spacing:.02em;margin:0 0 12px;display:flex;align-items:baseline;gap:10px}
+section.cat h2 small{font-family:var(--body);font-size:13px;color:var(--muted);font-weight:600;letter-spacing:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.ph{position:relative;aspect-ratio:1;background:#fff;max-width:100%}
+.ph img{width:100%;height:100%;object-fit:contain;display:block}
+.num{position:absolute;top:8px;left:8px;background:var(--plum);color:#fff;font-weight:800;font-size:12px;border-radius:8px;padding:2px 7px;font-variant-numeric:tabular-nums}
+.info{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.name{font-weight:600;font-size:14px;line-height:1.3;margin:0}
+.prices{margin-top:auto;font-variant-numeric:tabular-nums}
+.ef{font-weight:800;font-size:18px}
+.ef small,.tj small{font-weight:600;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-left:4px}
+.tj{font-size:13px;color:var(--muted)}
+.btn{font:inherit;font-weight:800;font-size:13px;border:0;border-radius:10px;padding:8px 10px;cursor:pointer;background:var(--chip);color:var(--ink)}
+.btn.add{background:var(--accent);color:var(--accent-ink)}
+.qty{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.qty span{font-weight:800;font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);padding:40px 0;text-align:center}
+.order{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--plum);color:#fff;padding-bottom:env(safe-area-inset-bottom,0px)}
+.order .wrap{padding-block:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.order .tot{font-variant-numeric:tabular-nums;font-size:14px}
+.order .tot b{font-size:17px}
+.panel{position:fixed;inset:0;z-index:20;background:rgba(15,5,20,.55);display:flex;justify-content:flex-end}
+.sheet{background:var(--surface);color:var(--ink);width:min(440px,100%);height:100%;overflow:auto;padding:calc(20px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) 20px;display:flex;flex-direction:column;gap:14px}
+.sheet h3{font-family:var(--display);font-size:22px;margin:0}
+.line{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:10px;font-variant-numeric:tabular-nums}
+.line img{width:48px;height:48px;object-fit:contain;background:#fff;border-radius:8px}
+.line .n{font-size:13.5px;font-weight:600;min-width:0}
+.line .n small{display:block;color:var(--muted);font-weight:400}
+.sum{display:grid;gap:4px;font-variant-numeric:tabular-nums}
+.sum div{display:flex;justify-content:space-between}
+.sum .big{font-weight:800;font-size:18px}
+textarea{width:100%;min-height:120px;font:13px/1.4 var(--body);border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);color:var(--ink)}
+.note{font-size:12.5px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .15s}.card:hover{transform:translateY(-2px)}}
+@media (max-width:420px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.ef{font-size:16px}}
+</style>
+<style>
+.pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,520px),1fr));gap:16px}
+.pair{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:12px;min-width:0}
+.pair header{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pair h2{font-family:var(--display);font-size:19px;margin:0;letter-spacing:.02em}
+.ptot{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted)}
+.ptot b{color:var(--accent);font-size:16px}
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.person{display:grid;gap:8px;align-content:start;min-width:0}
+.person .ph{border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.role{position:absolute;top:8px;left:8px;background:var(--plum);color:#fff;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-radius:8px;padding:3px 8px}
+.sizes{display:flex;gap:6px;flex-wrap:wrap}
+.size{font:inherit;font-weight:800;font-size:13px;min-width:44px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:6px 8px;cursor:pointer;font-variant-numeric:tabular-nums}
+.size.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.size:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:12px;color:var(--muted);margin:0}
+</style><style>
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.cards .person{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px}
+@media (max-width:420px){.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.cards .person{padding:8px}.size{min-width:38px}}
+</style><style>
+.tabs{display:flex;gap:6px}
+.tab{flex:1;font:inherit;font-family:var(--display);font-size:15px;letter-spacing:.03em;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--plum);border-color:var(--plum);color:#fff}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ph.sin::after{content:"Sin foto";position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:12px}
+.enc{position:absolute;top:8px;right:8px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:11px;letter-spacing:.04em;text-transform:uppercase;border-radius:8px;padding:3px 8px}
+.pick{display:grid;gap:6px}
+.pick .btn.add{width:100%}
+.inc{display:flex;align-items:center;justify-content:space-between;gap:6px;background:var(--chip);border-radius:10px;padding:2px}
+.inc span{font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
+</style><header class="hero"><div class="wrap">
+  <h1 class="brand"><span>Party Market</span><span id="h1t" style="all:unset">__TITULO__</span></h1>
+  <div><p>Elige el disfraz, toca el talle y agrégalo al pedido. Cuando termines, envíanoslo por mensaje.</p>
+  <div class="how"><b id="countAll"></b><b>Efectivo o transferencia</b><b>Tarjeta con recargo</b></div></div>
+</div></header>
+<div class="bar"><div class="wrap">
+  <div class="tabs" id="tabs" role="tablist" aria-label="Disfraces"></div>
+  <input id="q" class="search" type="search" placeholder="Buscar: pirata, princesa, dino..." aria-label="Buscar disfraces">
+</div></div>
+<main><div class="wrap" id="list"></div></main>
+<div class="order" id="orderBar" hidden=""><div class="wrap">
+  <div class="tot"><span id="oCount">0 disfraces</span> · <b id="oEf">$ 0</b> efectivo</div>
+  <button class="btn add" id="openOrder" type="button">Ver mi pedido</button>
+</div></div>
+<div class="panel" id="panel" hidden=""><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pt">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 id="pt">Mi pedido</h3><button class="btn" id="closeOrder" type="button">Cerrar</button></div>
+  <div id="lines"><p class="note">Todavía no agregaste disfraces.</p></div>
+  <div class="sum"><div class="big"><span>Total efectivo o transferencia</span><span id="sEf">$ 0</span></div><div><span>Total con tarjeta</span><span id="sTj">$ 0</span></div></div>
+  <p class="note">Envíalo por WhatsApp para confirmar el pedido y la disponibilidad de talles. Los disfraces por encargo se confirman con seña. Si prefieres, cópialo y pégalo en un mensaje.</p>
+  <textarea id="txt" readonly="" aria-label="Texto del pedido"></textarea>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn add" id="wa" href="#" target="_blank" rel="noopener" style="display:none;text-decoration:none">Enviar por WhatsApp</a><button class="btn" id="copy" type="button">Copiar pedido</button><button class="btn" id="clear" type="button">Vaciar pedido</button></div>
+</div></div>
+<script id="data" type="application/json">__DATOS__</script>
+<script>
+(function(){
+const D=JSON.parse(document.getElementById('data').textContent);const P=D.disfraces;
+const fmt=n=>'$ '+n.toLocaleString('es-AR');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const foto=s=>'/_next/image?url='+encodeURIComponent(location.pathname.replace(/\/[^/]*$/,'')+'/foto/'+s)+'&w=384&q=70';
+let cart={};try{cart=JSON.parse(localStorage.getItem('pm-disfraces')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('pm-disfraces',JSON.stringify(cart))}catch(e){}};
+const key=(s,t)=>s+'|'+t;
+const tal=(s,t)=>P[s]&&P[s].tal.find(x=>x.t===t);
+Object.keys(cart).forEach(k=>{const [s,t]=k.split('|');if(!tal(s,t))delete cart[k]});
+const sel={};const elegido=s=>P[s].tal[sel[s]||0];
+let tab='__PESTANA__',q='';
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+let num=0;const idx={};D.pestanas.forEach(p=>p.secciones.forEach(c=>c.disfraces.forEach(s=>{if(!idx[s])idx[s]=++num})));
+const tabs=document.getElementById('tabs');
+tabs.innerHTML=D.pestanas.map(p=>`<button type="button" class="tab" role="tab" data-p="${p.id}" aria-selected="${p.id===tab}">${esc(p.etiqueta)}</button>`).join('');
+function ponerPestana(id){tab=id;const p=D.pestanas.find(x=>x.id===id);tabs.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.p===id));
+ document.getElementById('h1t').textContent=p.titulo;document.title='Party Market '+p.titulo;
+ const n=new Set(p.secciones.flatMap(c=>c.disfraces)).size;document.getElementById('countAll').textContent=n+(n===1?' disfraz':' disfraces')}
+tabs.addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b||b.dataset.p===tab)return;ponerPestana(b.dataset.p);
+ try{history.replaceState(null,'',location.pathname.replace(/[^/]*$/,b.dataset.p)+location.search)}catch(err){}render();window.scrollTo({top:0})});
+document.getElementById('q').addEventListener('input',e=>{q=norm(e.target.value.trim());render()});
+function card(s){const p=P[s];const x=elegido(s);const k=key(s,x.t);const n=cart[k]||0;
+ return `<div class="person"><div class="ph"><img loading="lazy" src="${foto(s)}" alt="Disfraz ${esc(p.n)}" onerror="this.parentNode.classList.add('sin');this.remove()"><span class="role">N.º ${idx[s]}</span>${p.encargo?'<span class="enc">Por encargo</span>':''}</div>`+
+ `<p class="name">${esc(p.n)}</p><div class="prices"><div class="ef">${fmt(x.e)}<small>efectivo</small></div><div class="tj">${fmt(x.tj)}<small>tarjeta</small></div></div>`+
+ `<div class="pick"><div class="sizes" role="radiogroup" aria-label="Talle de ${esc(p.n)}">${p.tal.map((t,i)=>{const on=t.t===x.t;const c=cart[key(s,t.t)];return `<button type="button" class="size${on?' on':''}" role="radio" aria-checked="${on}" data-s="${s}" data-i="${i}">${esc(t.t)}${c?' ×'+c:''}</button>`}).join('')}</div>`+
+ (n?`<div class="inc"><button class="btn" data-a="-" data-k="${esc(k)}" type="button" aria-label="Quitar uno">−</button><span>${n} en el pedido</span><button class="btn" data-a="+" data-k="${esc(k)}" type="button" aria-label="Agregar uno">+</button></div>`
+   :`<button type="button" class="btn add" data-a="+" data-k="${esc(k)}">Agregar${p.tal.length>1?' talle '+esc(x.t):''}</button>`)+`</div></div>`}
+function render(){const p=D.pestanas.find(x=>x.id===tab);const out=p.secciones.map(c=>{const ns=c.disfraces.filter(s=>!q||norm(P[s].n).includes(q));if(!ns.length)return '';
+  const tit=p.secciones.length>1?`<h2>${esc(c.titulo)}<small>${ns.length} ${ns.length===1?'disfraz':'disfraces'}</small></h2>`:'';
+  return `<section class="cat">${tit}<div class="cards">${ns.map(card).join('')}</div></section>`}).join('');
+ document.getElementById('list').innerHTML=out?out+'<p class="hint">Elige un talle y toca Agregar. Puedes ajustar cantidades en “Ver mi pedido”.</p>':'<p class="empty">No encontramos disfraces con esa búsqueda.</p>'}
+document.addEventListener('click',e=>{const z=e.target.closest('.size');if(z){sel[z.dataset.s]=+z.dataset.i;render();return}
+ const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;cart[k]=Math.max(0,(cart[k]||0)+(b.dataset.a==='+'?1:-1));if(!cart[k])delete cart[k];save();render();upd()});
+function linea(k){const [s,t]=k.split('|');return {p:P[s],x:tal(s,t),s}}
+function upd(){const ks=Object.keys(cart);let n=0,ef=0,tj=0;ks.forEach(k=>{const {x}=linea(k);n+=cart[k];ef+=cart[k]*x.e;tj+=cart[k]*x.tj});
+ document.getElementById('orderBar').hidden=!n;document.getElementById('oCount').textContent=n+(n===1?' disfraz':' disfraces');document.getElementById('oEf').textContent=fmt(ef);
+ document.getElementById('sEf').textContent=fmt(ef);document.getElementById('sTj').textContent=fmt(tj);
+ document.getElementById('lines').innerHTML=ks.length?ks.map(k=>{const {p,x,s}=linea(k);return `<div class="line"><img src="${foto(s)}" alt="" onerror="this.style.visibility='hidden'"><div class="n">N.º ${idx[s]} · ${esc(p.n)}<small>Talle ${esc(x.t)} · ${fmt(x.e)} c/u${p.encargo?' · por encargo':''}</small></div><div class="qty"><button class="btn" data-a="-" data-k="${esc(k)}" type="button" aria-label="Quitar uno">−</button><span>${cart[k]}</span><button class="btn" data-a="+" data-k="${esc(k)}" type="button" aria-label="Agregar uno">+</button></div></div>`}).join(''):'<p class="note">Todavía no agregaste disfraces.</p>';
+ document.getElementById('txt').value=n?'Hola, quiero hacer este pedido de disfraces:\n'+ks.map(k=>{const {p,x,s}=linea(k);return `• ${cart[k]} x N.º ${idx[s]} ${p.n}, talle ${x.t}${x.c?', cód. '+x.c:''}${p.encargo?' (por encargo)':''} (${fmt(x.e*cart[k])})`}).join('\n')+`\n\nTotal efectivo o transferencia: ${fmt(ef)}\nTotal con tarjeta: ${fmt(tj)}`:''}
+const panel=document.getElementById('panel');
+document.getElementById('openOrder').onclick=()=>{panel.hidden=false;document.getElementById('closeOrder').focus()};
+document.getElementById('closeOrder').onclick=()=>panel.hidden=true;
+panel.addEventListener('click',e=>{if(e.target===panel)panel.hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')panel.hidden=true});
+document.getElementById('clear').onclick=()=>{cart={};save();render();upd()};
+document.getElementById('copy').onclick=async e=>{const t=document.getElementById('txt');try{await navigator.clipboard.writeText(t.value);e.target.textContent='Pedido copiado'}catch(err){t.focus();t.select();e.target.textContent='Selecciona y copia el texto'}setTimeout(()=>e.target.textContent='Copiar pedido',2500)};
+const WA='__WHATSAPP__';const wa=document.getElementById('wa');
+const updBase=upd;upd=function(){updBase();const t=document.getElementById('txt').value;if(WA&&t){wa.href='https://wa.me/'+WA+'?text='+encodeURIComponent(t);wa.style.display=''}else wa.style.display='none'};
+ponerPestana(tab);render();upd();
+})();
+</script>
+</body></html>
