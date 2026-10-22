@@ -24,6 +24,11 @@ const NAVEGADOR = {
 };
 const UN_DIA = 86400;
 
+/** Sólo imágenes de mapa de bits. Excluye `image/svg+xml` a propósito: un SVG
+ *  puede traer scripts y esta ruta sirve bajo NUESTRO dominio, así que servirlo
+ *  sería un XSS en origen propio. Las fotos de disfraz son jpg/png/webp. */
+const TIPOS_PERMITIDOS = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']);
+
 export async function GET(_req: Request, { params }: Contexto) {
   const { cliente: slug, disfraz } = await params;
   if (!Object.hasOwn(VITRINAS_PLANILLA, slug) || disfraz !== slugDisfraz(disfraz)) {
@@ -37,18 +42,25 @@ export async function GET(_req: Request, { params }: Contexto) {
     const pagina = await fetch(link, { headers: NAVEGADOR, next: { revalidate: UN_DIA } });
     if (!pagina.ok) return new Response(null, { status: 404 });
     const origen = fotoDePagina(await pagina.text(), link);
-    if (!origen) return new Response(null, { status: 404 });
+    // Sólo https: el `origen` sale del og:image de una página externa; sin esto
+    // podría apuntar a un recurso interno (SSRF).
+    if (!origen || !origen.startsWith('https://')) return new Response(null, { status: 404 });
 
     // Sin cache de `fetch`: son imágenes de cientos de KB. Lo que se cachea
     // es la respuesta de esta ruta en el CDN y la versión achicada de
     // `/_next/image`.
     const foto = await fetch(origen, { headers: NAVEGADOR, cache: 'no-store' });
-    const tipo = foto.headers.get('content-type') ?? '';
-    if (!foto.ok || !tipo.startsWith('image/')) return new Response(null, { status: 404 });
+    const tipo = (foto.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase();
+    if (!foto.ok || !TIPOS_PERMITIDOS.has(tipo)) return new Response(null, { status: 404 });
 
     return new Response(await foto.arrayBuffer(), {
       headers: {
         'Content-Type': tipo,
+        // Defensa en profundidad: aunque se filtre algo raro, el navegador no
+        // lo interpreta como HTML/script ni deja que ejecute nada.
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': "default-src 'none'; sandbox",
+        'Content-Disposition': 'inline; filename="foto"',
         'Cache-Control': `public, max-age=${UN_DIA}, s-maxage=${UN_DIA * 7}, stale-while-revalidate=${UN_DIA}`,
       },
     });
