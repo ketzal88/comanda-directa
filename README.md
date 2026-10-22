@@ -66,16 +66,27 @@ columna de tarjeta como `efectivo / 0,9` redondeado a los $100 de arriba, así
 que la vuelta da EXACTA el efectivo de la planilla (lo verifica
 `pruebas/catalogo-halloween.test.ts`).
 
-**El stock se sincroniza solo**: un cron de Vercel (`vercel.json`) pega a
-`/api/sync-stock`, que lee la planilla y oculta (`activo = false`) cada
-producto cuyo Disponible llegó a 0, y lo vuelve a mostrar cuando hay stock. No
-toca precios ni fotos. Para cambiar el SURTIDO (sumar o sacar productos) se
-corre `npm run traer:planilla` + `seed`.
+**El stock se sincroniza solo, sin credenciales**: un cron de Vercel
+(`vercel.json`) pega a `/api/sync-stock`, que lee un **CSV publicado** de la
+planilla y oculta (`activo = false`) cada producto cuyo Disponible llegó a 0, y
+lo vuelve a mostrar cuando hay stock. No toca precios ni fotos. Para cambiar el
+SURTIDO (sumar o sacar productos) se regenera el catálogo y se re-siembra.
 
-> Autenticación de Google: un **service account** con la planilla compartida en
-> lectura. Sus credenciales van por entorno (`GOOGLE_SA_EMAIL`,
-> `GOOGLE_SA_PRIVATE_KEY`), nunca en el repo — en `.env.local` para los scripts
-> y en las env de Vercel para el cron (más `CRON_SECRET`).
+> El CSV: una pestaña chica de la planilla con sólo **Producto** y
+> **Disponible** (encabezado en la fila 1), publicada en la web (Archivo →
+> Compartir → Publicar en la web → esa hoja, CSV). No hace falta service
+> account ni API key: el stock no tiene datos sensibles, así que esa pestaña se
+> puede publicar (nada del proveedor, ni precios, ni costos). En Vercel se
+> cargan `STOCK_CSV_URL` (el link del CSV) y `CRON_SECRET`.
+
+Regenerar el `party-market.json` (que sí necesita los links escondidos de las
+fichas) tiene dos caminos:
+
+- **Pedírselo a Claude**: lo lee por el conector de Google Sheets y reescribe
+  el JSON. Cero credenciales en el repo.
+- **`npm run traer:planilla`** (self-serve): lee la hoja por la API de Sheets
+  con un service account (`GOOGLE_SA_EMAIL` / `GOOGLE_SA_PRIVATE_KEY` en
+  `.env.local`). Sólo hace falta si se quiere correr sin Claude.
 
 - `scripts/catalogo-halloween.ts` — categorías, productos, tema y config de
   pedido, armados desde `party-market.json`. No entra en el bundle: es dato de
