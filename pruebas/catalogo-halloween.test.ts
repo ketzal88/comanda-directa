@@ -1,27 +1,29 @@
 import { describe, expect, it } from 'vitest';
 import {
   CATALOGO_HALLOWEEN,
-  COMBOS_WEB,
   CONFIG_PEDIDO_HALLOWEEN,
-  DISFRAZ_COMPLETO,
   NOMBRE_HALLOWEEN,
 } from '../scripts/catalogo-halloween';
 import { renumerar } from '../src/logica/numeracion';
 import { agregar, lineaDeItem } from '../src/logica/pedido';
-import { MAX_ETIQUETA_VARIANTE, MAX_VARIANTES, validarCambiosItem } from '../src/logica/validar-item';
 import { armarMensaje, enlaceWhatsApp } from '../src/logica/whatsapp';
-import { variantesDe } from '../src/logica/variantes';
-import { fotoGrande } from '../src/componentes/carta/halloween/fotos';
 import { precioConDescuentoPago } from '../src/logica/cuenta';
-import PLANILLA from '../scripts/data/piedro-planilla.json';
+import { fotoGrande } from '../src/componentes/carta/halloween/fotos';
+import PARTY from '../scripts/data/party-market.json';
 
-/** El catálogo se carga una sola vez con `scripts/seed-halloween.ts`: si algo
- *  está mal escrito, se descubre con el cliente adentro del panel. Estas
- *  pruebas corren sobre los mismos datos que inserta el script. */
+/** El catálogo de Party Market se arma desde `scripts/data/party-market.json`
+ *  (la hoja "Catálogo" filtrada por stock) y se carga con
+ *  `scripts/seed-halloween.ts`. Estas pruebas corren sobre los mismos datos
+ *  que inserta el script. */
 
 const { categorias, items } = CATALOGO_HALLOWEEN;
 
-describe('catálogo de Halloween', () => {
+describe('catálogo de Party Market', () => {
+  it('tiene solo los productos con stock de la planilla', () => {
+    expect(items).toHaveLength(PARTY.productos.length);
+    expect(items.length).toBeGreaterThan(0);
+  });
+
   it('cada ítem cuelga de una categoría que existe', () => {
     const ids = new Set(categorias.map((c) => c.id));
     const huerfanos = items.filter((i) => !ids.has(i.categoriaId)).map((i) => i.nombre);
@@ -32,204 +34,118 @@ describe('catálogo de Halloween', () => {
     const ids = items.map((i) => i.id);
     expect(new Set(ids).size).toBe(ids.length);
 
-    // Un producto cargado dos veces son dos líneas distintas en el pedido:
-    // el comprador suma las dos y cree que pidió dos cosas.
     const nombres = items.map((i) => i.nombre.toLowerCase());
     const repetidos = nombres.filter((n, i) => nombres.indexOf(n) !== i);
     expect(repetidos).toEqual([]);
   });
 
-  it('todos los precios son enteros en pesos', () => {
+  it('el id de cada producto entra en una URL (es su slug)', () => {
+    for (const item of items) {
+      expect(item.id, `${item.nombre}: el id va en la URL de la foto`).toMatch(/^[a-z0-9-]+$/);
+    }
+  });
+
+  it('todos los precios son enteros positivos, sin variantes sueltas', () => {
     for (const item of items) {
       expect(Number.isInteger(item.precio), `${item.nombre}: precio`).toBe(true);
-      expect(item.precio).toBeGreaterThanOrEqual(0);
-      for (const v of item.variantes) {
-        expect(Number.isInteger(v.precio), `${item.nombre} · ${v.etiqueta}`).toBe(true);
-        expect(v.precio).toBeGreaterThan(0);
-      }
+      expect(item.precio, item.nombre).toBeGreaterThan(0);
+      // El modelo nuevo no mergea talles: cada fila de la planilla es un
+      // producto con un precio, sin variantes.
+      expect(item.variantes, item.nombre).toEqual([]);
     }
   });
 
-  it('las etiquetas de talle entran en lo que el panel acepta', () => {
-    for (const item of items) {
-      expect(item.variantes.length).toBeLessThanOrEqual(MAX_VARIANTES);
-      for (const v of item.variantes) {
-        expect(v.etiqueta.length, `${item.nombre} · ${v.etiqueta}`).toBeLessThanOrEqual(
-          MAX_ETIQUETA_VARIANTE,
-        );
-      }
-    }
+  it('nada del proveedor queda en lo que se publica', () => {
+    const texto = JSON.stringify(CATALOGO_HALLOWEEN).toLowerCase();
+    expect(texto).not.toContain('merakys');
   });
 
-  it('un ítem con talles no deja precio suelto, y uno sin talles sí tiene precio', () => {
-    // Con variantes cargadas, `item.precio` no se usa (ver `logica/variantes.ts`):
-    // dejarlo en otro valor es un precio fantasma esperando a que alguien lo lea.
-    const conTalles = items.filter((i) => i.variantes.length > 0);
-    expect(conTalles.every((i) => i.precio === 0)).toBe(true);
-
-    const sinPrecio = items.filter((i) => !i.variantes.length && i.precio === 0);
-    expect(sinPrecio.map((i) => i.nombre)).toEqual([]);
-  });
-
-  it('numera los 250 productos corridos desde 1, agrupados por categoría', () => {
+  it('numera los productos corridos desde 1, agrupados por categoría', () => {
     const numerados = renumerar(items, categorias);
-    expect(numerados).toHaveLength(250);
+    expect(numerados).toHaveLength(items.length);
     expect(numerados.map((i) => i.numero)).toEqual(numerados.map((_, i) => i + 1));
+  });
 
-    const porCategoria = categorias.map((c) => items.filter((i) => i.categoriaId === c.id).length);
-    // combos, infantiles, adulto, animatrónicos, inflables, accesorios, trick, decoración
-    expect(porCategoria).toEqual([4, 13, 10, 133, 25, 20, 17, 28]);
+  it('las categorías publicadas son las que tienen productos', () => {
+    const conProductos = new Set(items.map((i) => i.categoriaId));
+    expect(categorias.every((c) => conProductos.has(c.id))).toBe(true);
+    expect(categorias.map((c) => c.id)).toEqual([
+      'infantiles',
+      'adulto',
+      'accesorios',
+      'trick-or-treat',
+      'decoracion',
+    ]);
   });
 });
 
-describe('pedido de Halloween por WhatsApp', () => {
+describe('precios de Party Market', () => {
+  const efectivo = CONFIG_PEDIDO_HALLOWEEN.descuentosPago.efectivo!;
+
+  it('el precio en efectivo del motor es el de la planilla, producto por producto', () => {
+    for (const p of PARTY.productos) {
+      expect(precioConDescuentoPago(p.tarjeta, efectivo), `${p.nombre} ($${p.tarjeta})`).toBe(
+        p.efectivo,
+      );
+    }
+  });
+
+  it('el precio de lista guardado es el de tarjeta', () => {
+    const porNombre = new Map(items.map((i) => [i.nombre, i.precio]));
+    for (const p of PARTY.productos) {
+      expect(porNombre.get(p.nombre), p.nombre).toBe(p.tarjeta);
+    }
+  });
+});
+
+describe('pedido de Party Market por WhatsApp', () => {
   const buscar = (id: string) => {
     const item = items.find((i) => i.id === id);
     if (!item) throw new Error(`falta el ítem ${id}`);
     return item;
   };
 
-  it('el talle elegido viaja en el mensaje', () => {
-    const esqueleto = buscar('disfraz-esqueleto-nino');
-    const linea = lineaDeItem(esqueleto, 'S (5 a 6)');
-    expect(linea).not.toBeNull();
+  it('el producto y el total con tarjeta viajan en el mensaje', () => {
+    const diablita = buscar('set-diablita'); // tarjeta $14.300
+    const pedido = agregar({ lineas: [] }, lineaDeItem(diablita)!);
+    const mensaje = armarMensaje(pedido, { nombre: 'Ana', modalidad: 'retiro' }, NOMBRE_HALLOWEEN);
+    expect(mensaje).toContain('Set Diablita');
+    expect(mensaje).toContain('Total: $14.300');
+  });
 
-    const pedido = agregar({ lineas: [] }, linea!);
+  it('pagando en efectivo el total es el de la planilla', () => {
+    const diablita = buscar('set-diablita'); // efectivo $12.800
+    const pedido = agregar({ lineas: [] }, lineaDeItem(diablita)!);
     const mensaje = armarMensaje(
       pedido,
-      { nombre: 'Ana', modalidad: 'retiro' },
+      {
+        nombre: 'Ana',
+        modalidad: 'delivery',
+        direccion: 'x',
+        medioDePago: 'efectivo',
+        zona: CONFIG_PEDIDO_HALLOWEEN.zonasEnvio[0],
+      },
       NOMBRE_HALLOWEEN,
-      { cubiertoPorPersona: CATALOGO_HALLOWEEN.config.cubiertoPorPersona },
+      { descuentosPago: CONFIG_PEDIDO_HALLOWEEN.descuentosPago },
     );
-
-    expect(mensaje).toContain('Disfraz Esqueleto Niño · S (5 a 6)');
-    expect(mensaje).toContain('Total: $25.400');
-    // Sin salón no hay mesa que nombrar.
-    expect(mensaje).not.toContain('Mesa');
-  });
-
-  it('los talles de la planilla se juntan en un producto, no en dos filas', () => {
-    const preso = buscar('disfraz-preso');
-    expect(variantesDe(preso).map((v) => v.etiqueta)).toEqual(['Talle M', 'Talle L']);
-  });
-
-  it('los combos son los que pasó el cliente, en su orden y a precio con tarjeta', () => {
-    const combos = items.filter((i) => i.categoriaId === 'combos').sort((x, y) => x.orden - y.orden);
-    expect(combos.map((c) => [c.nombre, c.precio])).toEqual([
-      ['Combo Casa Embrujada', 59500],
-      ['Combo Puerta Embrujada', 37700],
-      ['Combo Fiesta Halloween', 41900],
-      ['Disfraz completo', 0],
-    ]);
-    expect(buscar('combo-fiesta-halloween').descripcion).toBe(
-      [
-        'Incluye:',
-        '- 2 × Bolsa de Papel Boo x8',
-        '- 6 × Careta Ghostface',
-        '- 6 × Vincha Cuernos Diablita LED',
-        '- 1 × Mantel',
-        '- 2 × Plato x6',
-        '- 1 × Servilletas x20',
-        '- 1 × Sorbetes x24',
-        '- 1 × Set de Globos Halloween Calabazas',
-        '- 2 × Tatuaje Temporal Boo (plancha x10)',
-        '',
-        'El modelo de mantel, platos, servilletas y sorbetes lo elegís con nosotros por WhatsApp.',
-      ].join('\n'),
-    );
-  });
-
-  it('el precio en efectivo que calcula la carta es el que pasó el cliente', () => {
-    const efectivo = CONFIG_PEDIDO_HALLOWEEN.descuentosPago.efectivo!;
-    for (const c of [...COMBOS_WEB, ...DISFRAZ_COMPLETO.looks]) {
-      expect(precioConDescuentoPago(c.tarjeta, efectivo), c.tarjeta.toString()).toBe(c.efectivo);
-    }
-  });
-
-  it('el Disfraz completo es una publicación con un look por opción, cada uno con su precio', () => {
-    const disfraz = buscar('combo-disfraz-completo');
-    expect(variantesDe(disfraz)).toEqual([
-      { etiqueta: 'Brujita', precio: 18300 },
-      { etiqueta: 'Esqueleto Niño', precio: 33900 },
-      { etiqueta: 'Esqueleto Niña', precio: 37800 },
-      { etiqueta: 'Terror', precio: 26800 },
-    ]);
-    expect(disfraz.descripcion!.split('\n\n')[0]).toBe('Disfraz y accesorios en un solo pedido. Elegí tu look.');
-    expect(disfraz.descripcion).toContain('Look Esqueleto Niña (talle S, 5-6 años):\n- Disfraz Esqueleto Niña talle S');
-    // El look llega en el mensaje: sin eso el local no sabe qué armar.
-    const linea = lineaDeItem(disfraz, 'Esqueleto Niña')!;
-    const msj = armarMensaje(agregar({ lineas: [] }, linea), {
-      nombre: 'Prueba', modalidad: 'delivery', mesa: '', direccion: 'x', telefono: '', notas: '',
-      medioDePago: 'efectivo', zona: CONFIG_PEDIDO_HALLOWEEN.zonasEnvio[0],
-    }, NOMBRE_HALLOWEEN, { descuentosPago: CONFIG_PEDIDO_HALLOWEEN.descuentosPago });
-    expect(msj).toContain('Disfraz completo · Esqueleto Niña');
-    expect(msj).toContain('*Total: $34.000*');
-  });
-
-  it('guardar desde el panel no le borra la foto a un look', () => {
-    const { cambios, errores } = validarCambiosItem({
-      variantes: [{ etiqueta: 'Brujita', precio: 18300, foto: 'https://x/fotos/brujita.webp' }],
-    });
-    expect(errores).toEqual([]);
-    expect(cambios.variantes).toEqual([{ etiqueta: 'Brujita', precio: 18300, foto: 'https://x/fotos/brujita.webp' }]);
-  });
-
-  it('el precio en efectivo del motor es el de la planilla, producto por producto', () => {
-    const efectivo = CONFIG_PEDIDO_HALLOWEEN.descuentosPago.efectivo!;
-    const enLaPlanilla = new Map<number, number>();
-    for (const p of PLANILLA.productos) enLaPlanilla.set(p.tarjeta, p.efectivo);
-    for (const [tarjeta, ef] of enLaPlanilla) {
-      expect(precioConDescuentoPago(tarjeta, efectivo), `$${tarjeta}`).toBe(ef);
-    }
-    expect(precioConDescuentoPago(14300, efectivo)).toBe(12800); // Set Diablita
-  });
-
-  it('los animatrónicos se parten en colgantes y de piso, sin que quede ninguno afuera', () => {
-    const anim = items.filter((i) => i.categoriaId === 'animatronicos');
-    const subs = categorias.find((c) => c.id === 'animatronicos')!.subcategorias.map((s) => s.nombre);
-    expect(anim.every((i) => subs.includes(i.subcategoria ?? ''))).toBe(true);
-    expect(buscar('colgante-pesadilla-negro-para-colgar').subcategoria).toBe('Colgantes');
-    expect(buscar('escoba-caminante-luz-sonido-y-movimiento').subcategoria).toBe('De piso y mesa');
-  });
-
-  it('los nombres que corrigió el cliente', () => {
-    const nombres = items.map((i) => i.nombre);
-    expect(nombres).toEqual(
-      expect.arrayContaining(['Set Brujito Hechicero Negro', 'Inflable Momia', 'Colgante Pesadilla Negro']),
-    );
-    expect(nombres).not.toEqual(expect.arrayContaining(['Inflable Momia Ok']));
+    expect(mensaje).toContain('*Total: $12.800*');
   });
 
   it('el enlace apunta al WhatsApp del cliente', () => {
     const enlace = enlaceWhatsApp(CONFIG_PEDIDO_HALLOWEEN.whatsapp, 'hola');
     expect(enlace).toBe('https://wa.me/5491139535981?text=hola');
   });
-
-  it('los disfraces con un solo talle igual lo ofrecen como variante', () => {
-    const monja = buscar('disfraz-monja');
-    expect(variantesDe(monja)).toEqual([{ etiqueta: 'Talle M', precio: 32900 }]);
-  });
 });
 
 describe('fotos de la plantilla', () => {
-  const base = 'https://x.supabase.co/storage/v1/object/public/fotos/halloween';
+  const base = 'https://x.supabase.co/storage/v1/object/public/fotos/party-market';
 
   it('la grande se deduce de la mini', () => {
-    expect(fotoGrande(`${base}/medusa.webp`)).toBe(`${base}/medusa@900.webp`);
+    expect(fotoGrande(`${base}/set-diablita.webp`)).toBe(`${base}/set-diablita@900.webp`);
   });
 
   it('una foto que no sigue el convenio se devuelve tal cual', () => {
-    // el panel deja pegar cualquier URL https: agrandarla mal es feo,
-    // pedir un archivo que no existe es una foto rota
     expect(fotoGrande('https://otro.sitio/foto.jpg')).toBe('https://otro.sitio/foto.jpg');
     expect(fotoGrande(undefined)).toBeUndefined();
-  });
-
-  it('todos los productos tienen una foto esperada en el bucket', () => {
-    // el nombre del archivo sale del id del catálogo (scripts/fotos-halloween.ts):
-    // un id con un carácter raro sería una URL que no se puede pedir
-    for (const item of items) {
-      expect(item.id, `${item.nombre}: el id va en la URL de la foto`).toMatch(/^[a-z0-9-]+$/);
-    }
   });
 });

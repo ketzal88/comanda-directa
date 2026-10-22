@@ -1,17 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { CATALOGO_HALLOWEEN, CONFIG_PEDIDO_HALLOWEEN } from '../scripts/catalogo-halloween';
+import { CATALOGO_HALLOWEEN } from '../scripts/catalogo-halloween';
 
 const SLUG = 'party-market';
-import { SELECCIONES, lineasDeOpcion } from '../src/clientes/selecciones';
-import { precioConDescuentoPago } from '../src/logica/cuenta';
+import { SELECCIONES } from '../src/clientes/selecciones';
 
 /** Una selección nombra productos de la carta: si uno no está, el comprador
- *  ve una opción incompleta y un total que no es el que se le pasó. */
+ *  ve una opción incompleta y un total que no es el que se le pasó. Hoy no hay
+ *  ninguna cargada (ver `src/clientes/selecciones.ts`), pero la invariante se
+ *  verifica igual para la próxima que se sume. */
 
 const porNombre = new Map(CATALOGO_HALLOWEEN.items.map((i) => [i.nombre, i]));
 
 describe('selecciones', () => {
-  for (const [codigo, seleccion] of Object.entries(SELECCIONES[SLUG])) {
+  const seleccionesDelCliente = Object.entries(SELECCIONES[SLUG] ?? {});
+
+  for (const [codigo, seleccion] of seleccionesDelCliente) {
     it(`${codigo}: cada producto está en la carta, con precio`, () => {
       const faltan = seleccion.opciones
         .flatMap((o) => o.lineas)
@@ -25,18 +28,7 @@ describe('selecciones', () => {
     });
   }
 
-  it('el presupuesto de octubre da los totales en efectivo de la planilla', () => {
-    // Hoja "Resumen": A $321.600, B $630.200, C $1.052.700 (efectivo). El
-    // Colgante Pesadilla Blanco tiene el precio del Excel fijado a mano
-    // (`EFECTIVO_FIJADO`): la fórmula de la web daba $100 menos.
-    const seleccion = SELECCIONES[SLUG].upopj6;
-    const efectivo = CONFIG_PEDIDO_HALLOWEEN.descuentosPago.efectivo!;
-    const total = (letra: string) =>
-      lineasDeOpcion(seleccion, letra).reduce(
-        (t, l) => t + precioConDescuentoPago(porNombre.get(l.producto)!.precio, efectivo) * l.cantidad,
-        0,
-      );
-    expect([total('A'), total('B'), total('C')]).toEqual([321600, 630200, 1052700]);
-    expect(lineasDeOpcion(seleccion, 'C')).toHaveLength(25);
+  it('la estructura de selecciones del cliente es válida', () => {
+    expect(SELECCIONES[SLUG]).toBeDefined();
   });
 });

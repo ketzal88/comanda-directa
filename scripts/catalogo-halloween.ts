@@ -1,119 +1,48 @@
-import MERAKYS from './data/merakys.json';
-import PLANILLA from './data/piedro-planilla.json';
-import EXTRA from './data/piedro-extra.json';
+import PARTY from './data/party-market.json';
 import type { Carta, ConfigPedido, Item, Tema } from '@/logica/tipos';
 
-type ProductoMayorista = { nombre: string; precio: number; slug: string; categoria: string };
-
-/** Lo que se le suma al precio del mayorista para llegar al de venta.
+/** El catálogo de **Party Market**, armado desde la planilla del cliente
+ *  (hoja "Catálogo"), volcada a `scripts/data/party-market.json` por
+ *  `scripts/traer-planilla.ts`.
  *
- *  Está acá, una sola vez, y NO pegado a cada producto: son 158 precios que el
- *  proveedor mueve, y con el margen repartido por la tabla cambiarlo sería
- *  reescribir el archivo entero y rezar. Para repreciar todo: se corre
- *  `traer-merakys.ts` de nuevo y se toca este número.
+ *  Una regla y sólo una: entra lo que tiene stock. El JSON ya trae filtrado
+ *  lo que en la planilla tiene Disponible > 0 y precio cargado; acá no se
+ *  vuelve a decidir qué va. Para refrescar la lista se corre el regenerador y
+ *  se vuelve a sembrar; para ocultar un producto que se agotó sin rehacer
+ *  todo, está el sync de stock (`/api/sync-stock`).
  *
- *  Los disfraces y el cotillón de más abajo vienen con el precio de venta ya
- *  calculado de la lista original (traían ~17%): a esos este margen NO se les
- *  aplica, para no cobrarlo dos veces. */
-export const MARGEN = 0.3;
-
-/** El precio de venta, redondeado a los $100 más cercanos.
+ *  Nada del proveedor sale publicado: el JSON no tiene código, ni precio
+ *  mayorista, ni costo. El `slug` que sí guarda es sólo la llave para ir a
+ *  buscar la foto a la store API, no se muestra.
  *
- *  Redondear no es cosmética: `27.900 × 1,30` da `36.270`, y una carta llena
- *  de precios con dos dígitos sueltos se lee como una planilla exportada, no
- *  como una lista de precios. */
-function conMargen(precioMayorista: number): number {
-  return Math.round((precioMayorista * (1 + MARGEN)) / 100) * 100;
-}
+ *  Dos precios, un solo número guardado: la carta muestra el de TARJETA
+ *  (`precio`) y el motor calcula el de efectivo con `DESCUENTO_EFECTIVO`. La
+ *  planilla arma su columna de tarjeta como `efectivo / 0,9` redondeado a los
+ *  $100 de arriba, así que la vuelta da EXACTA el efectivo de la planilla
+ *  (lo verifica `pruebas/catalogo-halloween.test.ts`). */
 
-/** El id del ítem sale del slug del mayorista: ya es único, ya está en
- *  minúsculas con guiones, y es el mismo que usa `fotos-halloween.ts` para ir
- *  a buscar la foto. */
-/** Lo que se come la tarjeta (comisión con IVA, el número de la planilla del
- *  cliente). El precio de LISTA de la carta es el de tarjeta: el de efectivo
- *  dividido por `1 - COMISION_TARJETA`, redondeado a los $100 de arriba. */
-export const COMISION_TARJETA = 0.1;
-
-/** El descuento pagando en efectivo o transferencia. Lo aplica el motor al
- *  elegir el medio de pago (`descuentosPago`): el total de la hoja y del
- *  mensaje de WhatsApp ya salen con el descuento. */
-export const DESCUENTO_EFECTIVO = 0.1;
-
-function precioTarjeta(precioEfectivo: number): number {
-  return Math.ceil(precioEfectivo / (1 - COMISION_TARJETA) / 100) * 100;
-}
-
-function idDeSlug(slug: string): string {
-  return slug;
-}
-
-/** El mayorista escribe "R.i.p" y "Animatronic Lobisón". Se corrigen las
- *  siglas que quedaron a medio capitalizar y nada más: el nombre es dato del
- *  proveedor, no se reescribe a gusto. */
-/** Nombres del mayorista que el cliente pidió corregir. La página del
- *  proveedor sigue con el original, y el slug (que es lo que baja la foto)
- *  no cambia. */
-const NOMBRES_CORREGIDOS: Record<string, string> = {
-  'Inflable Momia Ok': 'Inflable Momia',
-  'Colgante Pesadilla Negro para Colgar': 'Colgante Pesadilla Negro',
-};
-
-function nombreLegible(nombre: string): string {
-  return (NOMBRES_CORREGIDOS[nombre] ?? nombre).replace(/\bR\.i\.p\.?/gi, 'R.I.P.').trim();
-}
-
-/** Catálogo de temporada de Halloween: disfraces, cotillón y decoración.
- *  Es la carga inicial de un cliente del motor (`scripts/seed-halloween.ts`),
- *  no una carta de muestra: vive en `scripts/` y no entra en el bundle.
- *
- *  Dos cosas que este catálogo estrena respecto de un restaurante y que
- *  conviene no deshacer sin pensarlo:
- *
- *  - **El talle viaja como variante, no dentro del nombre.** Un disfraz en el
- *    talle equivocado es una devolución; `logica/pedido.ts` mete la variante
- *    elegida en el mensaje de WhatsApp ("Disfraz Medusa · Talle L"), mientras
- *    que un talle escrito adentro del nombre no distingue cuál pidió el
- *    comprador cuando el mismo disfraz viene en más de uno.
- *  - **No hay salón ni cubierto**: `modalidades` abre solo retiro y delivery,
- *    y `cubiertoPorPersona` queda en 0 (la pantalla lo oculta sola).
- */
-
-/** El slug con el que el cliente está EN LA BASE. La URL pública es
- *  /party-market (ver `src/logica/slugs-renombrados.ts`); la base sigue con
- *  el viejo hasta que se renombre después de un deploy. */
 export const SLUG_HALLOWEEN = 'piedro-shop';
 export const NOMBRE_HALLOWEEN = 'Party Market';
 
-/** La carpeta del bucket `fotos` donde ya están subidas las 162 imágenes.
- *
- *  Queda en 'halloween' aunque el cliente ahora sea `piedro-shop`: las URLs
- *  guardadas en `items.foto_url` apuntan ahí, y renombrar la carpeta las
- *  rompería todas hasta volver a correr el script. Es un nombre de carpeta
- *  que no ve nadie; el costo de "arreglarlo" es 162 descargas y un rato con
- *  la carta sin fotos. */
-export const CARPETA_FOTOS = 'halloween';
-
-/** De dónde salieron los productos y los precios, por si hay que rehacer la
- *  lista o buscar las fotos. NO se inserta en la base ni se muestra: son
- *  URLs del mayorista y esta carta la ve el comprador final. */
-export const FUENTE =
-  'mayoristas.merakys.com.ar — selección comercial de Halloween, precios de venta en ARS';
+/** La carpeta del bucket `fotos` (público) donde sube las imágenes
+ *  `scripts/fotos-halloween.ts`. El nombre del archivo es el id del producto
+ *  (que es su slug), así que `foto_url` queda `…/fotos/party-market/<slug>.webp`. */
+export const CARPETA_FOTOS = 'party-market';
 
 /** La plantilla que elige `[cliente]/page.tsx` por `clientes.plantilla`. */
 export const PLANTILLA_HALLOWEEN = 'halloween';
 
+/** Lo que se come la tarjeta y, al revés, el descuento por pagar en efectivo
+ *  o transferencia. El precio de LISTA de la carta es el de tarjeta; el de
+ *  efectivo es ese menos el 10%, redondeado a los $100 de abajo. Es el mismo
+ *  10% que la planilla usó para armar sus dos columnas. */
+export const DESCUENTO_EFECTIVO = 0.1;
+
 /** Papel crema, violeta y naranja calabaza: los colores del artboard de la
  *  campaña, para que quien llega desde el flyer de WhatsApp reconozca la
- *  carta como la misma marca.
- *
- *  Es un tema CLARO. El primer intento fue negro de noche, que es lo que uno
- *  dibuja cuando piensa "Halloween", pero contra un fondo negro las fotos
- *  del mayorista —recortadas sobre blanco— quedaban como ochenta recuadros
- *  brillantes. Sobre crema apoyan.
- *
- *  La plantilla trae su propia paleta ampliada (`globals.css`, bloque
- *  `.halloween`); estos cuatro son los que usa el MOTOR: la hoja del pedido
- *  y la barra inferior, que son comunes a todos los clientes. */
+ *  carta como la misma marca. Tema CLARO a propósito: las fotos del proveedor
+ *  vienen recortadas sobre blanco y sobre un fondo negro quedaban como
+ *  recuadros brillantes. */
 export const TEMA_HALLOWEEN: Tema = {
   colorFondo: '#fbf6ee',
   colorTexto: '#2a1b45',
@@ -124,415 +53,90 @@ export const TEMA_HALLOWEEN: Tema = {
 export const CONFIG_PEDIDO_HALLOWEEN: ConfigPedido = {
   whatsapp: '5491139535981',
   // Sólo delivery: las tres opciones que se le ofrecen al comprador son
-  // DESTINOS (ver `zonasEnvio`), no formas de entrega, así que la pregunta de
-  // la hoja es "¿a dónde lo mandamos?" y no "¿cómo lo querés?". Con una sola
-  // modalidad habilitada el selector de modalidad ni se muestra.
+  // DESTINOS (ver `zonasEnvio`), no formas de entrega. Con una sola modalidad
+  // habilitada el selector ni se muestra.
   modalidades: ['delivery'],
   cabecera: '',
-  // Sin "link" hasta que exista el generador de Mercado Pago. "tarjeta" paga
-  // el precio de lista; los otros dos, con descuento.
   mediosDePago: ['efectivo', 'transferencia', 'tarjeta'],
-  // Los destinos que se ofrecen. Cargados acá y no escritos en el diseño, el
-  // precio se suma solo al total y viaja en el mensaje de WhatsApp; la
-  // plantilla lee esta misma lista para los carteles del encabezado y del
-  // pie, así que no pueden decir una cosa y cobrar otra.
-  //
-  //   0    = sin cargo (la carta lo anuncia como "envío gratis")
-  //   null = a convenir: no se suma al total y el mensaje sale sin monto
   zonasEnvio: [
     { nombre: 'Villanueva', precio: 0 },
     { nombre: 'Nordelta', precio: 0 },
     { nombre: 'A convenir', precio: null },
   ],
   descuentoRetiro: { tipo: 'ninguno' },
+  // El efectivo y la transferencia pagan el precio de tarjeta menos 10%, que
+  // es la columna "efectivo" de la planilla. La tarjeta paga el de lista.
   descuentosPago: {
     efectivo: { tipo: 'porcentaje', valor: DESCUENTO_EFECTIVO * 100 },
     transferencia: { tipo: 'porcentaje', valor: DESCUENTO_EFECTIVO * 100 },
   },
 };
 
-type Fila = {
-  id: string;
-  nombre: string;
-  /** ENTERO en pesos. 0 = sin precio de lista: la fila no muestra precio y el
-   *  total sale "a confirmar". Se ignora cuando la fila trae `opciones`. */
-  precio: number;
-  descripcion?: string;
-  /** `[etiqueta, precio]` por talle o medida elegible. Hasta 16 caracteres la
-   *  etiqueta (`MAX_ETIQUETA_VARIANTE` en `logica/validar-item.ts`).
-   *
-   *  Va acá, y no adentro del nombre ni en la descripción, cuando el
-   *  comprador ELIGE: el talle de un disfraz (dato de despacho) y la medida
-   *  de un producto que viene en más de una. La ficha técnica de algo que se
-   *  vende en una sola medida (el largo de una guirnalda, los cm de una
-   *  capa única) va en `descripcion`, que no viaja al pedido porque no hay
-   *  nada que elegir. */
-  opciones?: [string, number][];
-};
-
-/** Una categoría entera desde una tabla: el `orden` sale de la posición, así
- *  reordenar es mover una línea y no renumerar doce. */
-function categoria(categoriaId: string, filas: Fila[]): Item[] {
-  return filas.map((f, i) => ({
-    id: f.id,
-    numero: 0, // derivado: lo recalcula `renumerar()` al leer la carta
-    nombre: f.nombre,
-    categoriaId,
-    orden: i + 1,
-    precio: f.opciones ? 0 : f.precio,
-    variantes: (f.opciones ?? []).map(([etiqueta, precio]) => ({ etiqueta, precio })),
-    agotado: false,
-    activo: true,
-    etiquetas: [],
-    ...(f.descripcion ? { descripcion: f.descripcion } : {}),
-  }));
-}
-
-/** Todo lo que no es animatrónico ni inflable sale de la planilla final del
- *  cliente (hojas "Catálogo" y "Combos"), volcada tal cual a
- *  `scripts/data/piedro-planilla.json`. Se toma el precio CON TARJETA, que es
- *  el de lista: pagando en efectivo se le descuenta `DESCUENTO_EFECTIVO`
- *  (lo aplica el motor al elegir el medio de pago).
- *
- *  La planilla trae un disfraz por fila y por talle ("Disfraz Preso Talle M",
- *  "Disfraz Preso Talle L"). Acá se juntan en un producto con variantes: dos
- *  filas con el mismo nombre en la carta son dos líneas que el local no
- *  distingue al despachar. */
 type ProductoPlanilla = {
   grupo: string;
   nombre: string;
-  codigo: string;
-  tarjeta: number;
-  slug: string;
-  nota: string | null;
-  stock: string;
-};
-const PRODUCTOS_PLANILLA = PLANILLA.productos as ProductoPlanilla[];
-const SLUGS_MAYORISTA = new Set((MERAKYS as ProductoMayorista[]).map((p) => p.slug));
-
-/** "Talle S (5-6 años)" → "S (5 a 6)"; "Talle M" → "Talle M". Una medida
- *  suelta ("80 cm") sólo es variante si hay otra fila con el mismo nombre
- *  base: si no, es la ficha técnica del producto y queda en el nombre. */
-function separarVariante(nombre: string): { base: string; etiqueta: string | null; talle: boolean } {
-  const t = nombre.match(/^(.*?)\s+Talle\s+(\w+)(?:\s+\((\d+)-(\d+) años\))?$/);
-  if (t) return { base: t[1], etiqueta: t[3] ? `${t[2]} (${t[3]} a ${t[4]})` : `Talle ${t[2]}`, talle: true };
-  const m = nombre.match(/^(.*?)\s+(\d+ cm)$/);
-  if (m) return { base: m[1], etiqueta: m[2], talle: false };
-  return { base: nombre, etiqueta: null, talle: false };
-}
-
-function slugDe(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
-function descripcionDe(p: ProductoPlanilla): string | undefined {
-  const partes: string[] = [];
-  if (p.nota?.toLowerCase().startsWith('preventa')) partes.push('Preventa: fecha de entrega a confirmar.');
-  if (p.stock === 'A pedido') partes.push('Se trae a pedido: plazo de entrega a confirmar por WhatsApp.');
-  return partes.length ? partes.join(' ') : undefined;
-}
-
-/** id del catálogo → slug del mayorista, para la foto. Se llena al armar las
- *  categorías de la planilla. */
-const SLUGS_PLANILLA: Record<string, string> = {};
-
-function deLaPlanilla(categoriaId: string, grupo: string): Item[] {
-  // Lo que el mayorista ya lista como animatrónico o inflable (hoy, el
-  // Colgante Viuda Negra Llorona) queda ahí y no se repite en otra categoría.
-  const delGrupo = PRODUCTOS_PLANILLA.filter((p) => p.grupo === grupo && !SLUGS_MAYORISTA.has(p.slug));
-  const cuentaBase = new Map<string, number>();
-  for (const p of delGrupo) {
-    const { base } = separarVariante(p.nombre);
-    cuentaBase.set(base, (cuentaBase.get(base) ?? 0) + 1);
-  }
-
-  const filas: Fila[] = [];
-  const porBase = new Map<string, Fila>();
-  for (const p of delGrupo) {
-    const v = separarVariante(p.nombre);
-    const esVariante = v.etiqueta && (v.talle || cuentaBase.get(v.base)! > 1);
-    const nombre = esVariante ? v.base : p.nombre;
-    const previa = porBase.get(nombre);
-    if (previa && esVariante) {
-      previa.opciones!.push([v.etiqueta!, p.tarjeta]);
-      continue;
-    }
-    const fila: Fila = {
-      id: slugDe(nombre),
-      nombre,
-      precio: esVariante ? 0 : p.tarjeta,
-      ...(esVariante ? { opciones: [[v.etiqueta!, p.tarjeta]] } : {}),
-      descripcion: descripcionDe(p),
-    };
-    SLUGS_PLANILLA[fila.id] = p.slug;
-    porBase.set(nombre, fila);
-    filas.push(fila);
-  }
-  return categoria(categoriaId, filas);
-}
-
-const INFANTILES = deLaPlanilla('infantiles', 'Disfraces infantiles');
-const ADULTO = deLaPlanilla('adulto', 'Disfraces adulto');
-const ACCESORIOS = deLaPlanilla('accesorios', 'Accesorios');
-const TRICK_OR_TREAT = deLaPlanilla('trick-or-treat', 'Trick or treat');
-/** Decoración del mayorista que no estaba en la planilla y entró por un
- *  presupuesto armado para un comprador (`src/clientes/selecciones.ts`):
- *  para pedirla tiene que existir en la carta. El precio en efectivo es el
- *  de la hoja del presupuesto, tal cual: ahí el margen redondea a los $100
- *  de ARRIBA y `conMargen` al más cercano, y recalcularlo le cambiaba $100
- *  a dos productos respecto de lo que se le pasó al comprador. La medida,
- *  cuando la hoja la trae, va en la descripción. */
-type ProductoExtra = {
-  nombre: string;
-  slug: string;
-  precioMerakys: number;
   efectivo: number;
-  medida: string | null;
+  tarjeta: number;
+  disponible: number;
+  slug: string;
+  descripcion?: string;
 };
-const EXTRA_DECORACION: Fila[] = (EXTRA.productos as ProductoExtra[]).map((p) => {
-  const id = idDeSlug(p.slug);
-  SLUGS_PLANILLA[id] = p.slug;
+
+const PRODUCTOS = PARTY.productos as ProductoPlanilla[];
+
+/** Las categorías de la carta, en orden. El `grupo` es como lo escribe la
+ *  planilla; el `id`/`nombre`, cómo se publica. Sólo se incluyen las que
+ *  tienen al menos un producto con stock. */
+const GRUPOS = [
+  { grupo: 'Disfraces infantiles', id: 'infantiles', nombre: 'DISFRACES INFANTILES' },
+  { grupo: 'Disfraces adulto', id: 'adulto', nombre: 'DISFRACES ADULTO' },
+  { grupo: 'Accesorios', id: 'accesorios', nombre: 'ACCESORIOS' },
+  { grupo: 'Trick or treat', id: 'trick-or-treat', nombre: 'TRICK OR TREAT' },
+  { grupo: 'Decoración', id: 'decoracion', nombre: 'DECORACIÓN' },
+] as const;
+
+/** Un producto de la planilla, ya como ítem de la carta. El id ES el slug: ya
+ *  es único, ya viene en minúsculas con guiones, y es el nombre con el que
+ *  `fotos-halloween.ts` sube la imagen. El precio guardado es el de tarjeta;
+ *  no hay variantes (cada talle es su propia fila en la planilla, con su
+ *  stock y su foto). */
+function itemDe(p: ProductoPlanilla, categoriaId: string, orden: number): Item {
   return {
-    id,
+    id: p.slug,
+    numero: 0, // lo recalcula `renumerar()` al leer la carta
     nombre: p.nombre,
-    precio: precioTarjeta(p.efectivo),
-    ...(p.medida ? { descripcion: `Medida: ${p.medida}.` } : {}),
+    categoriaId,
+    orden,
+    precio: p.tarjeta,
+    variantes: [],
+    agotado: false,
+    activo: true,
+    etiquetas: [],
+    ...(p.descripcion ? { descripcion: p.descripcion } : {}),
   };
-});
-
-const DECORACION = [
-  ...deLaPlanilla('decoracion', 'Decoración'),
-  ...categoria('decoracion', EXTRA_DECORACION),
-].map((item, i) => ({ ...item, orden: i + 1 }));
-
-/** Un combo tal como lo pasó el cliente (13/10/2026). Los dos precios van
- *  escritos: la carta guarda el de TARJETA, que es el de lista, y el de
- *  efectivo lo calcula el motor; la prueba verifica que el cálculo dé el
- *  número que pasó el cliente. Lo que trae cada uno se escribe como texto y
- *  no por código de la planilla: varios renglones ("Mantel", "Plato x6") son
- *  genéricos a propósito, el modelo se elige por WhatsApp. */
-type ComboWeb = {
-  id: string;
-  nombre: string;
-  tarjeta: number;
-  efectivo: number;
-  incluye: string[];
-  nota?: string;
-};
-
-/** Un look del Disfraz completo: una variante del mismo producto, con su
- *  precio, su lista y su foto. `etiqueta` es lo que viaja en el mensaje de
- *  WhatsApp ("Disfraz completo · Esqueleto Niño") y entra en los 16
- *  caracteres del panel. */
-type LookWeb = {
-  etiqueta: string;
-  titulo: string;
-  tarjeta: number;
-  efectivo: number;
-  incluye: string[];
-};
-
-export const COMBOS_WEB: ComboWeb[] = [
-  {
-    id: 'combo-casa-embrujada',
-    nombre: 'Combo Casa Embrujada',
-    tarjeta: 59500,
-    efectivo: 53500,
-    incluye: [
-      '1 × Escoba Caminante',
-      '1 × Cerebro con Luz',
-      '1 × Mano Cortada Sangrienta',
-      '2 × Cortina Metalizada Negra',
-      '1 × Set de Globos Halloween Calabazas',
-      '1 × Set de Globos Halloween Esqueletos',
-    ],
-  },
-  {
-    id: 'combo-puerta-embrujada',
-    nombre: 'Combo Puerta Embrujada',
-    tarjeta: 37700,
-    efectivo: 33900,
-    incluye: [
-      '1 × Colgante Fantasma Diabólico',
-      '1 × Corona Halloween Grande',
-      '1 × Telaraña con Araña Tinsel Plateada',
-      '2 × Cortina Metalizada Negra',
-      '1 × Set de Globos Halloween Calabazas',
-    ],
-  },
-  {
-    id: 'combo-fiesta-halloween',
-    nombre: 'Combo Fiesta Halloween',
-    tarjeta: 41900,
-    efectivo: 37700,
-    incluye: [
-      '2 × Bolsa de Papel Boo x8',
-      '6 × Careta Ghostface',
-      '6 × Vincha Cuernos Diablita LED',
-      '1 × Mantel',
-      '2 × Plato x6',
-      '1 × Servilletas x20',
-      '1 × Sorbetes x24',
-      '1 × Set de Globos Halloween Calabazas',
-      '2 × Tatuaje Temporal Boo (plancha x10)',
-    ],
-    nota: 'El modelo de mantel, platos, servilletas y sorbetes lo elegís con nosotros por WhatsApp.',
-  },
-];
-
-export const DISFRAZ_COMPLETO = {
-  id: 'combo-disfraz-completo',
-  nombre: 'Disfraz completo',
-  descripcion: 'Disfraz y accesorios en un solo pedido. Elegí tu look.',
-  looks: [
-    {
-      etiqueta: 'Brujita',
-      titulo: 'Look Brujita',
-      tarjeta: 18300,
-      efectivo: 16400,
-      incluye: [
-        'Tutú Spooky Violeta',
-        'Sombrero Bruja Berta',
-        'Nariz de Bruja con Verruga',
-        'Tatuaje Temporal Boo (plancha x10)',
-        'Balde Caramelera Calabaza',
-      ],
-    },
-    {
-      etiqueta: 'Esqueleto Niño',
-      titulo: 'Look Esqueleto Niño (talle S, 5-6 años)',
-      tarjeta: 33900,
-      efectivo: 30500,
-      incluye: ['Disfraz Esqueleto Niño talle S', 'Guantes Esqueleto', 'Tatuajes Set Heridas', 'Mini Balde Calavera'],
-    },
-    {
-      etiqueta: 'Esqueleto Niña',
-      titulo: 'Look Esqueleto Niña (talle S, 5-6 años)',
-      tarjeta: 37800,
-      efectivo: 34000,
-      incluye: ['Disfraz Esqueleto Niña talle S', 'Guantes Esqueleto', 'Tatuajes Set Heridas', 'Mini Balde Calavera'],
-    },
-    {
-      etiqueta: 'Terror',
-      titulo: 'Look Terror',
-      tarjeta: 26800,
-      efectivo: 24100,
-      incluye: ['Máscara Joker LED', 'Capa Dark Larga', 'Lentes Sangrientos', 'Tatuajes Set Cortes de Cara'],
-    },
-  ] satisfies LookWeb[],
-};
-
-/** Formato de la descripción: un renglón que empieza con "- " es una viñeta
- *  (lo pinta `ModalProducto`); el panel lo muestra y edita como texto. */
-export function descripcionCombo(c: ComboWeb): string {
-  return ['Incluye:', ...c.incluye.map((x) => `- ${x}`), ...(c.nota ? ['', c.nota] : [])].join('\n');
 }
 
-export function descripcionDisfrazCompleto(): string {
-  const looks = DISFRAZ_COMPLETO.looks.map((l) => [`${l.titulo}:`, ...l.incluye.map((x) => `- ${x}`)].join('\n'));
-  return [DISFRAZ_COMPLETO.descripcion, ...looks].join('\n\n');
-}
+const CATEGORIAS_CON_PRODUCTOS = GRUPOS.map((g) => ({
+  ...g,
+  productos: PRODUCTOS.filter((p) => p.grupo === g.grupo),
+})).filter((g) => g.productos.length > 0);
 
-/** Los combos, en el orden de la sección. Sus fotos las manda el cliente: se
- *  suben con `scripts/foto-propia.ts` (la de cada look, con `--look`). */
-const COMBOS = categoria('combos', [
-  ...COMBOS_WEB.map((c) => ({ id: c.id, nombre: c.nombre, precio: c.tarjeta, descripcion: descripcionCombo(c) })),
-  {
-    id: DISFRAZ_COMPLETO.id,
-    nombre: DISFRAZ_COMPLETO.nombre,
-    precio: 0,
-    opciones: DISFRAZ_COMPLETO.looks.map((l): [string, number] => [l.etiqueta, l.tarjeta]),
-    descripcion: descripcionDisfrazCompleto(),
-  },
-]);
-
-/** Los animatrónicos y los inflables gigantes NO se escriben a mano: son 158
- *  productos y el mayorista les cambia el precio. Salen de
- *  `scripts/data/merakys.json`, que arma `traer-merakys.ts` leyendo la
- *  categoría entera del sitio del proveedor.
- *
- *  Actualizar precios es volver a correr ese script y mirar el diff del JSON:
- *  el margen se aplica acá, en un solo lugar, y no queda pegado a 158 números
- *  copiados. */
-/** Precios en efectivo que el cliente fijó en una planilla y que la fórmula
- *  no da: su planilla redondea el margen a los $100 de ARRIBA y `conMargen`
- *  al más cercano. Se fijan sólo los que el cliente pasó (en un presupuesto
- *  ya enviado, el precio tiene que ser el de su Excel); repreciar los 158
- *  con la otra regla es otra decisión. */
-const EFECTIVO_FIJADO: Record<string, number> = {
-  // presupuesto del 08/10 (selección upopj6)
-  'colgante-pesadilla-blanco': 25700,
-};
-
-function delMayorista(categoriaId: string, categoriaMerakys: string): Item[] {
-  const filas = (MERAKYS as ProductoMayorista[])
-    .filter((p) => p.categoria === categoriaMerakys)
-    // de menor a mayor: los primeros doce son los que se ven sin desplegar la
-    // sección, y arrancar por un animatrónico de un millón ochocientos espanta
-    .sort((a, b) => a.precio - b.precio)
-    .map((p) => ({
-      id: idDeSlug(p.slug),
-      nombre: nombreLegible(p.nombre),
-      precio: precioTarjeta(EFECTIVO_FIJADO[p.slug] ?? conMargen(p.precio)),
-    }));
-
-  return categoria(categoriaId, filas);
-}
-
-/** Los animatrónicos son 133: partidos por cómo se ponen. "Colgante" sale del
- *  nombre del mayorista ("Colgante …", "… para colgar"); el resto se apoya. No
- *  hay grupo "con sensor": el mayorista sólo lo aclara en uno (Hombre Lobo). */
-const SUB_COLGANTES = 'Colgantes';
-const SUB_APOYAR = 'De piso y mesa';
-const MERAKYS_POR_ID = new Map((MERAKYS as ProductoMayorista[]).map((p) => [idDeSlug(p.slug), p]));
-function conSubgrupo(items: Item[]): Item[] {
-  return items.map((i) => ({
-    ...i,
-    subcategoria: /colga/i.test(MERAKYS_POR_ID.get(i.id)?.nombre ?? i.nombre) ? SUB_COLGANTES : SUB_APOYAR,
-  }));
-}
-
-const ANIMATRONICOS = conSubgrupo(delMayorista('animatronicos', 'animatronics'));
-const INFLABLES = delMayorista('inflables', 'deco-inflables-gigantes');
+const ITEMS: Item[] = CATEGORIAS_CON_PRODUCTOS.flatMap((g) =>
+  g.productos.map((p, i) => itemDe(p, g.id, i + 1)),
+);
 
 export const CATALOGO_HALLOWEEN: Carta = {
-  categorias: [
-    { id: 'combos', nombre: 'COMBOS', nombreEn: '', orden: 1, subcategorias: [] },
-    { id: 'infantiles', nombre: 'DISFRACES INFANTILES', nombreEn: '', orden: 2, subcategorias: [] },
-    { id: 'adulto', nombre: 'DISFRACES ADULTO', nombreEn: '', orden: 3, subcategorias: [] },
-    {
-      id: 'animatronicos',
-      nombre: 'ANIMATRÓNICOS',
-      nombreEn: '',
-      orden: 4,
-      subcategorias: [
-        { nombre: SUB_COLGANTES, orden: 1 },
-        { nombre: SUB_APOYAR, orden: 2 },
-      ],
-    },
-    { id: 'inflables', nombre: 'INFLABLES GIGANTES', nombreEn: '', orden: 5, subcategorias: [] },
-    { id: 'accesorios', nombre: 'ACCESORIOS', nombreEn: '', orden: 6, subcategorias: [] },
-    { id: 'trick-or-treat', nombre: 'TRICK OR TREAT', nombreEn: '', orden: 7, subcategorias: [] },
-    { id: 'decoracion', nombre: 'DECORACIÓN', nombreEn: '', orden: 8, subcategorias: [] },
-  ],
-  items: [
-    ...COMBOS,
-    ...INFANTILES,
-    ...ADULTO,
-    ...ANIMATRONICOS,
-    ...INFLABLES,
-    ...ACCESORIOS,
-    ...TRICK_OR_TREAT,
-    ...DECORACION,
-  ],
+  categorias: CATEGORIAS_CON_PRODUCTOS.map((g, i) => ({
+    id: g.id,
+    nombre: g.nombre,
+    nombreEn: '',
+    orden: i + 1,
+    subcategorias: [],
+  })),
+  items: ITEMS,
   config: {
-    // El orden importa: la plantilla pinta la primera con la letra
-    // manuscrita del diseño y las siguientes como letra chica del pie.
+    // El orden importa: la plantilla pinta la primera con la letra manuscrita
+    // del diseño y las siguientes como letra chica del pie.
     notas: [
       'Armá el pedido y mandalo por WhatsApp: te confirmamos stock, envío y forma de pago.',
       `Precios con tarjeta. Pagando en efectivo o transferencia, ${DESCUENTO_EFECTIVO * 100}% de descuento.`,
@@ -542,19 +146,9 @@ export const CATALOGO_HALLOWEEN: Carta = {
   },
 };
 
-/** La página del mayorista de cada producto, por id. Sirve para UNA cosa:
- *  bajar la foto (`scripts/fotos-halloween.ts`). No se inserta en la base ni
- *  se muestra en la carta — la carta la ve el comprador final y estos links
- *  son del proveedor. */
-export const FUENTES: Record<string, string> = {
-  // Los de la planilla se cargan al armar sus categorías; los animatrónicos
-  // y los inflables, abajo, desde su JSON. Los combos no salen del mayorista:
-  // sus fotos se suben a mano (`scripts/foto-propia.ts`).
-  ...SLUGS_PLANILLA,
-};
-
-/** Los 158 del mayorista se agregan solos: su id ES su slug. */
-for (const p of MERAKYS as ProductoMayorista[]) FUENTES[idDeSlug(p.slug)] = p.slug;
-
-export const URL_PRODUCTO = (slug: string) =>
-  `https://mayoristas.merakys.com.ar/producto/${slug}/`;
+/** id del producto → slug del proveedor, para que `fotos-halloween.ts` sepa a
+ *  qué ficha ir. El id YA es el slug, así que es una identidad; se expone como
+ *  mapa para no cablear esa suposición en el script de fotos. NO se publica. */
+export const FUENTES: Record<string, string> = Object.fromEntries(
+  PRODUCTOS.map((p) => [p.slug, p.slug]),
+);

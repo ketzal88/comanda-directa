@@ -44,53 +44,60 @@ Piedro Shop: los datos en un módulo de `scripts/` (revisable en el diff, con
 pruebas encima) y un script que los inserta.
 
 ```bash
-npx tsx scripts/traer-merakys.ts animatronics deco-inflables-gigantes
+npm run traer:planilla                         # regenera party-market.json desde la hoja
 CLAVE_PANEL=loquesea npm run seed:halloween    # crea/recarga /party-market
-npm run fotos:halloween                        # baja, normaliza y sube las fotos
+npm run fotos:halloween                        # baja de la store API, normaliza y sube las fotos
 npm run fotos:halloween -- --faltantes         # sólo las que quedaron sin foto
 ```
 
-### Los precios del mayorista
+### De dónde sale el catálogo (y el stock)
 
-Las dos categorías grandes (133 animatrónicos y 25 inflables) no están
-escritas a mano: `traer-merakys.ts` lee la categoría entera del sitio del
-proveedor —nombre, precio y link de cada producto— y la deja en
-`scripts/data/merakys.json`. `catalogo-halloween.ts` le aplica `MARGEN` y
-redondea a los $100.
+Party Market se arma de **una sola fuente**: la planilla del cliente, hoja
+"Catálogo" (`catalogo-minorista-halloween-v2`). `scripts/traer-planilla.ts` la
+lee por la API de Google Sheets y deja en `scripts/data/party-market.json`
+**sólo lo que tiene stock**: Disponible (columna L) > 0 y precio cargado. Lo
+que está en 0 o "a pedido" no entra. Nada del proveedor se publica: el JSON no
+guarda código, ni precio mayorista, ni costo; el `slug` que sí guarda es la
+llave para ir a buscar la foto.
 
-Repreciar todo es **un número**: se corre el scraper de nuevo (por si el
-proveedor movió la lista), se toca `MARGEN` y se vuelve a sembrar. Con 158
-precios copiados a mano eso habría sido reescribir el archivo entero.
+Dos precios, un número guardado: la carta muestra el de **tarjeta** y el motor
+calcula el de **efectivo** con `DESCUENTO_EFECTIVO` (10%). La planilla arma su
+columna de tarjeta como `efectivo / 0,9` redondeado a los $100 de arriba, así
+que la vuelta da EXACTA el efectivo de la planilla (lo verifica
+`pruebas/catalogo-halloween.test.ts`).
 
-El resto del catálogo (combos, disfraces, accesorios, cotillón y decoración)
-sale de la planilla final del cliente, volcada a `scripts/data/piedro-planilla.json`.
-La carta muestra el precio con tarjeta (`COMISION_TARJETA`); los animatrónicos
-e inflables pasan por la misma cuenta. El 10% en efectivo lo anuncian las notas
-y lo ajusta el local: el motor todavía no descuenta por medio de pago.
+**El stock se sincroniza solo**: un cron de Vercel (`vercel.json`) pega a
+`/api/sync-stock`, que lee la planilla y oculta (`activo = false`) cada
+producto cuyo Disponible llegó a 0, y lo vuelve a mostrar cuando hay stock. No
+toca precios ni fotos. Para cambiar el SURTIDO (sumar o sacar productos) se
+corre `npm run traer:planilla` + `seed`.
 
-Ojo con el doble margen: los disfraces y el cotillón de la lista original ya
-venían con su precio de venta calculado (~17%). `MARGEN` se aplica SÓLO a lo
-que sale del JSON del mayorista.
+> Autenticación de Google: un **service account** con la planilla compartida en
+> lectura. Sus credenciales van por entorno (`GOOGLE_SA_EMAIL`,
+> `GOOGLE_SA_PRIVATE_KEY`), nunca en el repo — en `.env.local` para los scripts
+> y en las env de Vercel para el cron (más `CRON_SECRET`).
 
 - `scripts/catalogo-halloween.ts` — categorías, productos, tema y config de
-  pedido. No entra en el bundle: es dato de alta, no código servido.
+  pedido, armados desde `party-market.json`. No entra en el bundle: es dato de
+  alta, no código servido.
 - `scripts/seed-halloween.ts` — inserta. Es idempotente y **destructivo para
   ese cliente**: borra sus categorías e ítems y los reescribe. Después del
   alta, los cambios chicos van por el panel; volver a correrlo pisa lo que el
   cliente haya editado ahí.
 - `pruebas/catalogo-halloween.test.ts` — corre sobre los mismos datos:
-  precios enteros, nombres sin repetir, talles dentro de lo que acepta el
-  panel, y que el talle elegido llegue al mensaje de WhatsApp.
-- `scripts/fotos-halloween.ts` — baja la foto de cada producto de la página
-  del proveedor, la deja cuadrada y liviana (360px para la grilla, 900px para
-  la ficha) y la sube a **Supabase Storage**, bucket `fotos` (público). No van
-  a `public/` del repo a propósito: son de un cliente y el repo es el motor de
-  todos.
+  precios enteros, ids sin repetir, que el efectivo del motor sea el de la
+  planilla producto por producto, y que nada del proveedor quede publicado.
+- `scripts/fotos-halloween.ts` — baja la foto de cada producto de la **store
+  API pública del proveedor** (por el slug de la ficha), la deja cuadrada y
+  liviana (360px para la grilla, 900px para la ficha) y la **re-sube** a
+  **Supabase Storage**, bucket `fotos` (público). La foto nunca queda enlazada
+  al dominio del proveedor. No van a `public/` del repo a propósito: son de un
+  cliente y el repo es el motor de todos.
 - La clave del panel viaja por entorno (`CLAVE_PANEL`), no por el repo.
 
 El seed **conserva las fotos** al volver a correrse (las rescata por nombre
-antes de borrar), así que corregir un precio en la tabla no cuesta 162
-descargas.
+antes de borrar), así que corregir un precio en la tabla no cuesta volver a
+bajar las ~90 imágenes.
 
 Para el cliente siguiente, copiar los archivos y cambiar los datos.
 
@@ -202,7 +209,7 @@ clientes a la vez.
 | slug | qué es | modalidades | notas |
 | --- | --- | --- | --- |
 | `demo` | carta de muestra para probar el motor | salón, retiro, delivery | `npm run seed:demo` |
-| `party-market` (en la base, todavía `piedro-shop`) | Party Market (antes Piedro Shop), catálogo de temporada de cotillón y disfraces | sólo delivery | plantilla `halloween`, 250 productos (4 combos) a precio de tarjeta, 10% en efectivo; selecciones por link en `/party-market/p/<codigo>`; sin comandas ni link de pago |
+| `party-market` (en la base, todavía `piedro-shop`) | Party Market (antes Piedro Shop), catálogo de temporada de cotillón y disfraces | sólo delivery | plantilla `halloween`, ~90 productos **sólo con stock** (de la planilla del cliente) a precio de tarjeta, 10% en efectivo; stock sincronizado desde la planilla (`/api/sync-stock`); sin comandas ni link de pago |
 
 Party Market se publica en **hace-tu-pedido.site/party-market**. Nació como
 `/halloween` y después fue `/piedro-shop`; los dos links circulan, así que
