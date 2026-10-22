@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createSign } from 'node:crypto';
+import { createSign, timingSafeEqual } from 'node:crypto';
 import { supabaseServidor } from '@/datos/supabase-servidor';
 
 /** El slug con el que Party Market está EN LA BASE (la URL pública es
@@ -16,8 +16,9 @@ const SLUG_HALLOWEEN = 'piedro-shop';
  *  corre `traer-planilla` + `seed`.
  *
  *  Lo dispara el cron de Vercel (ver `vercel.json`). Protegido con
- *  CRON_SECRET: Vercel manda `Authorization: Bearer <CRON_SECRET>`, y se puede
- *  disparar a mano con el mismo header o `?secret=`.
+ *  CRON_SECRET: Vercel manda `Authorization: Bearer <CRON_SECRET>`. Para
+ *  dispararlo a mano, el mismo header:
+ *    curl -H "Authorization: Bearer $CRON_SECRET" https://.../api/sync-stock
  *
  *  Entorno (en Vercel): GOOGLE_SA_EMAIL, GOOGLE_SA_PRIVATE_KEY, CRON_SECRET,
  *  SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. PLANILLA_ID es opcional. */
@@ -66,12 +67,15 @@ function parsearPrecio(texto: string | undefined): number | null {
   return Number.isFinite(valor) && valor >= 0 ? valor : null;
 }
 
+/** Solo por header `Authorization: Bearer <CRON_SECRET>` (es el que manda el
+ *  cron de Vercel). Nada de `?secret=`: un secreto en la URL queda en los logs
+ *  y el historial. Comparación en tiempo constante. */
 function autorizado(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;
-  const bearer = req.headers.get('authorization');
-  if (bearer === `Bearer ${secret}`) return true;
-  return req.nextUrl.searchParams.get('secret') === secret;
+  const esperado = Buffer.from(`Bearer ${secret}`);
+  const recibido = Buffer.from(req.headers.get('authorization') ?? '');
+  return esperado.length === recibido.length && timingSafeEqual(esperado, recibido);
 }
 
 export async function GET(req: NextRequest) {
