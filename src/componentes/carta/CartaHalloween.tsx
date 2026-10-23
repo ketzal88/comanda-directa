@@ -66,9 +66,8 @@ const ADORNO_CATEGORIA: Record<string, { icono: string; bajada: string }> = {
  *  Los animatrónicos y los inflables no están en el local: se encargan al
  *  mayorista. El aviso va una vez, abajo del título de la sección (en cada
  *  tarjeta eran 158 copias del mismo cartel), y en la ficha del producto. */
-const CORTE_ENCARGOS = 'Pedidos hasta el 20/10 · animatrónicos e inflables hasta el 17/10';
-const AVISO_A_PEDIDO =
-  'A pedido: entrega de 7 a 10 días. Encargá hasta el 17/10 para tenerlo antes de Halloween.';
+const CORTE_ENCARGOS = 'Últimos días para Halloween';
+const AVISO_A_PEDIDO = 'A pedido: entrega de 7 a 10 días, a confirmar por WhatsApp.';
 const CATEGORIAS_A_PEDIDO = new Set(['ANIMATRÓNICOS', 'INFLABLES GIGANTES']);
 
 /** "10% OFF en efectivo o transferencia", armado desde la config de pedido:
@@ -308,7 +307,7 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                   boxShadow: '0 4px 10px rgb(42 27 69 / 0.1)',
                 }}
               >
-                ¡Pedidos hasta el 20 de octubre! Stock limitado ♥
+                ¡Últimos días para Halloween! ♥
               </div>
             </div>
           )}
