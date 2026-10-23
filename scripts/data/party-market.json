@@ -1,6 +1,6 @@
 {
   "fuente": "Planilla del cliente, hoja \"Catálogo\" — solo productos con stock disponible.",
-  "generado": "2026-10-22",
+  "generado": "2026-10-23",
   "productos": [
     {
       "grupo": "Disfraces infantiles",
@@ -67,15 +67,6 @@
     },
     {
       "grupo": "Disfraces infantiles",
-      "nombre": "Disfraz Esqueleto Niño Talle S (5-6 años)",
-      "efectivo": 22800,
-      "tarjeta": 25400,
-      "disponible": 1,
-      "slug": "disfraz-esqueleto-nino-talle-s-5-6-anos",
-      "descripcion": "Incluye: Mono, capucha"
-    },
-    {
-      "grupo": "Disfraces infantiles",
       "nombre": "Disfraz Esqueleto Niño Talle M (7-9 años)",
       "efectivo": 22800,
       "tarjeta": 25400,
@@ -115,18 +106,9 @@
       "nombre": "Tutú Spooky Violeta",
       "efectivo": 7400,
       "tarjeta": 8300,
-      "disponible": 6,
+      "disponible": 2,
       "slug": "tutu-spooky-violeta",
       "descripcion": "Talle único infantil"
-    },
-    {
-      "grupo": "Disfraces adulto",
-      "nombre": "Capa Dark Larga",
-      "efectivo": 9400,
-      "tarjeta": 10500,
-      "disponible": 2,
-      "slug": "capa-dark-larga",
-      "descripcion": "Medidas: 130 cm"
     },
     {
       "grupo": "Disfraces adulto",
@@ -176,7 +158,7 @@
       "nombre": "Tatuajes Set Heridas",
       "efectivo": 2100,
       "tarjeta": 2400,
-      "disponible": 25,
+      "disponible": 24,
       "slug": "tatuajes-set-heridas",
       "descripcion": "TATUAJES SET HERIDAS"
     },
@@ -193,7 +175,7 @@
       "nombre": "Guantes Esqueleto",
       "efectivo": 3100,
       "tarjeta": 3500,
-      "disponible": 3,
+      "disponible": 2,
       "slug": "guantes-esqueleto-preventa"
     },
     {
@@ -278,7 +260,7 @@
       "nombre": "Balde Caramelera Calabaza",
       "efectivo": 3700,
       "tarjeta": 4200,
-      "disponible": 5,
+      "disponible": 4,
       "slug": "balde-caramelera-calabaza-naranja-porta-golosinas",
       "descripcion": "Medidas: 16 x 13,5 cm"
     },
@@ -320,19 +302,19 @@
     },
     {
       "grupo": "Trick or treat",
-      "nombre": "Banner Sangriento Happy Halloween",
-      "efectivo": 3300,
-      "tarjeta": 3700,
-      "disponible": 3,
-      "slug": "banner-sangriento",
-      "descripcion": "Medidas: 3 m"
+      "nombre": "Set 2 Banners Sangrientos",
+      "efectivo": 13000,
+      "tarjeta": 14500,
+      "disponible": 2,
+      "slug": "set-2-banners-sangrientos",
+      "descripcion": "Medidas: 180 x 30 cm"
     },
     {
       "grupo": "Trick or treat",
       "nombre": "Set de Globos Halloween Calabazas",
       "efectivo": 3000,
       "tarjeta": 3400,
-      "disponible": 9,
+      "disponible": 10,
       "slug": "set-de-globos-halloween-calabazas",
       "descripcion": "Contenido: Set x 5 un"
     },
@@ -341,7 +323,7 @@
       "nombre": "Set de Globos Halloween Esqueletos",
       "efectivo": 3100,
       "tarjeta": 3500,
-      "disponible": 13,
+      "disponible": 12,
       "slug": "set-de-globos-halloween-esqueletos",
       "descripcion": "Contenido: Set x 5 un"
     },
@@ -356,30 +338,12 @@
     },
     {
       "grupo": "Trick or treat",
-      "nombre": "Servilletas Boo x20",
-      "efectivo": 1800,
-      "tarjeta": 2000,
-      "disponible": 3,
-      "slug": "servilletas-boo-halloween",
-      "descripcion": "Medidas: 25 x 25 cm"
-    },
-    {
-      "grupo": "Trick or treat",
       "nombre": "Vaso Calavera Mexicana x6",
       "efectivo": 1500,
       "tarjeta": 1700,
-      "disponible": 8,
+      "disponible": 3,
       "slug": "vaso-calavera-mexicana",
       "descripcion": "x6 Unidades. Material: Polipapel."
-    },
-    {
-      "grupo": "Trick or treat",
-      "nombre": "Sorbetes Boo x24",
-      "efectivo": 2100,
-      "tarjeta": 2400,
-      "disponible": 4,
-      "slug": "sorbetes-boo-halloween",
-      "descripcion": "Pack x24 unidades. Material: Polipapel."
     },
     {
       "grupo": "Trick or treat",
@@ -437,15 +401,6 @@
     },
     {
       "grupo": "Decoración",
-      "nombre": "Set Ciempiés",
-      "efectivo": 3400,
-      "tarjeta": 3800,
-      "disponible": 2,
-      "slug": "set-ciempies-preventa",
-      "descripcion": "Medidas: 7,5 cm cada uno"
-    },
-    {
-      "grupo": "Decoración",
       "nombre": "Cerebro con Luz",
       "efectivo": 4000,
       "tarjeta": 4500,
@@ -458,7 +413,7 @@
       "nombre": "Mano Cortada Sangrienta",
       "efectivo": 5100,
       "tarjeta": 5700,
-      "disponible": 3,
+      "disponible": 2,
       "slug": "mano-cortada-sangrienta"
     },
     {
@@ -505,15 +460,6 @@
       "disponible": 1,
       "slug": "mantel-plastico-boo",
       "descripcion": "Medidas: 180 cm · 130 cm"
-    },
-    {
-      "grupo": "Trick or treat",
-      "nombre": "Plato Calavera x6",
-      "efectivo": 2000,
-      "tarjeta": 2300,
-      "disponible": 1,
-      "slug": "plato-calavera",
-      "descripcion": "Medidas: 17,6 x 20,5 cm"
     },
     {
       "grupo": "Decoración",
@@ -565,18 +511,9 @@
       "nombre": "Inflable Amigos R.I.P.",
       "efectivo": 201700,
       "tarjeta": 224200,
-      "disponible": 2,
+      "disponible": 1,
       "slug": "inflable-amigos-r-i-p-2",
       "descripcion": "Medidas: 1,8 m Con 7 luces LED"
-    },
-    {
-      "grupo": "Decoración",
-      "nombre": "Inflable Arco de la Muerte",
-      "efectivo": 228600,
-      "tarjeta": 254000,
-      "disponible": 1,
-      "slug": "inflable-arco-de-la-muerte",
-      "descripcion": "Medidas: 2,7 m Con 7 luces LED"
     },
     {
       "grupo": "Decoración",
@@ -595,15 +532,6 @@
       "disponible": 1,
       "slug": "payasin-macabro",
       "descripcion": "Medidas: 21 x 21 x 48 cm Con luz LED, sonido y movimiento Pilas: 3 AAA (no incluidas)"
-    },
-    {
-      "grupo": "Decoración",
-      "nombre": "Portador de la Oscuridad",
-      "efectivo": 120800,
-      "tarjeta": 134300,
-      "disponible": 1,
-      "slug": "portador-de-la-oscuridad",
-      "descripcion": "Medidas: 170 x 134 x 15 cm Con luz LED, sonido y movimiento Pilas: 3 AA (no incluidas)"
     },
     {
       "grupo": "Decoración",
@@ -676,33 +604,6 @@
       "descripcion": "SET CONEJITA &#8211; OREJAS + CUELLO + PULSERAS"
     },
     {
-      "grupo": "Disfraces adulto",
-      "nombre": "Capa Drácula Grande 130 cm",
-      "efectivo": 9400,
-      "tarjeta": 10500,
-      "disponible": 3,
-      "slug": "capa-disfraz-dracula-grande-130cm",
-      "descripcion": "Medidas: 130 cm"
-    },
-    {
-      "grupo": "Disfraces adulto",
-      "nombre": "Capa Caperucita Roja Premium 80 cm",
-      "efectivo": 10400,
-      "tarjeta": 11600,
-      "disponible": 1,
-      "slug": "capa-disfraz-caperucita-roja-premium-80cm",
-      "descripcion": "Medidas: 80 cm"
-    },
-    {
-      "grupo": "Disfraces adulto",
-      "nombre": "Capa Reversible Corta con Capucha",
-      "efectivo": 10800,
-      "tarjeta": 12000,
-      "disponible": 3,
-      "slug": "capa-reversible-corta-sin-capucha",
-      "descripcion": "Medidas: 80 cm"
-    },
-    {
       "grupo": "Accesorios",
       "nombre": "Muñequitos Miedo a Cuerda (bolsita x2)",
       "efectivo": 4300,
@@ -727,22 +628,6 @@
       "tarjeta": 2500,
       "disponible": 1,
       "slug": "pulsera-brazalete-cleo-serpiente-dorada"
-    },
-    {
-      "grupo": "Accesorios",
-      "nombre": "Gorro Tirolés con Pluma",
-      "efectivo": 3500,
-      "tarjeta": 3900,
-      "disponible": 21,
-      "slug": "gorro-tiroles-con-pluma-blanca-2"
-    },
-    {
-      "grupo": "Accesorios",
-      "nombre": "Gorro Capitán",
-      "efectivo": 4600,
-      "tarjeta": 5200,
-      "disponible": 1,
-      "slug": "gorro-capitan"
     },
     {
       "grupo": "Accesorios",
@@ -791,6 +676,15 @@
       "tarjeta": 2800,
       "disponible": 24,
       "slug": "careta-miedo-total"
+    },
+    {
+      "grupo": "Trick or treat",
+      "nombre": "Servilletas Momia x20",
+      "efectivo": 1800,
+      "tarjeta": 2000,
+      "disponible": 2,
+      "slug": "servilleta-momia",
+      "descripcion": "Medidas: 25 x 25 cm"
     }
   ]
 }
