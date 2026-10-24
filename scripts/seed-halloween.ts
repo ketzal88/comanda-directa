@@ -154,6 +154,10 @@ async function main() {
       etiquetas: item.etiquetas,
       descripcion: item.descripcion ?? null,
       foto_url: item.fotoUrl ?? fotos.get(item.nombre) ?? null,
+      stock: item.stock ?? null,
+      costo: item.costo ?? 0,
+      margen: item.margen ?? 0,
+      tipo_stock: item.tipoStock ?? 'propio',
     };
   });
 

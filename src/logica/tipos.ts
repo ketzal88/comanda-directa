@@ -1,3 +1,5 @@
+import type { TipoStock } from './precios-admin';
+
 /** Etiquetas de un ítem: lista CERRADA. Con texto libre, "sin tacc" y
  *  "Sin TACC" convivirían y el filtro (o el aviso al comensal) devolvería la
  *  mitad de lo que corresponde. */
@@ -57,6 +59,15 @@ export type Item = {
   descripcion?: string;
   /** Ruta propia ("/fotos/x.webp") o URL https. */
   fotoUrl?: string;
+  // --- Back-office (Party Market). Opcionales: los demás clientes no los usan. ---
+  /** Costo del mayorista, ENTERO en pesos. 0 = sin cargar. */
+  costo?: number;
+  /** % de recargo sobre el costo con el que se arma el efectivo. */
+  margen?: number;
+  /** De dónde sale el stock del producto. */
+  tipoStock?: TipoStock;
+  /** Unidades en stock. `null` = sin límite (se trae a pedido). */
+  stock?: number | null;
 };
 
 /** El pie de la carta y el cubierto del salón.
@@ -159,6 +170,32 @@ export type Cliente = {
   zonasEnvio: ZonaEnvio[];
   descuentoRetiro: Descuento;
   descuentosPago: DescuentosPago;
+  /** % de recargo por pagar en cuotas. 0 = sin recargo. */
+  recargoCuotas: number;
+};
+
+/** Una línea de un pedido interno, con el nombre y el precio congelados al
+ *  momento de armarlo (si el ítem cambia después, la comanda no miente). */
+export type LineaPedidoInterno = {
+  itemId: string | null;
+  nombre: string;
+  variante: string;
+  precioUnitario: number;
+  cantidad: number;
+};
+
+/** Un pedido interno: lo carga el operador para ordenar y numerar las ventas
+ *  que se cierran por WhatsApp, descontar stock e imprimir la comanda. */
+export type PedidoInterno = {
+  id: string;
+  numero: number;
+  comprador: string;
+  telefono: string;
+  nota: string;
+  medioPago: string;
+  total: number;
+  creadoEn: string;
+  lineas: LineaPedidoInterno[];
 };
 
 export function configCartaDe(cliente: Cliente): ConfigCarta {

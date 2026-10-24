@@ -47,11 +47,20 @@ export function PanelShell({
             <Link href={`${base}/categorias`} className={CLASE_LINK}>
               Categorías
             </Link>
+            <Link href={`${base}/stock`} className={CLASE_LINK}>
+              Stock y precios
+            </Link>
+            <Link href={`${base}/armar`} className={CLASE_LINK}>
+              Armar venta
+            </Link>
+            <Link href={`${base}/ventas`} className={CLASE_LINK}>
+              Ventas
+            </Link>
             <Link href={`${base}/importar`} className={CLASE_LINK}>
               Importar
             </Link>
             <Link href={`${base}/pedido`} className={CLASE_LINK}>
-              Pedido
+              Config pedido
             </Link>
             <Link href={`${base}/comandas`} className={CLASE_LINK}>
               Comandas

@@ -113,6 +113,13 @@ function itemDe(p: ProductoPlanilla, categoriaId: string, orden: number): Item {
     activo: true,
     etiquetas: [],
     ...(p.descripcion ? { descripcion: p.descripcion } : {}),
+    // Back-office: el stock inicial sale del "Disponible" de la planilla; de
+    // acá en más lo maneja el panel. El costo se carga desde el admin (la
+    // planilla lo arma como mayorista + 30%, de ahí el margen por defecto).
+    stock: p.disponible,
+    costo: 0,
+    margen: 30,
+    tipoStock: 'propio',
   };
 }
 

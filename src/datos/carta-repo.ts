@@ -3,6 +3,7 @@ import { cache } from 'react';
 import { supabaseServidor } from './supabase-servidor';
 import { renumerar } from '@/logica/numeracion';
 import { slugsAnteriores } from '@/logica/slugs-renombrados';
+import { esTipoStock } from '@/logica/precios-admin';
 import { MEDIOS_DE_PAGO, TEMA_DEFECTO, configCartaDe } from '@/logica/tipos';
 import type { Carta, Categoria, Cliente, Descuento, DescuentosPago, Item, MedioDePago, Modalidad, Tema, ZonaEnvio } from '@/logica/tipos';
 
@@ -57,6 +58,7 @@ export function aCliente(fila: Fila): Cliente {
     zonasEnvio: (Array.isArray(fila.zonas_envio) ? fila.zonas_envio : []) as ZonaEnvio[],
     descuentoRetiro: aDescuento(fila.descuento_retiro),
     descuentosPago: aDescuentosPago(fila.descuentos_pago),
+    recargoCuotas: fila.recargo_cuotas ?? 0,
   };
 }
 
@@ -86,6 +88,10 @@ export function aItem(fila: Fila): Item {
     etiquetas: Array.isArray(fila.etiquetas) ? fila.etiquetas : [],
     descripcion: fila.descripcion ?? undefined,
     fotoUrl: fila.foto_url ?? undefined,
+    costo: fila.costo ?? 0,
+    margen: fila.margen ?? 0,
+    tipoStock: esTipoStock(fila.tipo_stock) ? fila.tipo_stock : 'propio',
+    stock: fila.stock ?? null,
   };
 }
 

@@ -42,6 +42,19 @@ export function apiPanel(slug: string) {
         importadas: number;
       }>(`${base}/importar`, { method: 'POST', body: JSON.stringify({ csv, commit }) }),
 
+    listarPedidos: () =>
+      pedir<{ pedidos: import('@/logica/tipos').PedidoInterno[] }>(`${base}/pedidos`),
+    crearPedido: (datos: Record<string, unknown>) =>
+      pedir<{ pedido: import('@/logica/tipos').PedidoInterno }>(`${base}/pedidos`, {
+        method: 'POST',
+        body: JSON.stringify(datos),
+      }),
+    guardarStock: (datos: Record<string, unknown>) =>
+      pedir<{ item: import('@/logica/tipos').Item }>(`${base}/stock`, {
+        method: 'POST',
+        body: JSON.stringify(datos),
+      }),
+
     leerConfig: () =>
       pedir<{ configPedido: import('@/logica/tipos').ConfigPedido; cubiertoPorPersona: number; notas: string[] }>(
         `${base}/config`,
