@@ -7,6 +7,7 @@ import { useEffect } from 'react';
  *  botón para reimprimir. `print:hidden` lo saca del papel. */
 export function BotonImprimir() {
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('noauto')) return;
     const t = setTimeout(() => window.print(), 400);
     return () => clearTimeout(t);
   }, []);
