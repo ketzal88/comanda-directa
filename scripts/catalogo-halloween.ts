@@ -84,15 +84,20 @@ type ProductoPlanilla = {
 
 const PRODUCTOS = PARTY.productos as ProductoPlanilla[];
 
-/** Las categorías de la carta, en orden. El `grupo` es como lo escribe la
+/** Las categorías de la carta, en orden. Los `grupos` son como los escribe la
  *  planilla; el `id`/`nombre`, cómo se publica. Sólo se incluyen las que
- *  tienen al menos un producto con stock. */
+ *  tienen al menos un producto con stock.
+ *
+ *  "Animatronics e Inflables" es un grupo que el cliente abrió en la planilla
+ *  el 25/10 moviendo ahí piezas que la web ya publicaba en Decoración (Bruja
+ *  de Pie, Magia Negra…). Va a DECORACIÓN para que no se partan en dos lados:
+ *  sin este alias, regenerar el JSON los dejaba afuera en silencio. */
 const GRUPOS = [
-  { grupo: 'Disfraces infantiles', id: 'infantiles', nombre: 'DISFRACES INFANTILES' },
-  { grupo: 'Disfraces adulto', id: 'adulto', nombre: 'DISFRACES ADULTO' },
-  { grupo: 'Accesorios', id: 'accesorios', nombre: 'ACCESORIOS' },
-  { grupo: 'Trick or treat', id: 'trick-or-treat', nombre: 'TRICK OR TREAT' },
-  { grupo: 'Decoración', id: 'decoracion', nombre: 'DECORACIÓN' },
+  { grupos: ['Disfraces infantiles'], id: 'infantiles', nombre: 'DISFRACES INFANTILES' },
+  { grupos: ['Disfraces adulto'], id: 'adulto', nombre: 'DISFRACES ADULTO' },
+  { grupos: ['Accesorios'], id: 'accesorios', nombre: 'ACCESORIOS' },
+  { grupos: ['Trick or treat'], id: 'trick-or-treat', nombre: 'TRICK OR TREAT' },
+  { grupos: ['Decoración', 'Animatronics e Inflables'], id: 'decoracion', nombre: 'DECORACIÓN' },
 ] as const;
 
 /** Un producto de la planilla, ya como ítem de la carta. El id ES el slug: ya
@@ -125,7 +130,7 @@ function itemDe(p: ProductoPlanilla, categoriaId: string, orden: number): Item {
 
 const CATEGORIAS_CON_PRODUCTOS = GRUPOS.map((g) => ({
   ...g,
-  productos: PRODUCTOS.filter((p) => p.grupo === g.grupo),
+  productos: PRODUCTOS.filter((p) => (g.grupos as readonly string[]).includes(p.grupo)),
 })).filter((g) => g.productos.length > 0);
 
 const ITEMS: Item[] = CATEGORIAS_CON_PRODUCTOS.flatMap((g) =>

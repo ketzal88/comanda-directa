@@ -26,10 +26,32 @@ import { createSign } from 'node:crypto';
 
 const PLANILLA_ID = process.env.PLANILLA_ID ?? '1NrjjQeQIDaHqJzXnZ36PneYNqmgaMDe-1sq2x7umS1k';
 const HOJA = 'Catálogo';
-const RANGO = `${HOJA}!A7:L125`; // fila 7 encabezados, 8-125 productos
+// Fila 7 encabezados, de la 8 en adelante productos. Con margen: la hoja ya
+// pasó la fila 125 (el 25/10 llegaba a la 135) y lo que quedaba abajo del
+// rango no entraba nunca. Las filas vacías del final se caen solas por no
+// tener precio.
+const ULTIMA_FILA = 300;
+const RANGO = `${HOJA}!A7:L${ULTIMA_FILA}`;
 
 const EXCLUIDOS = new Set(['Lápida con Luz y Sonido', 'Vincha con Calabaza LED']);
 const GRUPOS_FUERA = new Set(['Cumpleaños']);
+
+/** Nombre en la planilla → nombre publicado, para las filas que el cliente
+ *  cargó a mano sin tildes ni mayúsculas. Va acá y no se corrige en la
+ *  planilla porque la planilla es del cliente. Importa que sea estable: el
+ *  seed rescata las fotos por nombre. */
+const RENOMBRES: Record<string, string> = {
+  'Mascara La parca': 'Máscara La Parca',
+  'Mascara Bruja con pañuelo': 'Máscara Bruja con Pañuelo',
+  'Masacra Mujer gato (gatubela)': 'Máscara Látex Mujer Gato (Gatubela)',
+  'Mascara Payaso Siniestro Terrifier': 'Máscara Payaso Siniestro (Terrifier)',
+  'Disfraz para mascota murcielago': 'Disfraz Murciélago para Mascotas',
+  'Disfraz vaquita XSS Bebes': 'Disfraz Vaquita Bebé Talle XXS (6 meses a 2 años)',
+  'Disfraz inflable adulto Dinosaurio': 'Disfraz Inflable Dinosaurio Adulto',
+  'Mucama Infernal Animatronic': 'Mucama Infernal (animatronic)',
+  'Alas de angel color rojo': 'Alas de Ángel Rojas',
+  'Guantes satinado rojo': 'Guantes Satinados Rojos Largos',
+};
 
 const EMAIL = process.env.GOOGLE_SA_EMAIL;
 const CLAVE = process.env.GOOGLE_SA_PRIVATE_KEY?.replace(/\\n/g, '\n');
@@ -92,7 +114,7 @@ async function leerPlanilla(token: string): Promise<{ valores: string[][]; ficha
   // Hyperlinks de la columna Ficha (I), con grid data.
   const rh = await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${PLANILLA_ID}?ranges=${encodeURIComponent(
-      `${HOJA}!I8:I125`,
+      `${HOJA}!I8:I${ULTIMA_FILA}`,
     )}&includeGridData=true&fields=${encodeURIComponent('sheets.data.rowData.values.hyperlink')}`,
     { headers: auth },
   );
@@ -159,8 +181,13 @@ async function main() {
   const { valores, fichas } = await leerPlanilla(token);
 
   const filas = valores.slice(1); // [0] es el encabezado (fila 7)
-  if (fichas.length !== filas.length) {
-    throw new Error(`Desalineados: ${filas.length} filas de datos vs ${fichas.length} fichas`);
+  // Las dos lecturas arrancan en la fila 8, así que sólo pueden diferir al
+  // final: la de valores corta en la última fila con algo y la de grid data
+  // puede traer filas vacías de más. Lo que no puede haber es un link de
+  // ficha sin su fila de datos.
+  const huerfanas = fichas.slice(filas.length).filter(Boolean);
+  if (huerfanas.length) {
+    throw new Error(`Desalineados: ${filas.length} filas de datos y ${huerfanas.length} fichas sueltas abajo`);
   }
 
   type Producto = { grupo: string; nombre: string; efectivo: number; tarjeta: number; disponible: number; slug: string; descripcion?: string };
@@ -169,11 +196,12 @@ async function main() {
 
   filas.forEach((f, i) => {
     const grupo = f[0];
-    const nombre = f[1];
+    const crudo = String(f[1] ?? '').trim();
+    const nombre = RENOMBRES[crudo] ?? crudo;
     const efectivo = parsearPrecio(f[4]);
     const tarjeta = parsearPrecio(f[5]);
     const disponible = parsearPrecio(f[11]) ?? 0;
-    const slug = slugDeFicha(fichas[i]);
+    const slug = slugDeFicha(fichas[i] ?? null);
 
     if (EXCLUIDOS.has(nombre) || GRUPOS_FUERA.has(grupo)) return;
     if (disponible <= 0 || efectivo == null || tarjeta == null) return;
