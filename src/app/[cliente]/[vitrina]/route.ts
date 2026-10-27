@@ -1,7 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { catalogoDirectoDe, type CatalogoDirecto } from '@/clientes/pedidos-directos';
 import { pestanaDeVitrina, VITRINAS, VITRINAS_PLANILLA } from '@/clientes/vitrinas';
 import { leerCliente } from '@/datos/carta-repo';
+import { leerCatalogoDirecto } from '@/datos/catalogo-directo';
 import { armarDatosVitrina, leerHojasVitrina } from '@/datos/vitrina-planilla';
 import { haySupabaseConfigurado } from '@/datos/supabase-servidor';
 import { normalizarNumero, numeroUsable } from '@/logica/whatsapp';
@@ -35,6 +37,9 @@ const jsonEnHtml = (dato: unknown) => JSON.stringify(dato).replace(/</g, '\\u003
 export async function GET(_req: Request, { params }: Contexto) {
   const { cliente: slug, vitrina } = await params;
 
+  const catalogo = catalogoDirectoDe(slug, vitrina);
+  if (catalogo) return catalogoDirecto(slug, catalogo);
+
   const pestana = pestanaDeVitrina(slug, vitrina);
   if (pestana) return vitrinaDePlanilla(slug, pestana.id, pestana.titulo);
 
@@ -46,6 +51,35 @@ export async function GET(_req: Request, { params }: Contexto) {
   const numero = await numeroDelLocal(slug);
 
   return new Response(html.replace('__WHATSAPP__', numero), {
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+    },
+  });
+}
+
+/** Catálogo de pedidos directos (ver `clientes/pedidos-directos.ts`): la
+ *  plantilla con los productos de una unidad leídos en vivo de la hoja
+ *  "Catálogo", con el WhatsApp del local puesto en el momento. */
+async function catalogoDirecto(slug: string, cat: CatalogoDirecto) {
+  let datos;
+  try {
+    datos = await leerCatalogoDirecto(cat);
+  } catch (err) {
+    console.error(`[catalogo ${slug}/${cat.ruta}]`, err);
+    return new Response('El catálogo no está disponible en este momento. Probá de nuevo en unos minutos.', {
+      status: 503,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+    });
+  }
+
+  const [html, numero] = await Promise.all([leerPlantilla(slug, cat.plantilla), numeroDelLocal(slug)]);
+  const pagina = html
+    .replace('__DATOS__', () => jsonEnHtml(datos))
+    .replaceAll('__TITULO__', datos.titulo)
+    .replace('__WHATSAPP__', numero);
+
+  return new Response(pagina, {
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',

@@ -6,6 +6,7 @@ import { BarraPedidoHalloween } from './halloween/BarraPedidoHalloween';
 import { ModalProducto } from './halloween/ModalProducto';
 import { TarjetaProducto } from './halloween/TarjetaProducto';
 import { CLASES_FUENTES } from './halloween/tipografia';
+import { CATALOGOS_DIRECTOS } from '@/clientes/pedidos-directos';
 import { AvisoDesactualizado } from '@/componentes/AvisoDesactualizado';
 import { useClienteActual } from '@/componentes/ClienteContext';
 import { fijarVencimiento } from '@/datos/pedido-almacen';
@@ -130,6 +131,10 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
   const { nombre, slug } = useClienteActual();
   // Antes de cualquier `usePedido` de abajo: es el que lee el guardado.
   fijarVencimiento(slug, VENCE_PEDIDO_MS);
+  // La sección de pedidos directos (animatrónicos e inflables de una unidad)
+  // vive en su propia página, que lee el stock en vivo de la planilla. Acá va
+  // sólo el acceso, y únicamente para los clientes que la tienen configurada.
+  const catalogoDirecto = CATALOGOS_DIRECTOS[slug];
   const [activa, setActiva] = useState<string | null>(null);
   const [abierto, setAbierto] = useState<Item | null>(null);
   const [busqueda, setBusqueda] = useState('');
@@ -337,6 +342,26 @@ export function CartaHalloween({ carta, configPedido, logoUrl, desactualizada = 
                 </div>
               )}
             </div>
+          )}
+
+          {catalogoDirecto && (
+            <a
+              href={`/${slug}/${catalogoDirecto.ruta}`}
+              className="halloween-recorte-panel relative mt-7 flex items-center gap-3 overflow-hidden px-5 py-4 no-underline text-left"
+              style={{ background: 'var(--h-tinta)', color: 'var(--h-crema)' }}
+            >
+              <span className="hw-bob text-[40px] leading-none" aria-hidden="true">
+                👻
+              </span>
+              <span className="flex-1">
+                <span className="block font-bold leading-tight text-[clamp(18px,4.6vw,22px)]" style={{ color: 'var(--h-naranja)' }}>
+                  {catalogoDirecto.titulo}
+                </span>
+                <span className="block mt-0.5 text-[14px]" style={{ color: '#e9e0f7' }}>
+                  Una sola unidad de cada uno. Mirá el precio y pedilo →
+                </span>
+              </span>
+            </a>
           )}
 
           <p className="halloween-mano mt-4 text-[19px]" style={{ color: 'var(--h-tinta-suave)' }}>
