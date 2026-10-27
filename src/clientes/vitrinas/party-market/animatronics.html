@@ -36,9 +36,13 @@ section.cat h2{font-family:var(--display);font-size:21px;letter-spacing:.02em;ma
 section.cat h2 small{font-family:var(--body);font-size:13px;color:var(--muted);font-weight:700;letter-spacing:0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
-.media{position:relative;aspect-ratio:4/3;background:linear-gradient(145deg,#3a1750,#6a2a86);display:grid;place-items:center;overflow:hidden}
-.media img,.media video{width:100%;height:100%;object-fit:cover;display:block}
-.media .mark{display:flex;flex-direction:column;align-items:center;gap:4px;color:#f4ecf8;text-align:center;padding:12px}
+.media{position:relative;aspect-ratio:4/3;background:#fff;display:grid;place-items:center;overflow:hidden}
+/* Las fotos del catálogo son recortes sobre blanco: `contain` las muestra
+   enteras (no las corta) y el fondo blanco las integra. El video sí va `cover`
+   porque es una escena a sangre. */
+.media img{width:100%;height:100%;object-fit:contain;display:block;padding:10px}
+.media video{width:100%;height:100%;object-fit:cover;display:block;background:#1a0f24}
+.media .mark{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:linear-gradient(145deg,#3a1750,#6a2a86);color:#f4ecf8;text-align:center;padding:12px}
 .media .mark .pk{font-size:44px;line-height:1}
 .media .mark b{font-family:var(--display);font-size:13px;letter-spacing:.06em;color:#ff9a52}
 .media .mark span{font-size:11px;color:#e9dcef}
@@ -137,7 +141,10 @@ tabs.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return
 function media(p){
   if(p.video){
     const poster=p.foto?` poster="${esc(opt(p.foto,640))}"`:'';
-    return `<div class="media"><video src="${esc(p.video)}"${poster} controls playsinline muted preload="metadata"></video></div>`;
+    // Se reproduce solo (en silencio, en loop) cuando entra en pantalla: el
+    // producto se ve en movimiento, que es lo que lo vende. Los controles
+    // quedan para pausarlo o ponerle sonido.
+    return `<div class="media"><video src="${esc(p.video)}"${poster} controls loop muted playsinline preload="metadata"></video></div>`;
   }
   // El placeholder va detrás; si la foto carga, la tapa; si falla, queda el
   // placeholder (onerror quita la imagen rota).
@@ -163,6 +170,21 @@ function render(){
   document.getElementById('list').innerHTML=out||'<p class="empty">Por ahora no hay productos disponibles. Escribinos y te contamos qué está por llegar.</p>';
 }
 render();
+
+// Los videos de producto se reproducen solos mientras están a la vista y se
+// pausan al salir: muestran el producto en movimiento sin bajar los seis a la
+// vez. Se respeta "reducir movimiento": ahí no arrancan solos (queda el póster
+// y los controles).
+(function(){
+  const vids=[...document.querySelectorAll('.media video')];
+  if(!vids.length||!('IntersectionObserver'in window))return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    const v=e.target;
+    if(e.isIntersecting){const p=v.play();if(p&&p.catch)p.catch(()=>{})}else v.pause();
+  }),{threshold:0.5});
+  vids.forEach(v=>io.observe(v));
+})();
 
 // --- Pedido de a un producto ---
 const panel=document.getElementById('panel');
