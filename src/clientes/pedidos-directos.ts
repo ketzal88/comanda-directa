@@ -15,7 +15,13 @@ import type { EntradaManifiesto } from '@/logica/catalogo-directo';
  *
  *  La hoja trae columnas internas (precio mayorista, link al proveedor, costo,
  *  ganancia). `logica/catalogo-directo.ts` las descarta antes de armar la
- *  página: nada del proveedor llega al navegador. */
+ *  página: nada del proveedor llega al navegador.
+ *
+ *  La URL del CSV NO vive acá: este módulo lo importa un client component
+ *  (`CartaHalloween`), así que todo lo de acá termina en el bundle del
+ *  navegador. La URL es, de hecho, la llave a la hoja completa (incluidas esas
+ *  columnas internas), así que vive en `datos/catalogo-directo-fuentes.ts`,
+ *  que es `server-only`. */
 export type CatalogoDirecto = {
   /** Segmento de la URL: `/<cliente>/<ruta>`. */
   ruta: string;
@@ -24,20 +30,10 @@ export type CatalogoDirecto = {
   titulo: string;
   /** Leyenda fija de envío, abajo del encabezado y en cada pedido. */
   leyenda: string;
-  /** La hoja "Catálogo" exportada como CSV. Se lee del lado del servidor. */
-  csv: string;
   /** Las categorías, en el orden en que se muestran. */
   categorias: string[];
   manifiesto: EntradaManifiesto[];
 };
-
-/** La planilla `catalogo-minorista-halloween-v2`, hoja "Catálogo"
- *  (`gid=758136050`). Es la misma planilla de las vitrinas de disfraces (ver
- *  `clientes/vitrinas.ts`), otra hoja. Se lee con el export de Google porque
- *  está compartida por link; si se deja de compartir, publicar la hoja como
- *  CSV y cambiar esta URL por la de "Publicar en la web". */
-const CSV_CATALOGO_PARTY_MARKET =
-  'https://docs.google.com/spreadsheets/d/1NrjjQeQIDaHqJzXnZ36PneYNqmgaMDe-1sq2x7umS1k/export?format=csv&gid=758136050';
 
 /** Los 12 productos de la sección, con su nombre en la hoja para casar el
  *  precio y el stock. La descripción y el nombre que ve el cliente los dio el
@@ -142,7 +138,6 @@ export const CATALOGOS_DIRECTOS: Record<string, CatalogoDirecto> = {
     plantilla: 'animatronics',
     titulo: 'Animatronics e inflables de Halloween',
     leyenda: 'Envío gratis en Villanueva y Nordelta.',
-    csv: CSV_CATALOGO_PARTY_MARKET,
     categorias: ['Inflables', 'Animatronics', 'Colgantes'],
     manifiesto: MANIFIESTO_PARTY_MARKET,
   },

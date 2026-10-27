@@ -64,7 +64,7 @@ export async function GET(_req: Request, { params }: Contexto) {
 async function catalogoDirecto(slug: string, cat: CatalogoDirecto) {
   let datos;
   try {
-    datos = await leerCatalogoDirecto(cat);
+    datos = await leerCatalogoDirecto(slug, cat);
   } catch (err) {
     console.error(`[catalogo ${slug}/${cat.ruta}]`, err);
     return new Response('El catálogo no está disponible en este momento. Probá de nuevo en unos minutos.', {

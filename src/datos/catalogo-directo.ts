@@ -1,5 +1,6 @@
 import 'server-only';
 import type { CatalogoDirecto } from '@/clientes/pedidos-directos';
+import { CSV_CATALOGOS } from '@/datos/catalogo-directo-fuentes';
 import {
   armarCatalogoDirecto,
   leerHojaCatalogo,
@@ -22,8 +23,10 @@ export type DatosCatalogoDirecto = {
 
 /** Arma el catálogo leyendo la hoja en vivo. Lanza si la hoja no está
  *  disponible, para que la ruta responda 503 y no una página vacía. */
-export async function leerCatalogoDirecto(cat: CatalogoDirecto): Promise<DatosCatalogoDirecto> {
-  const res = await fetch(cat.csv, { next: { revalidate: REFRESCO_SEGUNDOS } });
+export async function leerCatalogoDirecto(slug: string, cat: CatalogoDirecto): Promise<DatosCatalogoDirecto> {
+  const csv = CSV_CATALOGOS[slug];
+  if (!csv) throw new Error(`sin fuente CSV para ${slug}`);
+  const res = await fetch(csv, { next: { revalidate: REFRESCO_SEGUNDOS } });
   if (!res.ok) throw new Error(`hoja HTTP ${res.status}`);
   const texto = await res.text();
   // Si la planilla deja de estar compartida, Google responde 200 con la
