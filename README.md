@@ -261,6 +261,30 @@ saca de la pantalla todo lo gastronómico, y `variantes` —pensadas para "5 pz"
 / "10 pz" de sushi— sirven igual para el talle de un disfraz, que es dato de
 despacho y tiene que viajar en el mensaje de WhatsApp.
 
+### Pedidos directos: animatronics e inflables (`/party-market/animatronics`)
+
+Los animatrónicos e inflables son piezas de **una sola unidad**, con precio en
+cuotas y un pedido de a uno. No van en la carta de Supabase sino en una página
+propia (`src/clientes/pedidos-directos.ts` + la plantilla
+`clientes/vitrinas/party-market/animatronics.html`, servida por la misma ruta
+que las vitrinas, `app/[cliente]/[vitrina]/route.ts`). La página **lee en vivo
+la hoja "Catálogo"** de la planilla del cliente (`gid=758136050`): el precio
+sale de las columnas *Precio efectivo / transferencia* (E) y *Precio con
+tarjeta* (F), y el stock de *Disponible* (L). Así, cuando el cliente carga una
+venta en la planilla y el Disponible baja a 0, el producto **se agota solo**,
+sin tocar el panel ni el código. La cuota es `tarjeta / 3` al peso de arriba.
+
+Lo editorial que la hoja no tiene (nombre, categoría, descripción, y la foto o
+el video cuando lleguen) vive en el manifiesto de `pedidos-directos.ts`, casado
+con la fila de la hoja por nombre. Las columnas internas de la hoja (precio
+mayorista, link al proveedor, costo, ganancia) **nunca llegan al navegador**:
+`logica/catalogo-directo.ts` se queda sólo con lo mostrable. El pedido sale por
+WhatsApp al número del local, con el producto, el precio de la forma de pago
+elegida y los datos del cliente. Mientras no haya foto, la tarjeta muestra un
+placeholder de Party Market, no un recuadro vacío. El acceso a la página es un
+banner en la carta (`CartaHalloween.tsx`), sólo para los clientes con catálogo
+directo configurado.
+
 ## Plantillas
 
 `clientes.plantilla` elige la variante visual; el `switch` está en
