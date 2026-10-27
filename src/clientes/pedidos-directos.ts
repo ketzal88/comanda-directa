@@ -87,13 +87,10 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     categoria: 'Animatronics',
     descripcion: 'Bruja de pie con su escoba, para recibir a los invitados en la entrada.',
   },
-  {
-    hoja: 'Lápida con Luz y Sonido',
-    slug: 'lapida-con-luz-y-sonido',
-    nombre: 'Lápida con Luz y Sonido',
-    categoria: 'Animatronics',
-    descripcion: 'Lápida con luz y sonido para armar un cementerio en el jardín o la entrada.',
-  },
+  // "Lápida con Luz y Sonido" se saca a propósito: no tiene ficha en la
+  // planilla, así que no hay foto ni video del proveedor y la tarjeta quedaba
+  // con el placeholder. Si más adelante aparece la ficha (o una foto propia),
+  // se vuelve a sumar acá con su entrada en FICHAS_CATALOGOS.
   {
     hoja: 'Lápida Despertar de los Muertos',
     slug: 'lapida-despertar-de-los-muertos',

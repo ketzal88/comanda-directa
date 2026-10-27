@@ -94,9 +94,10 @@ describe('armarCatalogoDirecto', () => {
 
 describe('manifiesto de party-market', () => {
   const cat = CATALOGOS_DIRECTOS['party-market'];
-  it('tiene los 12 productos, con slug único', () => {
-    expect(cat.manifiesto).toHaveLength(12);
-    expect(new Set(cat.manifiesto.map((m) => m.slug)).size).toBe(12);
+  it('tiene los 11 productos (sin la lápida sin ficha), con slug único', () => {
+    expect(cat.manifiesto).toHaveLength(11);
+    expect(new Set(cat.manifiesto.map((m) => m.slug)).size).toBe(11);
+    expect(cat.manifiesto.some((m) => m.slug === 'lapida-con-luz-y-sonido')).toBe(false);
   });
   it('cada categoría del manifiesto está declarada en el orden de categorías', () => {
     for (const m of cat.manifiesto) expect(cat.categorias).toContain(m.categoria);
