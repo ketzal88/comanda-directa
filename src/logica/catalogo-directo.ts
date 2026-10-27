@@ -26,6 +26,9 @@ export type EntradaManifiesto = {
   nombre: string;
   categoria: string;
   descripcion: string;
+  /** Medidas del producto, tal cual se muestran ("2,7 m", "190 × 39 × 45 cm").
+   *  Opcional: la hoja no las trae, las pasa el cliente a mano. */
+  medida?: string;
   /** Ruta de la foto en `/public`, si ya la hay. Sin esto, placeholder. */
   foto?: string;
   /** Ruta del video en `/public`, si lo hay. Se reproduce en la misma página. */
@@ -47,6 +50,8 @@ export type ProductoDirecto = {
   /** Valor de cada una de las 3 cuotas sin interés: `tarjeta / 3` al peso de
    *  arriba. */
   cuota: number;
+  /** Medidas del producto, si el manifiesto las tiene. */
+  medida?: string;
   foto?: string;
   video?: string;
 };
@@ -143,6 +148,7 @@ export function armarCatalogoDirecto(
       efectivo: fila.efectivo,
       tarjeta: fila.tarjeta,
       cuota: cuotaSinInteres(fila.tarjeta),
+      ...(m.medida ? { medida: m.medida } : {}),
       ...(m.foto ? { foto: m.foto } : {}),
       ...(m.video ? { video: m.video } : {}),
     });

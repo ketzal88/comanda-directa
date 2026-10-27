@@ -47,6 +47,7 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     categoria: 'Inflables',
     descripcion:
       'Castillo embrujado inflable, fácil de inflar. Ideal para ambientar fiestas de Halloween, eventos temáticos y cumpleaños de terror.',
+    medida: '2,7 m',
   },
   {
     hoja: 'Inflable Amigos R.I.P.',
@@ -55,6 +56,7 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     categoria: 'Inflables',
     descripcion:
       'Inflable con temática de cementerio para decorar el jardín, la entrada o el salón de la fiesta.',
+    medida: '1,8 m',
   },
   {
     hoja: 'Inflable Esqueleto Fantasma',
@@ -63,6 +65,7 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     categoria: 'Inflables',
     descripcion:
       'Esqueleto fantasma inflable para recibir a los invitados en la puerta o sumar al jardín.',
+    medida: '1,2 m',
   },
   {
     hoja: 'Magia Negra',
@@ -71,6 +74,7 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     categoria: 'Animatronics',
     descripcion:
       'Animatronic de magia oscura, pensado para ser la figura principal de la decoración.',
+    medida: '190 × 39 × 45 cm',
   },
   {
     hoja: 'Calabaza Vestida Brillante',
@@ -79,6 +83,9 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     categoria: 'Animatronics',
     descripcion:
       'Figura de calabaza vestida con detalles brillantes, muy llamativa para la entrada o el living.',
+    // Sin `medida` a propósito: el cliente no confirmó la medida (lo más
+    // parecido en el Excel, "Calabaza Brillante con Luz" 190 × 146 × 17 cm, no
+    // está confirmado que sea el mismo producto). Se suma cuando se verifique.
   },
   {
     hoja: 'Bruja de Pie con Escoba',
@@ -86,6 +93,7 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     nombre: 'Bruja de Pie con Escoba',
     categoria: 'Animatronics',
     descripcion: 'Bruja de pie con su escoba, para recibir a los invitados en la entrada.',
+    medida: '134 × 88 × 15 cm',
   },
   // "Lápida con Luz y Sonido" se saca a propósito: no tiene ficha en la
   // planilla, así que no hay foto ni video del proveedor y la tarjeta quedaba
@@ -97,6 +105,7 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     nombre: 'Lápida Despertar de los Muertos',
     categoria: 'Animatronics',
     descripcion: 'Lápida temática para completar el cementerio de Halloween.',
+    medida: '56 × 34 × 9,5 cm',
   },
   {
     hoja: 'Escoba Caminante',
@@ -104,6 +113,7 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     nombre: 'Escoba Caminante',
     categoria: 'Animatronics',
     descripcion: 'Escoba de bruja con luz, sonido y movimiento: camina sola.',
+    medida: '68 × 44 × 43 cm',
   },
   {
     hoja: 'Huevo Atrapado',
@@ -112,6 +122,7 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     categoria: 'Animatronics',
     descripcion:
       'Animatronic de terror para sorprender a los invitados en cualquier rincón de la casa.',
+    medida: '42 × 13 × 13 cm',
   },
   {
     hoja: 'Colgante Brujita Macabra',
@@ -119,6 +130,7 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     nombre: 'Colgante Brujita Macabra',
     categoria: 'Colgantes',
     descripcion: 'Brujita para colgar del techo, de una puerta o de un árbol.',
+    medida: '110 × 26 × 30 cm',
   },
   {
     hoja: 'Colgante Abandonada en el Altar',

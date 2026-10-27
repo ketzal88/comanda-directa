@@ -49,6 +49,8 @@ section.cat h2 small{font-family:var(--body);font-size:13px;color:var(--muted);f
 .info{padding:14px;display:flex;flex-direction:column;gap:8px;flex:1;min-width:0}
 .name{font-family:var(--display);font-weight:400;font-size:17px;line-height:1.15;margin:0;letter-spacing:.01em}
 .desc{margin:0;font-size:13.5px;color:var(--muted);line-height:1.4}
+.med{margin:0;font-size:12.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:5px}
+.med span{font-size:13px}
 .prices{margin-top:auto;font-variant-numeric:tabular-nums;display:grid;gap:2px;padding-top:4px}
 .ef{font-weight:800;font-size:17px;line-height:1.2}
 .ef span{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -155,6 +157,7 @@ function card(p){
   return `<article class="card">${media(p)}<div class="info">`+
     `<h3 class="name">${esc(p.nombre)}</h3>`+
     `<p class="desc">${esc(p.descripcion)}</p>`+
+    (p.medida?`<p class="med"><span aria-hidden="true">📏</span> ${esc(p.medida)}</p>`:'')+
     `<div class="prices">`+
       `<div class="ef"><span>Efectivo o transferencia</span>${fmt(p.efectivo)}</div>`+
       `<div class="cuo">o 3 cuotas sin interés de <b>${fmt(p.cuota)}</b></div>`+
