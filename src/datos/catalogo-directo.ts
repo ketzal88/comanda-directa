@@ -1,6 +1,6 @@
 import 'server-only';
 import type { CatalogoDirecto } from '@/clientes/pedidos-directos';
-import { CSV_CATALOGOS } from '@/datos/catalogo-directo-fuentes';
+import { CSV_CATALOGOS, FICHAS_CATALOGOS } from '@/datos/catalogo-directo-fuentes';
 import {
   armarCatalogoDirecto,
   leerHojaCatalogo,
@@ -33,7 +33,22 @@ export async function leerCatalogoDirecto(slug: string, cat: CatalogoDirecto): P
   // pantalla de login en HTML: eso no es una hoja vacía, es un error.
   if (/^\s*<(!doctype|html)/i.test(texto)) throw new Error('la hoja no es pública');
 
-  const productos = armarCatalogoDirecto(cat.manifiesto, leerHojaCatalogo(texto));
+  const base = armarCatalogoDirecto(cat.manifiesto, leerHojaCatalogo(texto));
+  // La foto (y el video, cuando lo hay) se sirven proxeadas desde el proveedor
+  // bajo nuestro dominio (ver `pedido-foto`/`pedido-video`). Al navegador le
+  // viaja sólo la ruta de nuestro dominio; el link del proveedor queda en
+  // `FICHAS_CATALOGOS`, que es server-only. Un producto sin ficha (sin página)
+  // va sin foto y la tarjeta muestra el placeholder de Party Market.
+  const fichas = FICHAS_CATALOGOS[slug] ?? {};
+  const productos = base.map((p) => {
+    const ficha = fichas[p.slug];
+    if (!ficha) return p;
+    return {
+      ...p,
+      foto: `/${slug}/pedido-foto/${p.slug}`,
+      ...(ficha.video ? { video: `/${slug}/pedido-video/${p.slug}` } : {}),
+    };
+  });
   // Sólo las categorías que hoy tienen al menos un producto con stock.
   const conStock = new Set(productos.map((p) => p.categoria));
   return {

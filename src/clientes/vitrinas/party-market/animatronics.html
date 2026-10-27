@@ -116,6 +116,10 @@ const D=JSON.parse(document.getElementById('data').textContent);
 const WA='__WHATSAPP__';
 const fmt=n=>'$'+Number(n).toLocaleString('es-AR',{maximumFractionDigits:0});
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// La foto va por /_next/image (achica, pasa a webp y saca metadatos); el
+// src es una ruta de nuestro dominio que sirve la foto original.
+const opt=(u,w)=>'/_next/image?url='+encodeURIComponent(u)+'&w='+w+'&q=70';
+const PH='<div class="mark"><span class="pk">🎃</span><b>Party Market</b><span>Foto en camino</span></div>';
 const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 document.getElementById('ship').innerHTML='<b>Envío gratis</b> en Villanueva y Nordelta';
 document.getElementById('shipHint').textContent=D.leyenda;
@@ -131,9 +135,14 @@ tabs.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return
   if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-72,behavior:'smooth'})});
 
 function media(p){
-  if(p.video)return `<div class="media"><video src="${esc(p.video)}"${p.foto?` poster="${esc(p.foto)}"`:''} controls playsinline muted preload="metadata"></video></div>`;
-  if(p.foto)return `<div class="media"><img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy"></div>`;
-  return `<div class="media"><div class="mark"><span class="pk">🎃</span><b>Party Market</b><span>Foto en camino</span></div></div>`;
+  if(p.video){
+    const poster=p.foto?` poster="${esc(opt(p.foto,640))}"`:'';
+    return `<div class="media"><video src="${esc(p.video)}"${poster} controls playsinline muted preload="metadata"></video></div>`;
+  }
+  // El placeholder va detrás; si la foto carga, la tapa; si falla, queda el
+  // placeholder (onerror quita la imagen rota).
+  if(p.foto)return `<div class="media">${PH}<img src="${esc(opt(p.foto,640))}" alt="${esc(p.nombre)}" loading="lazy" style="position:absolute;inset:0" onerror="this.remove()"></div>`;
+  return `<div class="media">${PH}</div>`;
 }
 function card(p){
   return `<article class="card">${media(p)}<div class="info">`+

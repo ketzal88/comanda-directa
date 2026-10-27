@@ -6,6 +6,7 @@ import {
   leerHoja,
   linkPorDisfraz,
   slugDisfraz,
+  videoDePagina,
 } from '../src/logica/vitrina-planilla';
 import { pestanaDeVitrina } from '../src/clientes/vitrinas';
 
@@ -90,6 +91,22 @@ describe('fotoDePagina', () => {
   it('rechaza una foto de otro sitio', () => {
     const html = '<meta property="og:image" content="https://otro.test/x.jpg" />';
     expect(fotoDePagina(html, pagina)).toBeNull();
+  });
+});
+
+describe('videoDePagina', () => {
+  const pagina = 'https://proveedor.test/producto/x/';
+  it('toma og:video del mismo sitio', () => {
+    const html = '<meta property="og:video" content="https://proveedor.test/v/x.mp4" />';
+    expect(videoDePagina(html, pagina)).toBe('https://proveedor.test/v/x.mp4');
+  });
+  it('si no hay og:video, usa el primer mp4 de la biblioteca del sitio', () => {
+    const html = '<a href="https://proveedor.test/wp-content/uploads/2026/09/hd453-video.mp4">ver</a>';
+    expect(videoDePagina(html, pagina)).toBe('https://proveedor.test/wp-content/uploads/2026/09/hd453-video.mp4');
+  });
+  it('rechaza un video de otro sitio y devuelve null si no hay', () => {
+    expect(videoDePagina('<meta property="og:video" content="https://otro.test/x.mp4">', pagina)).toBeNull();
+    expect(videoDePagina('<p>sin video</p>', pagina)).toBeNull();
   });
 });
 

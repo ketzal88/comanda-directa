@@ -274,16 +274,26 @@ tarjeta* (F), y el stock de *Disponible* (L). Así, cuando el cliente carga una
 venta en la planilla y el Disponible baja a 0, el producto **se agota solo**,
 sin tocar el panel ni el código. La cuota es `tarjeta / 3` al peso de arriba.
 
-Lo editorial que la hoja no tiene (nombre, categoría, descripción, y la foto o
-el video cuando lleguen) vive en el manifiesto de `pedidos-directos.ts`, casado
-con la fila de la hoja por nombre. Las columnas internas de la hoja (precio
-mayorista, link al proveedor, costo, ganancia) **nunca llegan al navegador**:
-`logica/catalogo-directo.ts` se queda sólo con lo mostrable. El pedido sale por
-WhatsApp al número del local, con el producto, el precio de la forma de pago
-elegida y los datos del cliente. Mientras no haya foto, la tarjeta muestra un
-placeholder de Party Market, no un recuadro vacío. El acceso a la página es un
-banner en la carta (`CartaHalloween.tsx`), sólo para los clientes con catálogo
-directo configurado.
+Lo editorial que la hoja no tiene (nombre, categoría, descripción) vive en el
+manifiesto de `pedidos-directos.ts`, casado con la fila de la hoja por nombre.
+Las columnas internas de la hoja (precio mayorista, link al proveedor, costo,
+ganancia) **nunca llegan al navegador**: `logica/catalogo-directo.ts` se queda
+sólo con lo mostrable. El pedido sale por WhatsApp al número del local, con el
+producto, el precio de la forma de pago elegida y los datos del cliente. El
+acceso a la página es un banner en la carta (`CartaHalloween.tsx`), sólo para
+los clientes con catálogo directo configurado.
+
+La foto y el video salen de la página del producto en el proveedor, **igual que
+en las vitrinas de disfraces**: las rutas `/<cliente>/pedido-foto/<slug>` y
+`/<cliente>/pedido-video/<slug>` resuelven del lado del servidor (página →
+`og:image` / `.mp4` → bytes) y sirven el archivo bajo nuestro dominio, con
+`X-Content-Type-Options: nosniff`, CSP de sandbox y el `Range` reenviado para
+que el video se adelante. El link del proveedor vive en `FICHAS_CATALOGOS`
+(módulo `server-only`, nunca en el bundle del navegador); un `slug` que no esté
+en ese mapa es 404. El video se muestra sólo en los productos que lo tienen en
+la página del proveedor (marcados a mano en el mapa). El que no tiene ficha
+—hoy, "Lápida con Luz y Sonido", sin link en la planilla— cae al placeholder de
+Party Market, no a un recuadro vacío.
 
 ## Plantillas
 

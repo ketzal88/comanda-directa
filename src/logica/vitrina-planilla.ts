@@ -161,10 +161,29 @@ export function fotoDePagina(html: string, urlPagina: string): string | null {
   const crudo =
     html.match(/property=["']og:image["']\s+content=["']([^"']+)["']/i)?.[1] ??
     html.match(/content=["']([^"']+)["']\s+property=["']og:image["']/i)?.[1];
+  return recursoDelMismoSitio(crudo, urlPagina);
+}
+
+/** El video de la página del producto: el `og:video` si lo declara, o el
+ *  primer `.mp4` de la biblioteca de medios del sitio. Mismo criterio que la
+ *  foto: sólo se acepta si está en el mismo sitio que la página (si no, no es
+ *  del producto o es un recurso que no controlamos). */
+export function videoDePagina(html: string, urlPagina: string): string | null {
+  const crudo =
+    html.match(/property=["']og:video(?::url)?["']\s+content=["']([^"']+)["']/i)?.[1] ??
+    html.match(/content=["']([^"']+)["']\s+property=["']og:video(?::url)?["']/i)?.[1] ??
+    html.match(/https?:\/\/[^"'\s]+\/wp-content\/uploads\/[^"'\s]+\.mp4/i)?.[0];
+  return recursoDelMismoSitio(crudo, urlPagina);
+}
+
+/** Resuelve un recurso contra la página y lo acepta sólo si es https y del
+ *  mismo host: el valor sale del HTML de una página externa, así que sin esto
+ *  podría apuntar a un recurso interno (SSRF). */
+function recursoDelMismoSitio(crudo: string | undefined, urlPagina: string): string | null {
   if (!crudo) return null;
   try {
-    const foto = new URL(crudo, urlPagina);
-    return foto.protocol === 'https:' && foto.host === new URL(urlPagina).host ? foto.href : null;
+    const rec = new URL(crudo, urlPagina);
+    return rec.protocol === 'https:' && rec.host === new URL(urlPagina).host ? rec.href : null;
   } catch {
     return null;
   }
