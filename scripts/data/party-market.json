@@ -1,6 +1,6 @@
 {
   "fuente": "Planilla del cliente, hoja \"Catálogo\" — solo productos con stock disponible.",
-  "generado": "2026-10-23",
+  "generado": "2026-10-25",
   "productos": [
     {
       "grupo": "Disfraces infantiles",
@@ -685,6 +685,111 @@
       "disponible": 2,
       "slug": "servilleta-momia",
       "descripcion": "Medidas: 25 x 25 cm"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Esqueleto Niño Talle S (5-6 años)",
+      "efectivo": 22800,
+      "tarjeta": 25400,
+      "disponible": 1,
+      "slug": "disfraz-esqueleto-nino-talle-s-5-6-anos",
+      "descripcion": "Incluye: Mono, capucha"
+    },
+    {
+      "grupo": "Disfraces infantiles",
+      "nombre": "Disfraz Vaquita Bebé Talle XXS (6 meses a 2 años)",
+      "efectivo": 23300,
+      "tarjeta": 25900,
+      "disponible": 1,
+      "slug": "disfraz-vaca-bebe-xxs-0-5-2-anos"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Disfraz Inflable Dinosaurio Adulto",
+      "efectivo": 96100,
+      "tarjeta": 106800,
+      "disponible": 1,
+      "slug": "disfraz-inflable-dinosaurio"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Alas de Ángel Rojas",
+      "efectivo": 5400,
+      "tarjeta": 6000,
+      "disponible": 1,
+      "slug": "alas-de-angelito-color-rojo"
+    },
+    {
+      "grupo": "Disfraces adulto",
+      "nombre": "Guantes Satinados Rojos Largos",
+      "efectivo": 4200,
+      "tarjeta": 4700,
+      "disponible": 1,
+      "slug": "guantes-satinados-rojos-largos"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Máscara La Parca",
+      "efectivo": 14700,
+      "tarjeta": 16400,
+      "disponible": 1,
+      "slug": "mascara-la-parca"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Máscara Bruja con Pañuelo",
+      "efectivo": 18600,
+      "tarjeta": 20700,
+      "disponible": 1,
+      "slug": "mascara-bruja-con-panuelo"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Máscara Látex Mujer Gato (Gatubela)",
+      "efectivo": 12200,
+      "tarjeta": 13600,
+      "disponible": 6,
+      "slug": "mascara-de-latex-mujer-gato"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Máscara Látex Payaso Eso (It)",
+      "efectivo": 37700,
+      "tarjeta": 41900,
+      "disponible": 1,
+      "slug": "mascara-payaso-eso"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Máscara Payaso Siniestro (Terrifier)",
+      "efectivo": 35000,
+      "tarjeta": 38900,
+      "disponible": 1,
+      "slug": "mascara-payaso-siniestro"
+    },
+    {
+      "grupo": "Accesorios",
+      "nombre": "Disfraz Murciélago para Mascotas",
+      "efectivo": 9500,
+      "tarjeta": 10600,
+      "disponible": 1,
+      "slug": "disfraz-murcielago-para-mascotas"
+    },
+    {
+      "grupo": "Animatronics e Inflables",
+      "nombre": "Mucama Infernal (animatronic)",
+      "efectivo": 134600,
+      "tarjeta": 149600,
+      "disponible": 1,
+      "slug": "mucama-infernal"
+    },
+    {
+      "grupo": "Animatronics e Inflables",
+      "nombre": "Calabaza Vestida Brillante",
+      "efectivo": 114300,
+      "tarjeta": 127000,
+      "disponible": 1,
+      "slug": "calabaza-brillante-preventa"
     }
   ]
 }
