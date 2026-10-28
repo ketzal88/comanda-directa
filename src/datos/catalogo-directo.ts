@@ -49,12 +49,13 @@ export async function leerCatalogoDirecto(slug: string, cat: CatalogoDirecto): P
       ...(ficha.video ? { video: `/${slug}/pedido-video/${p.slug}` } : {}),
     };
   });
-  // Sólo las categorías que hoy tienen al menos un producto con stock.
-  const conStock = new Set(productos.map((p) => p.categoria));
+  // Las categorías que hoy tienen al menos un producto (disponible o vendido):
+  // una sección con sólo vendidos igual se muestra, con su contador.
+  const presentes = new Set(productos.map((p) => p.categoria));
   return {
     titulo: cat.titulo,
     leyenda: cat.leyenda,
-    categorias: cat.categorias.filter((c) => conStock.has(c)),
+    categorias: cat.categorias.filter((c) => presentes.has(c)),
     productos,
   };
 }

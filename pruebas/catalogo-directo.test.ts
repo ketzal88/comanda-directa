@@ -70,15 +70,22 @@ describe('leerHojaCatalogo', () => {
 });
 
 describe('armarCatalogoDirecto', () => {
-  it('sólo productos con stock, en el orden del manifiesto, con la cuota calculada', () => {
+  it('trae disponibles y vendidos en el orden del manifiesto, con la cuota calculada', () => {
     const productos = armarCatalogoDirecto(MANIFIESTO, leerHojaCatalogo(HOJA));
-    expect(productos.map((p) => p.slug)).toEqual(['castillo', 'calabaza']);
+    expect(productos.map((p) => p.slug)).toEqual(['castillo', 'huevo', 'calabaza']);
     expect(productos[0]).toMatchObject({
       nombre: 'Inflable Castillo Halloween',
       efectivo: 295900,
       tarjeta: 328800,
       cuota: 109600,
+      vendido: false,
+      ultima: true,
     });
+  });
+  it('el que está en 0 en la hoja viaja marcado como vendido', () => {
+    const productos = armarCatalogoDirecto(MANIFIESTO, leerHojaCatalogo(HOJA));
+    const huevo = productos.find((p) => p.slug === 'huevo');
+    expect(huevo).toMatchObject({ vendido: true, ultima: false });
   });
   it('un producto sin fila en la hoja no sale', () => {
     const productos = armarCatalogoDirecto(MANIFIESTO, leerHojaCatalogo(HOJA));
@@ -87,7 +94,7 @@ describe('armarCatalogoDirecto', () => {
   it('no filtra ningún precio del proveedor: el producto sólo lleva lo mostrable', () => {
     const productos = armarCatalogoDirecto(MANIFIESTO, leerHojaCatalogo(HOJA));
     expect(Object.keys(productos[0]).sort()).toEqual(
-      ['categoria', 'cuota', 'descripcion', 'efectivo', 'nombre', 'slug', 'tarjeta'].sort(),
+      ['categoria', 'cuota', 'descripcion', 'efectivo', 'nombre', 'slug', 'tarjeta', 'ultima', 'vendido'].sort(),
     );
   });
 });

@@ -36,8 +36,9 @@ export type EntradaManifiesto = {
 };
 
 /** Un producto listo para mostrar: lo editorial del manifiesto más el precio
- *  y la cuota tomados de la hoja. El stock no viaja (sólo se muestran los que
- *  tienen al menos uno). */
+ *  y la cuota tomados de la hoja. Los vendidos (Disponible 0 en la hoja) SÍ
+ *  viajan, marcados con `vendido`, para mostrarlos como "VENDIDO" en vez de
+ *  hacerlos desaparecer. */
 export type ProductoDirecto = {
   slug: string;
   nombre: string;
@@ -50,6 +51,11 @@ export type ProductoDirecto = {
   /** Valor de cada una de las 3 cuotas sin interés: `tarjeta / 3` al peso de
    *  arriba. */
   cuota: number;
+  /** Sin stock en la hoja (Disponible 0): la tarjeta sale marcada VENDIDO, en
+   *  gris, sin cuotas y sin botón de pedido. */
+  vendido: boolean;
+  /** Disponible y con una sola unidad: badge "última unidad en stock". */
+  ultima: boolean;
   /** Medidas del producto, si el manifiesto las tiene. */
   medida?: string;
   foto?: string;
@@ -129,9 +135,9 @@ export function leerHojaCatalogo(csv: string): Map<string, FilaCatalogo> {
 }
 
 /** El catálogo a mostrar: cada entrada del manifiesto casada con su fila de la
- *  hoja, SÓLO las que tienen stock (`disponible > 0`). El orden es el del
- *  manifiesto. Una entrada sin fila en la hoja, o sin stock, no sale: así un
- *  producto vendido (que en la planilla queda en 0) desaparece solo. */
+ *  hoja, en el orden del manifiesto. Entran también los vendidos (Disponible 0),
+ *  marcados con `vendido` para mostrarlos como tales; sólo queda afuera lo que
+ *  no tiene fila en la hoja (un producto que ni figura). */
 export function armarCatalogoDirecto(
   manifiesto: EntradaManifiesto[],
   hoja: Map<string, FilaCatalogo>,
@@ -139,7 +145,8 @@ export function armarCatalogoDirecto(
   const productos: ProductoDirecto[] = [];
   for (const m of manifiesto) {
     const fila = hoja.get(normalizarNombre(m.hoja));
-    if (!fila || fila.disponible <= 0) continue;
+    if (!fila) continue;
+    const vendido = fila.disponible <= 0;
     productos.push({
       slug: m.slug,
       nombre: m.nombre,
@@ -148,6 +155,8 @@ export function armarCatalogoDirecto(
       efectivo: fila.efectivo,
       tarjeta: fila.tarjeta,
       cuota: cuotaSinInteres(fila.tarjeta),
+      vendido,
+      ultima: !vendido && fila.disponible <= 1,
       ...(m.medida ? { medida: m.medida } : {}),
       ...(m.foto ? { foto: m.foto } : {}),
       ...(m.video ? { video: m.video } : {}),

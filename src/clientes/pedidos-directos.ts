@@ -119,7 +119,8 @@ const MANIFIESTO_PARTY_MARKET: EntradaManifiesto[] = [
     hoja: 'Huevo Atrapado',
     slug: 'huevo-atrapado',
     nombre: 'Huevo Atrapado',
-    categoria: 'Animatronics',
+    // Es un colgante: va en Colgantes, no en Animatronics.
+    categoria: 'Colgantes',
     descripcion:
       'Animatronic de terror para sorprender a los invitados en cualquier rincón de la casa.',
     medida: '42 × 13 × 13 cm',
