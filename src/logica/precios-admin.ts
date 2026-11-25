@@ -17,7 +17,8 @@ export function efectivoDeCosto(costo: number, margen: number): number {
  *  Es el inverso del 10% que descuenta la web al pagar en efectivo. */
 export function tarjetaDeEfectivo(efectivo: number): number {
   if (!(efectivo > 0)) return 0;
-  return Math.ceil(efectivo / 0.9 / 100) * 100;
+  // `/ 90` y no `/ 0.9 / 100`: 2700 / 0.9 da 3000.0000000000005 y el ceil subía a 3100.
+  return Math.ceil(efectivo / 90) * 100;
 }
 
 /** precio de lista (tarjeta) → efectivo, el mismo número que muestra la carta
