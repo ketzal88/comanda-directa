@@ -1,9 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { clienteAutorizado } from '@/datos/panel-guard';
-import { crearPedidoInterno, listarPedidosInternos, type NuevoPedido } from '@/datos/panel-repo';
+import { crearPedidoInterno, esUuid, listarPedidosInternos, type NuevoPedido } from '@/datos/panel-repo';
 import type { LineaPedidoInterno } from '@/logica/tipos';
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ cliente: string }> }) {
   const { cliente: slug } = await params;
@@ -21,7 +19,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cli
   const lineasCrudas = Array.isArray(body.lineas) ? body.lineas : [];
   const lineas: LineaPedidoInterno[] = lineasCrudas
     .map((l) => ({
-      itemId: typeof l.itemId === 'string' && UUID.test(l.itemId) ? l.itemId : null,
+      itemId: typeof l.itemId === 'string' && esUuid(l.itemId) ? l.itemId : null,
       nombre: String(l.nombre ?? '').trim(),
       variante: String(l.variante ?? '').trim(),
       precioUnitario: Math.max(0, Math.floor(Number(l.precioUnitario) || 0)),

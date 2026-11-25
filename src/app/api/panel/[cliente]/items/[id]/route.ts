@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { editarItem } from '@/datos/panel-repo';
+import { editarItem, esCategoriaDelCliente } from '@/datos/panel-repo';
 import { clienteAutorizado } from '@/datos/panel-guard';
 import { validarCambiosItem } from '@/logica/validar-item';
 
@@ -13,6 +13,9 @@ export async function PATCH(
 
   const body = await req.json().catch(() => ({}));
   const { cambios, errores } = validarCambiosItem(body);
+  if (cambios.categoriaId && !(await esCategoriaDelCliente(cliente.id, cambios.categoriaId))) {
+    errores.push({ campo: 'categoriaId', mensaje: 'Categoría inexistente' });
+  }
   if (errores.length) return NextResponse.json({ errores }, { status: 400 });
 
   const item = await editarItem(cliente.id, id, cambios);

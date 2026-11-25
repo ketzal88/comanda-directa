@@ -44,6 +44,23 @@ export async function obtenerItem(clienteId: string, itemId: string): Promise<It
   return data ? aItem(data) : null;
 }
 
+export const esUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+
+/** La FK de `items.categoria_id` sólo pide que la categoría exista, no que
+ *  sea de este cliente: sin este chequeo un ítem quedaba colgado de la
+ *  categoría de otro restaurante. */
+export async function esCategoriaDelCliente(clienteId: string, categoriaId: string): Promise<boolean> {
+  if (!esUuid(categoriaId)) return false; // si no, Postgres tira y la ruta da 500
+  const { data, error } = await supabaseServidor()
+    .from('categorias')
+    .select('id')
+    .eq('id', categoriaId)
+    .eq('cliente_id', clienteId)
+    .maybeSingle();
+  if (error) throw error;
+  return Boolean(data);
+}
+
 export async function crearItem(
   clienteId: string,
   datos: ItemBorrador,
