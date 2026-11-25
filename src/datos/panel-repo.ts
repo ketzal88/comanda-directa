@@ -2,7 +2,6 @@ import 'server-only';
 import { aCategoria, aItem } from './carta-repo';
 import { supabaseServidor } from './supabase-servidor';
 import {
-  descuentaStock,
   efectivoDeCosto,
   esTipoStock,
   tarjetaDeEfectivo,
@@ -231,6 +230,8 @@ export async function actualizarItemAdmin(
   if ('tipoStock' in cambios && esTipoStock(cambios.tipoStock)) columnas.tipo_stock = cambios.tipoStock;
   if ('stock' in cambios) {
     columnas.stock = cambios.stock == null ? null : Math.max(0, Math.floor(cambios.stock));
+    // Reponer stock vuelve a vender: el pedido que lo llevó a 0 lo marcó agotado.
+    if (((columnas.stock as number | null) ?? 0) > 0) columnas.agotado = false;
   }
 
   // Recalcular el precio de lista cuando hay costo: efectivo = costo+margen,
@@ -279,76 +280,28 @@ export type NuevoPedido = {
 
 /** Crea un pedido interno: lo numera (correlativo por cliente), guarda sus
  *  líneas con el precio del momento y descuenta el stock de lo que descuenta
- *  (propio y consignación; "a pedido" no toca stock). */
+ *  (propio y consignación; "a pedido" no toca stock). Todo en una transacción
+ *  de Postgres: ver `crear_pedido_interno` en migrations/0004. */
 export async function crearPedidoInterno(clienteId: string, datos: NuevoPedido): Promise<PedidoInterno> {
-  const db = supabaseServidor();
   const lineas = datos.lineas.filter((l) => l.cantidad > 0);
   if (!lineas.length) throw new Error('El pedido no tiene productos.');
 
-  const total = lineas.reduce((t, l) => t + Math.max(0, l.precioUnitario) * l.cantidad, 0);
-
-  // Correlativo por cliente: el mayor + 1 (un solo operador carga por vez).
-  const { data: ultimo, error: eUlt } = await db
-    .from('pedidos')
-    .select('numero')
-    .eq('cliente_id', clienteId)
-    .order('numero', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (eUlt) throw eUlt;
-  const numero = ((ultimo?.numero as number) ?? 0) + 1;
-
-  const { data: pedido, error: ePed } = await db
-    .from('pedidos')
-    .insert({
-      cliente_id: clienteId,
-      numero,
-      comprador: datos.comprador,
-      telefono: datos.telefono,
-      nota: datos.nota,
-      medio_pago: datos.medioPago,
-      total,
-    })
-    .select('*')
-    .single();
-  if (ePed) throw ePed;
-
-  const { error: eItems } = await db.from('pedido_items').insert(
-    lineas.map((l) => ({
-      pedido_id: pedido.id,
-      item_id: l.itemId,
+  const { data: pedido, error } = await supabaseServidor().rpc('crear_pedido_interno', {
+    p_cliente_id: clienteId,
+    p_comprador: datos.comprador,
+    p_telefono: datos.telefono,
+    p_nota: datos.nota,
+    p_medio_pago: datos.medioPago,
+    p_lineas: lineas.map((l) => ({
+      item_id: l.itemId ?? '',
       nombre: l.nombre,
       variante: l.variante,
       precio_unitario: l.precioUnitario,
       cantidad: l.cantidad,
     })),
-  );
-  if (eItems) throw eItems;
-
-  // Descontar stock de los ítems que descuentan.
-  const ids = [...new Set(lineas.map((l) => l.itemId).filter((x): x is string => !!x))];
-  if (ids.length) {
-    const { data: filasItems } = await db
-      .from('items')
-      .select('id,stock,tipo_stock')
-      .eq('cliente_id', clienteId)
-      .in('id', ids);
-    for (const it of filasItems ?? []) {
-      const tipo = esTipoStock(it.tipo_stock) ? it.tipo_stock : 'propio';
-      if (it.stock == null || !descuentaStock(tipo)) continue;
-      const pedido_de = lineas
-        .filter((l) => l.itemId === it.id)
-        .reduce((s, l) => s + l.cantidad, 0);
-      const nuevo = Math.max(0, (it.stock as number) - pedido_de);
-      await db
-        .from('items')
-        .update({ stock: nuevo, ...(nuevo === 0 ? { agotado: true } : {}) })
-        .eq('id', it.id)
-        .eq('cliente_id', clienteId);
-    }
-  }
-
-  return aPedido(pedido, lineas);
+  });
+  if (error) throw error;
+  return aPedido(pedido as Record<string, unknown>, lineas);
 }
 
 /** Los pedidos internos del cliente, del más nuevo al más viejo (sin líneas). */
