@@ -1,4 +1,4 @@
-import { esCubierto } from './pedido';
+import { esCubierto, MAX_CANTIDAD } from './pedido';
 import type { LineaPedido } from './pedido';
 
 /** El pixel de Meta de cada cliente, por slug. Un cliente que no figura acá
@@ -86,6 +86,65 @@ export type DatosEvento = {
   value: number;
   currency: 'ARS';
 };
+
+const MAX_CONTENTS = 50;
+const MAX_PRECIO = 100_000_000;
+
+const textoCorto = (v: unknown, max: number) =>
+  typeof v === 'string' && v.trim() && v.length <= max ? v : undefined;
+const numeroEn = (v: unknown, min: number, max: number) =>
+  typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max ? v : undefined;
+
+/** El `custom_data` que llega del navegador, reducido a lo que el pixel
+ *  realmente manda (ver `datosDeLineas` y `ModalProducto`). El endpoint es
+ *  público: sin esto cualquiera le mete a Meta campos arbitrarios o un
+ *  Purchase de millones. Moneda fija ARS, ítems y cantidades con tope, y
+ *  `value` nunca por encima de lo que suman los productos (sí por debajo:
+ *  Purchase lo manda con descuentos y sin envío).
+ *  shortcut: los `item_price` no se cruzan con la carta; si aparecen compras
+ *  infladas a precio de producto, recalcularlos server-side con `leerCarta`. */
+export function sanearDatos(crudo: unknown): Record<string, unknown> | undefined {
+  if (!crudo || typeof crudo !== 'object') return undefined;
+  const d = crudo as Record<string, unknown>;
+  const salida: Record<string, unknown> = {};
+
+  const contents = Array.isArray(d.contents)
+    ? d.contents
+        .slice(0, MAX_CONTENTS)
+        .map((c) => {
+          const r = (c ?? {}) as Record<string, unknown>;
+          const id = textoCorto(r.id, 200);
+          const quantity = numeroEn(r.quantity, 1, MAX_CANTIDAD);
+          const item_price = numeroEn(r.item_price, 0, MAX_PRECIO);
+          return id && quantity && Number.isInteger(quantity) && item_price !== undefined
+            ? { id, quantity, item_price }
+            : null;
+        })
+        .filter((c) => c !== null)
+    : [];
+
+  if (contents.length) {
+    salida.contents = contents;
+    salida.content_ids = contents.map((c) => c.id);
+    salida.num_items = contents.reduce((n, c) => n + c.quantity, 0);
+  } else if (Array.isArray(d.content_ids)) {
+    const ids = d.content_ids.map((i) => textoCorto(i, 200)).filter((i) => i !== undefined);
+    if (ids.length) salida.content_ids = ids.slice(0, MAX_CONTENTS);
+  }
+
+  const nombre = textoCorto(d.content_name, 200);
+  if (nombre) salida.content_name = nombre;
+
+  const tope = contents.length ? contents.reduce((n, c) => n + c.quantity * c.item_price, 0) : MAX_PRECIO;
+  const value = numeroEn(d.value, 0, tope);
+  if (value !== undefined) {
+    salida.value = value;
+    salida.currency = 'ARS';
+  }
+  if (salida.content_ids) salida.content_type = 'product';
+
+  return Object.keys(salida).length ? salida : undefined;
+}
 
 /** Lo que llevan AddToCart, InitiateCheckout y Purchase: los productos del
  *  pedido con su cantidad y precio. El cubierto del salón no es un producto

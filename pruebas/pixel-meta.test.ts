@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { filasFeed } from '../src/logica/feed-meta';
 import { CUBIERTO } from '../src/logica/pedido';
-import { datosDeLineas, esEventoMeta, eventoCapi, idCatalogo, pixelDe } from '../src/logica/pixel-meta';
+import { datosDeLineas, esEventoMeta, eventoCapi, idCatalogo, pixelDe, sanearDatos } from '../src/logica/pixel-meta';
 import type { LineaPedido } from '../src/logica/pedido';
 import type { Carta, Cliente } from '../src/logica/tipos';
 
@@ -51,6 +51,31 @@ describe('CAPI', () => {
       action_source: 'website',
       user_data: { fbp: 'fb.1.1.1' },
     });
+  });
+});
+
+describe('sanearDatos', () => {
+  it('deja pasar lo que manda datosDeLineas tal cual', () => {
+    const d = datosDeLineas([{ clave: 'a', itemId: 'a', nombre: 'A', cantidad: 2, precioUnitario: 1500 } as LineaPedido], 2800);
+    expect(sanearDatos(d)).toEqual(d);
+  });
+
+  it('descarta campos inventados, fuerza ARS y topea value a lo que suman los productos', () => {
+    const s = sanearDatos({
+      contents: [{ id: 'a', quantity: 1, item_price: 1000 }, { id: 'b', quantity: 1e6, item_price: 5 }],
+      value: 1e9,
+      currency: 'USD',
+      email: 'x@y.z',
+    });
+    expect(s).toEqual({ contents: [{ id: 'a', quantity: 1, item_price: 1000 }], content_ids: ['a'], num_items: 1, content_type: 'product' });
+  });
+
+  it('ViewContent sin contents y basura', () => {
+    expect(sanearDatos({ content_ids: ['x', 3], content_name: 'Preso', value: 100, currency: 'ARS' })).toEqual({
+      content_ids: ['x'], content_name: 'Preso', value: 100, currency: 'ARS', content_type: 'product',
+    });
+    expect(sanearDatos('hola')).toBeUndefined();
+    expect(sanearDatos({ foo: 1 })).toBeUndefined();
   });
 });
 

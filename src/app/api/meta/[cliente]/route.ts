@@ -1,6 +1,6 @@
 import { after, type NextRequest } from 'next/server';
 import { enviarCapi, tokenCapi } from '@/datos/meta-capi';
-import { esEventoMeta, pixelDe } from '@/logica/pixel-meta';
+import { esEventoMeta, pixelDe, sanearDatos } from '@/logica/pixel-meta';
 
 /** El reenvío por la Conversions API de los eventos del pixel.
  *
@@ -55,9 +55,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cli
   const url = texto(body.url, 2000);
   if (!esEventoMeta(body.evento) || !eventId || !url) return listo;
   // Sólo URLs de la carta de este cliente: el evento dice de dónde viene.
-  if (!new URL(url, req.nextUrl.origin).pathname.startsWith(`/${slug}`)) return listo;
+  // `new URL` tira con una URL mal formada: también es 204.
+  try {
+    if (!new URL(url, req.nextUrl.origin).pathname.startsWith(`/${slug}`)) return listo;
+  } catch {
+    return listo;
+  }
 
-  const datos = body.datos && typeof body.datos === 'object' ? (body.datos as Record<string, unknown>) : undefined;
+  const datos = sanearDatos(body.datos);
   const pedido = {
     evento: body.evento,
     eventId,
