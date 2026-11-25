@@ -14,6 +14,15 @@
 -- sólo si `activo and not oculto_por_stock`.
 alter table items add column if not exists oculto_por_stock boolean not null default false;
 
+-- Lo que hoy está oculto en Party Market pudo ocultarlo el cron o el
+-- operador; no hay forma de saber cuál. Se pasa a `oculto_por_stock` (la
+-- carta lo sigue sin mostrar) y la próxima corrida del cron lo resuelve con
+-- la planilla, igual que hacía antes con `activo`.
+update items
+set activo = true, oculto_por_stock = true
+where activo = false
+  and cliente_id = (select id from clientes where slug = 'piedro-shop');
+
 create or replace function crear_pedido_interno(
   p_cliente_id uuid,
   p_comprador text,

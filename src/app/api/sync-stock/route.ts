@@ -10,8 +10,8 @@ const SLUG_HALLOWEEN = 'piedro-shop';
 
 /** Sincroniza el stock de Party Market con la planilla del cliente. Lee un CSV
  *  con dos columnas (Producto + Disponible) y, por cada producto de la carta,
- *  lo OCULTA (`activo = false`) cuando Disponible llega a 0 y lo vuelve a
- *  mostrar cuando hay stock. No toca precios, fotos ni descripciones: eso lo
+ *  lo OCULTA (`oculto_por_stock = true`, migración 0004) cuando Disponible
+ *  llega a 0 y lo vuelve a mostrar cuando hay stock. No toca precios, fotos ni descripciones: eso lo
  *  rehace el seed. No agrega ni borra productos; para cambiar el surtido se
  *  regenera el catálogo y se re-siembra.
  *
@@ -85,7 +85,8 @@ export async function GET(req: NextRequest) {
   if (!csvUrl) return NextResponse.json({ error: 'falta STOCK_CSV_URL' }, { status: 500 });
 
   // El CSV publicado de la pestaña Producto + Disponible.
-  const res = await fetch(csvUrl, { cache: 'no-store' });
+  const res = await fetch(csvUrl, { cache: 'no-store', signal: AbortSignal.timeout(15_000) }).catch(() => null);
+  if (!res) return NextResponse.json({ error: 'el CSV no respondió a tiempo' }, { status: 504 });
   if (!res.ok) {
     return NextResponse.json({ error: `no se pudo leer el CSV (HTTP ${res.status})` }, { status: 502 });
   }
@@ -107,7 +108,9 @@ export async function GET(req: NextRequest) {
   const disponiblePorNombre = new Map<string, number>();
   for (const f of filas.slice(1)) {
     const nombre = (f[iProducto] ?? '').trim().toLowerCase();
-    if (nombre) disponiblePorNombre.set(nombre, parsearPrecio(f[iDisponible]) ?? 0);
+    // Celda vacía o ilegible = no se sabe, no "0": el producto no se toca.
+    const disp = parsearPrecio(f[iDisponible]);
+    if (nombre && disp !== null) disponiblePorNombre.set(nombre, disp);
   }
 
   const db = supabaseServidor();
@@ -118,28 +121,51 @@ export async function GET(req: NextRequest) {
   }
 
   const { data: items, error: eItems } = await db
-    .from('items').select('id,nombre,activo').eq('cliente_id', cliente.id);
+    .from('items').select('id,nombre,oculto_por_stock').eq('cliente_id', cliente.id);
   if (eItems) return NextResponse.json({ error: eItems.message }, { status: 502 });
 
-  const ocultados: string[] = [];
-  const mostrados: string[] = [];
+  type Fila = { id: string; nombre: string };
+  const ocultar: Fila[] = [];
+  const mostrar: Fila[] = [];
+  let coinciden = 0;
   for (const it of items ?? []) {
     // Un producto que no está en el CSV no se toca: su ausencia puede ser un
     // nombre que no matchea, no un 0.
     const disp = disponiblePorNombre.get((it.nombre ?? '').trim().toLowerCase());
     if (disp === undefined) continue;
-    const debeEstarVisible = disp > 0;
-    if (debeEstarVisible === it.activo) continue;
-    const { error } = await db.from('items').update({ activo: debeEstarVisible }).eq('id', it.id);
+    coinciden++;
+    const ocultarlo = disp <= 0;
+    if (ocultarlo === Boolean(it.oculto_por_stock)) continue;
+    (ocultarlo ? ocultar : mostrar).push(it);
+  }
+
+  // Una planilla rota (columna borrada, fórmulas en #REF) se ve como "todo en
+  // 0". Antes de vaciar la carta, frenar y que lo mire alguien.
+  if (ocultar.length >= 5 && ocultar.length > coinciden * 0.3) {
+    console.error(`[sync-stock] abortado: ocultaría ${ocultar.length} de ${coinciden}`);
+    return NextResponse.json(
+      { error: `ocultaría ${ocultar.length} de ${coinciden} productos; revisá la planilla`, ocultar: ocultar.map((i) => i.nombre) },
+      { status: 409 },
+    );
+  }
+
+  // `oculto_por_stock` y no `activo`: lo que el operador oculta a mano desde
+  // el panel no lo pisa el cron.
+  for (const [lista, valor] of [[ocultar, true], [mostrar, false]] as const) {
+    if (!lista.length) continue;
+    const { error } = await db
+      .from('items')
+      .update({ oculto_por_stock: valor })
+      .eq('cliente_id', cliente.id)
+      .in('id', lista.map((i) => i.id));
     if (error) return NextResponse.json({ error: error.message }, { status: 502 });
-    (debeEstarVisible ? mostrados : ocultados).push(it.nombre);
   }
 
   return NextResponse.json({
     ok: true,
     revisados: items?.length ?? 0,
-    ocultados: ocultados.length,
-    mostrados: mostrados.length,
-    detalle: { ocultados, mostrados },
+    ocultados: ocultar.length,
+    mostrados: mostrar.length,
+    detalle: { ocultados: ocultar.map((i) => i.nombre), mostrados: mostrar.map((i) => i.nombre) },
   });
 }

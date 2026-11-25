@@ -129,7 +129,8 @@ export async function leerCarta(cliente: Cliente): Promise<Carta> {
   if (e2) throw e2;
 
   const categorias = (categoriasCrudas ?? []).map(aCategoria).sort((a, b) => a.orden - b.orden);
-  const items = (itemsCrudos ?? []).map(aItem);
+  // Lo que el cron de stock ocultó no se ve, sin pisar el `activo` del panel.
+  const items = (itemsCrudos ?? []).map((f) => aItem({ ...f, activo: f.activo && !f.oculto_por_stock }));
 
   return { categorias, items: renumerar(items, categorias), config: configCartaDe(cliente) };
 }
