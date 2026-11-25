@@ -14,7 +14,7 @@ import {
 const REFRESCO_SEGUNDOS = 300;
 
 async function traerHoja(url: string): Promise<FilaConFuente[]> {
-  const res = await fetch(url, { next: { revalidate: REFRESCO_SEGUNDOS } });
+  const res = await fetch(url, { next: { revalidate: REFRESCO_SEGUNDOS }, signal: AbortSignal.timeout(10_000) });
   if (!res.ok) throw new Error(`hoja HTTP ${res.status}`);
   const texto = await res.text();
   // Si la planilla deja de estar compartida, Google responde 200 con la

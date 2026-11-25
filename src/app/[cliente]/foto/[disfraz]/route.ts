@@ -39,7 +39,11 @@ export async function GET(_req: Request, { params }: Contexto) {
     const link = await linkDeDisfraz(VITRINAS_PLANILLA[slug], disfraz);
     if (!link || !link.startsWith('https://')) return new Response(null, { status: 404 });
 
-    const pagina = await fetch(link, { headers: NAVEGADOR, next: { revalidate: UN_DIA } });
+    const pagina = await fetch(link, {
+      headers: NAVEGADOR,
+      next: { revalidate: UN_DIA },
+      signal: AbortSignal.timeout(8000),
+    });
     if (!pagina.ok) return new Response(null, { status: 404 });
     const origen = fotoDePagina(await pagina.text(), link);
     // Sólo https: el `origen` sale del og:image de una página externa; sin esto
@@ -49,9 +53,12 @@ export async function GET(_req: Request, { params }: Contexto) {
     // Sin cache de `fetch`: son imágenes de cientos de KB. Lo que se cachea
     // es la respuesta de esta ruta en el CDN y la versión achicada de
     // `/_next/image`.
-    const foto = await fetch(origen, { headers: NAVEGADOR, cache: 'no-store' });
+    const foto = await fetch(origen, { headers: NAVEGADOR, cache: 'no-store', signal: AbortSignal.timeout(10_000) });
     const tipo = (foto.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase();
-    if (!foto.ok || !TIPOS_PERMITIDOS.has(tipo)) return new Response(null, { status: 404 });
+    // Un redirect puede llevar el https del og:image a http interno: no servirlo.
+    if (!foto.ok || !foto.url.startsWith('https://') || !TIPOS_PERMITIDOS.has(tipo)) {
+      return new Response(null, { status: 404 });
+    }
 
     return new Response(await foto.arrayBuffer(), {
       headers: {

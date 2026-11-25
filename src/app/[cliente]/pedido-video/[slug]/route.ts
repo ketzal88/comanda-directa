@@ -28,7 +28,11 @@ export async function GET(req: Request, { params }: Contexto) {
   if (!ficha?.video) return new Response(null, { status: 404 });
 
   try {
-    const pagina = await fetch(ficha.pagina, { headers: NAVEGADOR, next: { revalidate: UN_DIA } });
+    const pagina = await fetch(ficha.pagina, {
+      headers: NAVEGADOR,
+      next: { revalidate: UN_DIA },
+      signal: AbortSignal.timeout(8000),
+    });
     if (!pagina.ok) return new Response(null, { status: 404 });
     const origen = videoDePagina(await pagina.text(), ficha.pagina);
     // Sólo https y del mismo sitio que la página (lo garantiza videoDePagina):
@@ -36,12 +40,19 @@ export async function GET(req: Request, { params }: Contexto) {
     if (!origen || !origen.startsWith('https://')) return new Response(null, { status: 404 });
 
     const rango = req.headers.get('range');
+    // El timeout cubre sólo hasta los headers: el cuerpo se streamea y puede durar.
+    const corte = new AbortController();
+    const reloj = setTimeout(() => corte.abort(), 10_000);
     const video = await fetch(origen, {
       headers: { ...NAVEGADOR, ...(rango ? { range: rango } : {}) },
       cache: 'no-store',
-    });
+      signal: corte.signal,
+    }).finally(() => clearTimeout(reloj));
     const tipo = (video.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase();
-    if (!video.ok || !tipo.startsWith('video/')) return new Response(null, { status: 404 });
+    if (!video.ok || !video.url.startsWith('https://') || !tipo.startsWith('video/')) {
+      await video.body?.cancel();
+      return new Response(null, { status: 404 });
+    }
 
     const headers = new Headers({
       'Content-Type': tipo,

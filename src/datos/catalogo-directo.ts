@@ -26,7 +26,7 @@ export type DatosCatalogoDirecto = {
 export async function leerCatalogoDirecto(slug: string, cat: CatalogoDirecto): Promise<DatosCatalogoDirecto> {
   const csv = CSV_CATALOGOS[slug];
   if (!csv) throw new Error(`sin fuente CSV para ${slug}`);
-  const res = await fetch(csv, { next: { revalidate: REFRESCO_SEGUNDOS } });
+  const res = await fetch(csv, { next: { revalidate: REFRESCO_SEGUNDOS }, signal: AbortSignal.timeout(10_000) });
   if (!res.ok) throw new Error(`hoja HTTP ${res.status}`);
   const texto = await res.text();
   // Si la planilla deja de estar compartida, Google responde 200 con la
