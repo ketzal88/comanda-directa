@@ -5,12 +5,19 @@ import { CARTA_MUESTRA, CONFIG_PEDIDO_MUESTRA } from '../src/fixtures/carta-mues
 
 /** Crea (o reemplaza) el cliente `demo`, con la carta de muestra, para
  *  probar el motor de punta a punta contra Supabase de verdad antes de dar
- *  de alta un cliente real. Clave del panel: `demo1234`. */
+ *  de alta un cliente real. La clave del panel sale de `CLAVE_DEMO` (mínimo 8
+ *  caracteres): no vive en el repo porque el demo corre contra el Supabase de
+ *  producción y su panel queda expuesto en `/demo/panel`. */
 
 const url = process.env.SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) {
   console.error('Faltan SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY (¿corriste con --require ./scripts/cargar-env.cjs?)');
+  process.exit(1);
+}
+const claveDemo = process.env.CLAVE_DEMO?.trim() ?? '';
+if (claveDemo.length < 8) {
+  console.error('Falta CLAVE_DEMO (mínimo 8 caracteres) con la clave del panel del demo.');
   process.exit(1);
 }
 
@@ -25,7 +32,6 @@ function hash(clave: string): string {
 
 async function main() {
   const slug = 'demo';
-  const claveDemo = 'demo1234';
 
   const { data: existente } = await db.from('clientes').select('id').eq('slug', slug).maybeSingle();
   let clienteId = existente?.id as string | undefined;
@@ -103,7 +109,7 @@ async function main() {
     if (error) throw error;
   }
 
-  console.log(`Listo: /${slug} — panel en /${slug}/panel con la clave "${claveDemo}"`);
+  console.log(`Listo: /${slug} — panel en /${slug}/panel con la clave de CLAVE_DEMO`);
 }
 
 main().catch((err) => {

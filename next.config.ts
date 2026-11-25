@@ -12,6 +12,20 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/[cliente]/[vitrina]': ['./src/clientes/vitrinas/**/*.html'],
   },
+  async headers() {
+    return [
+      { source: '/:path*', headers: [{ key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' }] },
+      // El panel no se embebe en ningún lado (clickjacking sobre "guardar").
+      // Sólo el panel: la carta y las vitrinas pueden vivir en un iframe del cliente.
+      {
+        source: '/:cliente/panel/:path*',
+        headers: [
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+          { key: 'X-Frame-Options', value: 'DENY' },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return Object.entries(SLUGS_RENOMBRADOS).flatMap(([viejo, nuevo]) => [
       { source: `/${viejo}`, destination: `/${nuevo}`, permanent: false },
