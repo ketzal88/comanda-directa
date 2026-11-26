@@ -8,9 +8,15 @@
     "secretScan": ".claude/core/hooks/scripts/secret-scan.sh"
   },
   "gates": {
-    "preCommit": { "secretScan": "blocking" },
+    "preCommit": {
+      "secretScan": "blocking"
+    },
     "push": "operator-only",
-    "closeProtocol": "blocking"
+    "closeProtocol": "blocking",
+    "closeUnpushed": "report",
+    "pushWrappers": [
+      "(npm|pnpm|yarn)\\s+(run\\s+)?pushear|node\\s+\\S*pushear"
+    ]
   },
   "environment": {
     "forbiddenCommands": [

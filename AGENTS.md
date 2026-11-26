@@ -81,12 +81,14 @@ Reglas para operarlos desde acá:
   una rama así se nombra como lo que es: commiteada y **sin publicar**, que no
   es lo mismo que "N commit(s) ahead of upstream".
 - **El scan de secretos corre en el repo del commit**, resuelto desde el
-  comando (`secret-scan-guard.py` + `git_target_dir.py`).
+  comando (`secret-scan-guard.py` + `git_target.py`).
 - **Cada gate corre contra el `stack.json` del repo destino.** Un
   `git -C presencia-carta push` resuelve los `gates.prePush.steps` de
   `presencia-carta/stack.json` (typecheck + lint + test) y los ejecuta con
   cwd en presencia, no en la raíz. Si el repo destino no tiene manifest, la
-  búsqueda sube y cae en el de la raíz.
+  búsqueda sube y cae en el de la raíz. La política de push de la raíz es el
+  piso: un `stack.json` anidado la puede endurecer, nunca aflojar, y se
+  revisan todos los destinos de un comando compuesto, no solo el primero.
 - **El close-guard mira los tres, y las dos deudas.** Al cerrar el turno
   recorre la raíz y todo subdirectorio con `.git` propio, y reporta dos cosas
   distintas: archivos sin commitear (prefijados con el repo,
